@@ -4,21 +4,22 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 interface ISocialAlarmClock {
     struct UserAlarm {
-        bool active;
+        bool on;
+        uint8[] daysActive;
         uint amountStaked;
         uint wakeCount;
         uint joinTime;
     }
 }
 
-contract SocialAlarmClock is ISocialAlarmClock {
-  
-    uint wakeTimestamp; 
-    uint maxPoolMembers = 30;
+contract AlarmClockPool is ISocialAlarmClock {
+    // uint maxPoolMembers = 30;
+    
+    uint firstWakeupTimestamp; 
     uint stakePenalty = 10000; // basis points
     uint poolEntryFee = 1000; // .1%
 
-    uint alarmWindowOpen = 1 hours; // Before wake time
+    uint wakeupWindow = 1 hours; // Before wake time
 
     mapping(address => Alarms) userAlarms;
 
@@ -31,6 +32,7 @@ contract SocialAlarmClock is ISocialAlarmClock {
     function joinAlarmPool() public payable {
         require(msg.value > 0, "Must send value to stake when joining pool");
         require(!userAlarms[msg.sender].active, "User alarm already active");
+        
         uint fee = _bpsPercent(msg.value, poolEntryFee);
         userAlarms[msg.sender] = UserAlarm({
             active: true,
@@ -90,7 +92,6 @@ contract SocialAlarmClock is ISocialAlarmClock {
         return firstWakeTime + (_daysPassed * 24 hours); 
     }
 
-
     /**
      * This is wrong
      */
@@ -105,11 +106,10 @@ contract SocialAlarmClock is ISocialAlarmClock {
 
     /**
      * Deactivations are not allowed if the current time is within x hours before 
-     * the wakeup time
+     * the nextwakeup time.
      */
     function _deactivationAllowed() private returns (bool) {
-        // Will figure out this math later
-        return (_nextWakeupTime() - now) > alarmWindowOpen;
+        return (_nextWakeupTime() - now) > wakeupWindow;
     }
 
 }
