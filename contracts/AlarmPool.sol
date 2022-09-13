@@ -7,7 +7,7 @@ interface ISocialAlarmClock {
         uint amountStaked;
         uint8[] activeOnDays; // 1 = Monday -> 7 = Sunday
         uint[] wakeCount; // Array of length 7 to count wakeups for each day of the week
-        uint joinTime;
+        uint activationTime; // The time the user's alarm became active (rounded to last wakeup)
     }
 }
 
@@ -56,7 +56,7 @@ contract AlarmClockPool is ISocialAlarmClock {
             amountStaked: msg.value - fee,
             activeOnDays: _daysActive,
             wakeCount: new uint64[](7),
-            activationTime: _nextWakeupTime() // Round to next wakeup timestamp
+            activationTime: _nextWakeupTime() - 1 days// Round to prev. wakeup timestamp
         });
 
         factory.transfer(fee);
@@ -112,26 +112,31 @@ contract AlarmClockPool is ISocialAlarmClock {
         
     }
 
-    function missedWakeups(address user) public view returns (bool) {
-        // (days since user activated alarm) - (wake count) = missed wakeups
+    /**
+     * Determine how many total days have been missed by any given user
+     */
+    function missedWakeups(address user) public view returns (uint) {
+        uint8[] userActiveDaysArr = userAlarms[user].activeOnDays;
+        uint[] userWakeCountArr = userAlarms[user].wakeCount;
+        uint daysPassed = _daysPassed(userAlarms[user].activationTime);
+        uint currentDayOfWeek = dayOfWeek(_nextWakeupTime() - 1 days);
         
-        // Expected wakeups: [numMondaysPassed, numTuesdays passed, ...]
-        //     User wakeups: [ ]
-        /**
-            missed = 0
-            for i in userActiveDays:
-                expectedWakeups[i] - userWakeups[userActiveDays[i]]
-         */
+        // The expected amount of wakeups for any given alarm day is at least 
+        // the amount of weeks elasped
+        uint minWakeups = daysPassed / 7;
 
-        uint8[] userActiveDays = userAlarms[user].activeOnDays;
-        uint missed = 0;
-        for (uint i; i < userActiveDays.length; i++) {
-            uint checkDayOfWeek = userActiveDays[i];
-            
-            // uint expectedWakeupsOnThisDay = _now() - 
+        // Iterate over the days (of the week) that the user is scheduled to wakeup on and check
+        // how many of those days (of the week) have passed since the activation time. If the user
+        // wakeup count is less than the expected wakeup count on that day, missedWakeups is incremented
+        uint missedWakeups = 0;
+        for (uint i; i < userActiveDaysArr.length; i++) {
+            uint checkDay = userActiveDaysArr[i];
+            uint expectedWakeupsOnThisDay = minWakeups;
+            if (activationDay <= checkDay <= currentDayOfWeek) {
+                expectedWakeupsOnThisDay++;
+            }
+            missedWakeups += expectedWakeupsOnThisDay - userWakeCount[checkDay];
         }
-
-        
         return _daysPassed(userAlarms[user].activationTime) - userAlarms[user].wakeCount;
     }
 
@@ -152,11 +157,6 @@ contract AlarmClockPool is ISocialAlarmClock {
         return fromAmount * bps / 10000; // ToDo: Integar math to calculate fees
     }
 
-
-
-    /**
-     * This is wrong
-     */
     function _daysPassed(startTime) private view returns (uint256) {
         return (_now() - firstWakeTime) / (24 * 60 * 60);
     }
