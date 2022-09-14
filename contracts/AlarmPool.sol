@@ -5,10 +5,10 @@ import './RewardDistributor.sol';
 interface ISocialAlarmClock {
     struct UserAlarm {
         bool on;
-        uint amountStaked;
+        uint256 amountStaked;
         uint8[] activeOnDays; // 1 = Monday -> 7 = Sunday
         uint64[] wakeCount; // Array of length 7 to count wakeups for each day of the week
-        uint activationTime; // The time the user's alarm became active (rounded to last wakeup)
+        uint256 activationTime; // The time the user's alarm became active (rounded to last wakeup)
     }
 
     function joinAlarmPool() external payable;
@@ -35,9 +35,9 @@ contract AlarmClockPool is ISocialAlarmClock {
      * Timezone adjusted starting wakeup time.
      * Determines the pool wakeup time
      */
-    uint public firstWakeupTimestamp; // Timezone adjusted starting wakeup time 
+    uint256 public firstWakeupTimestamp; // Timezone adjusted starting wakeup time 
     
-    uint wakeupWindowDuration  = 1 hours; // Before wake time
+    uint256 wakeupWindowDuration  = 1 hours; // Before wake time
     uint8 public missedWakeupPenalty; // penalty taken for each missed wakeup (%)
     uint8 public poolEntryFee = 1; // pool fee (%)
 
@@ -48,7 +48,7 @@ contract AlarmClockPool is ISocialAlarmClock {
 
     constructor(
         int8 _timezoneOffsetHours, 
-        uint _firstWakeupTime, 
+        uint256 _firstWakeupTime, 
         uint8 _missedWakeupPenalty
     ) {
         require(
@@ -67,7 +67,7 @@ contract AlarmClockPool is ISocialAlarmClock {
         require(msg.value > 0, "Must send value to stake when joining pool");
         require(!userAlarms[msg.sender].on, "User alarm already active");
         
-        uint fee = msg.value * poolEntryFee;
+        uint256 fee = msg.value * poolEntryFee;
         userAlarms[msg.sender] = UserAlarm({
             on: true,
             amountStaked: msg.value - fee,
@@ -84,7 +84,7 @@ contract AlarmClockPool is ISocialAlarmClock {
      * @notice A wakeup cannot be confirmed if the transaction gets executed after the wakeup time
     */
     function confirmWakeup() public {
-        uint nextWakeupTime = _nextWakeupTime();
+        uint256 nextWakeupTime = _nextWakeupTime();
         require((nextWakeupTime - wakeupWindowDuration) < _now(), "Window not open yet");
         require(_now() < nextWakeupTime, "Alarm window missed");
         require(userAlarms[msg.sender].on, "User has no active alarm");
@@ -121,7 +121,7 @@ contract AlarmClockPool is ISocialAlarmClock {
     function exitAlarmPool() public  {
         require(userAlarms[msg.sender].amountStaked > 0, "User has not joined the pool");
         require(_deactivationAllowed(msg.sender), "Too close to wakeup time");
-        uint returnAmount = userAlarms[msg.sender].amountStaked;
+        uint256 returnAmount = userAlarms[msg.sender].amountStaked;
         // Delete user record prior to transferring to protect again re-entry attacks
         delete userAlarms[msg.sender];
         payable(msg.sender).transfer(userAlarms[msg.sender].amountStaked);
@@ -135,9 +135,9 @@ contract AlarmClockPool is ISocialAlarmClock {
      * either confirm or deny the legitimacy of this penalty claim.
      */
     function penalize(address user) public {
-        uint numMissedWakeups = missedWakeups(user);
+        uint256 numMissedWakeups = missedWakeups(user);
         require(missedWakeups > 0, "User has not missed any wakeups");
-        uint penalty = userAlarms[user].amountStaked * numMissedWakeups / missedWakeupPenalty;
+        uint256 penalty = userAlarms[user].amountStaked * numMissedWakeups / missedWakeupPenalty;
         userAlarms[user].amountStaked -= penalty;
         // Descrease recorded user stake
         // Transfer user penalty funds to an Escrow contract
@@ -153,8 +153,8 @@ contract AlarmClockPool is ISocialAlarmClock {
     function missedWakeups(address user) public view returns (uint32 numMissedWakeups) {
         uint8[] memory userActiveDaysArr = userAlarms[user].activeOnDays;
         uint64[] memory userWakeCountArr = userAlarms[user].wakeCount;
-        uint daysPassed = _daysPassed(userAlarms[user].activationTime);
-        uint currentDayOfWeek = _dayOfWeek(_nextWakeupTime() - 1 days);
+        uint256 daysPassed = _daysPassed(userAlarms[user].activationTime);
+        uint256 currentDayOfWeek = _dayOfWeek(_nextWakeupTime() - 1 days);
         uint8 activationDay = _dayOfWeek(userAlarms[user].activationTime);
         
         // The expected amount of wakeups for any given alarm day is at least 
@@ -165,9 +165,9 @@ contract AlarmClockPool is ISocialAlarmClock {
         // how many of those days (of the week) have passed since the activation time. If the user
         // wakeup count is less than the expected wakeup count on that day, missedWakeups is incremented
         numMissedWakeups = 0;
-        for (uint i; i < userActiveDaysArr.length; i++) {
+        for (uint256 i; i < userActiveDaysArr.length; i++) {
             uint8 checkDay = userActiveDaysArr[i];
-            uint expectedWakeupsOnThisDay = minWakeups;
+            uint256 expectedWakeupsOnThisDay = minWakeups;
             if (activationDay <= checkDay <= currentDayOfWeek) {
                 expectedWakeupsOnThisDay++;
             }
@@ -180,7 +180,7 @@ contract AlarmClockPool is ISocialAlarmClock {
     /**
      * Return the current block time adjusted for the pool's timezone 
      */
-    function _now() private view returns (uint) {
+    function _now() private view returns (uint256) {
         return now + timezoneOffsetSeconds * 60 * 60;
     }
 
@@ -188,7 +188,7 @@ contract AlarmClockPool is ISocialAlarmClock {
         return firstWakeupTimestamp + (_daysPassed() * 24 hours); 
     }
 
-    function _daysPassed(uint fromTime, uint toTime) private view returns (uint256) {
+    function _daysPassed(uint256 fromTime, uint256 toTime) private view returns (uint256) {
         return (toTime - fromTime) / (24 * 60 * 60);
     }
 
@@ -206,8 +206,8 @@ contract AlarmClockPool is ISocialAlarmClock {
     }
 
     // 1 = Monday, 7 = Sunday
-    function _dayOfWeek(uint timestamp) internal pure returns (uint8 dayOfWeek) {
-        uint _days = timestamp / SECONDS_PER_DAY;
+    function _dayOfWeek(uint256 timestamp) internal pure returns (uint8 dayOfWeek) {
+        uint256 _days = timestamp / SECONDS_PER_DAY;
         dayOfWeek = uint8((_days + 3) % 7 + 1);
     }
 
@@ -215,7 +215,7 @@ contract AlarmClockPool is ISocialAlarmClock {
         if (daysActive.length > 7 || daysActive.length == 0) {
             return false;
         }
-        for (uint i; i < daysActive.length; i++) {
+        for (uint256 i; i < daysActive.length; i++) {
             continue;
         }
     }
