@@ -7,16 +7,12 @@ interface ISocialAlarmClock {
         bool on;
         uint256 amountStaked;
         uint8[] activeOnDays; // 1 = Monday -> 7 = Sunday
-        uint64[] wakeCount; // Array of length 7 to count wakeups for each day of the week
+        uint32[] wakeCountArr; // Array of length 7 to count wakeups for each day of the week
         uint256 activationTime; // The time the user's alarm became active (rounded to last wakeup)
     }
-
-    function joinAlarmPool() external payable;
-    function exitAlarmPool() external;
-    function confirmWakeup() external;
-    function pauseAlarm() external;
-    function resumeAlarm() external;
-    function penalize() external;
+    function totalWakeupCount(address) external returns(uint);
+    function missedWakeups(address) external returns(uint);
+    function getUserAmountStaked(address) external returns(uint);
 }
 
 
@@ -29,8 +25,11 @@ contract AlarmClockPool is ISocialAlarmClock {
      * @notice seconds are used to match timestamp format, which reduces computations needed
      * to calculate timezone addjust time.
      */
-    int8  public timezoneOffsetSeconds;
+    int32  public timezoneOffsetSeconds;
 
+    uint8 public missedWakeupPenalty; // penalty taken for each missed wakeup (%)
+    uint8 public poolEntryFee = 1; // pool fee (%)
+    
     /** 
      * Timezone adjusted starting wakeup time.
      * Determines the pool wakeup time
@@ -38,18 +37,16 @@ contract AlarmClockPool is ISocialAlarmClock {
     uint256 public firstWakeupTimestamp; // Timezone adjusted starting wakeup time 
     
     uint256 wakeupWindowDuration  = 1 hours; // Before wake time
-    uint8 public missedWakeupPenalty; // penalty taken for each missed wakeup (%)
-    uint8 public poolEntryFee = 1; // pool fee (%)
 
     address public factory;
     IAlarmPoolRewardDistributor rewardDistributor;
 
-    mapping(address => UserAlarm) userAlarms;
+    mapping(address => UserAlarm) public userAlarms;
 
     constructor(
         int8 _timezoneOffsetHours, 
-        uint256 _firstWakeupTime, 
-        uint8 _missedWakeupPenalty
+        uint8 _missedWakeupPenaltyPercent,
+        uint256 _firstWakeupTime
     ) {
         require(
             -12 <= _timezoneOffsetHours && _timezoneOffsetHours <= 12, 
@@ -57,22 +54,33 @@ contract AlarmClockPool is ISocialAlarmClock {
         );
         timezoneOffsetSeconds = _timezoneOffsetHours * 60 * 60;
         factory = msg.sender;
-        missedWakeupPenalty = _missedWakeupPenalty;
+        missedWakeupPenalty = _missedWakeupPenaltyPercent;
+        firstWakeupTimestamp = _firstWakeupTime;
+        rewardDistributor = new AlarmPoolRewardDistributor();
     }
 
     /*** Public functions ***/
 
+    /**
+     * Enter the alarm pool and begin enforcing wakeups.
+     * @notice Joining the alarm pool comes with a fee, and the fee is proptional to 
+     * the total amount put at stake. This is done to prevent users from staking
+     * unreasonably large amounts. (Reward payouts are proprotional to amount staked) 
+     * @param _activeOnDays An array identifying what days of the week the alarm will
+     * be active. Array values can range from 1 (Monday) to 7 (Sunday), and cannot
+     * have a length greater than 7
+     */
     function joinAlarmPool(uint8[] memory _activeOnDays) public payable {
         require(_validateDaysArr(_activeOnDays), "activeOnDays array invalid");
         require(msg.value > 0, "Must send value to stake when joining pool");
-        require(!userAlarms[msg.sender].on, "User alarm already active");
+        require(userAlarms[msg.sender].activationTime != 0, "User already joined");
         
         uint256 fee = msg.value * poolEntryFee;
         userAlarms[msg.sender] = UserAlarm({
             on: true,
             amountStaked: msg.value - fee,
             activeOnDays: _activeOnDays,
-            wakeCount: new uint64[](7),
+            wakeCountArr: new uint32[](7),
             activationTime: _nextWakeupTime() - 1 days// Round to prev. wakeup timestamp
         });
 
@@ -89,7 +97,7 @@ contract AlarmClockPool is ISocialAlarmClock {
         require(_now() < nextWakeupTime, "Alarm window missed");
         require(userAlarms[msg.sender].on, "User has no active alarm");
         
-        userAlarms[msg.sender].wakeCount[_dayOfWeek(_now())] += 1;
+        userAlarms[msg.sender].wakeCountArr[_dayOfWeek(_now())] += 1;
     }
 
     /*
@@ -110,7 +118,7 @@ contract AlarmClockPool is ISocialAlarmClock {
     function resumeAlarm() public {
         require(!userAlarms[msg.sender].on, "Alarm already active");
         // Reset alarm vars used to track missed wakeups/penalties
-        userAlarms[msg.sender].wakeCount = new uint64[](7);
+        userAlarms[msg.sender].wakeCountArr = new uint32[](7);
         userAlarms[msg.sender].activationTime = _nextWakeupTime() - 1 days;
         userAlarms[msg.sender].on = true;
     }
@@ -121,7 +129,7 @@ contract AlarmClockPool is ISocialAlarmClock {
     function exitAlarmPool() public  {
         require(userAlarms[msg.sender].amountStaked > 0, "User has not joined the pool");
         require(_deactivationAllowed(msg.sender), "Too close to wakeup time");
-        uint256 returnAmount = userAlarms[msg.sender].amountStaked;
+
         // Delete user record prior to transferring to protect again re-entry attacks
         delete userAlarms[msg.sender];
         payable(msg.sender).transfer(userAlarms[msg.sender].amountStaked);
@@ -135,13 +143,21 @@ contract AlarmClockPool is ISocialAlarmClock {
      * either confirm or deny the legitimacy of this penalty claim.
      */
     function penalize(address user) public {
-        uint256 numMissedWakeups = missedWakeups(user);
-        require(missedWakeups > 0, "User has not missed any wakeups");
-        uint256 penalty = userAlarms[user].amountStaked * numMissedWakeups / missedWakeupPenalty;
+        uint256 numMissedWakeups = this.missedWakeups(user);
+        require(numMissedWakeups > 0, "User has not missed any wakeups");
+        uint256 penalty = userAlarms[user].amountStaked * numMissedWakeups * missedWakeupPenalty / 100;
         userAlarms[user].amountStaked -= penalty;
         // Descrease recorded user stake
         // Transfer user penalty funds to an Escrow contract
-        rewardDistributor.deposit(penalty);
+        rewardDistributor.depositUserPenalty();
+    }
+
+    function totalWakeupCount(address user) external view returns (uint totalWakeups) {
+        uint8[] memory activeDays = userAlarms[user].activeOnDays;
+        totalWakeups = 0;
+        for (uint i; i < activeDays.length; i++) {
+            totalWakeups += userAlarms[user].wakeCountArr[activeDays[i]];
+        }
     }
 
     /**
@@ -150,29 +166,33 @@ contract AlarmClockPool is ISocialAlarmClock {
      * the alarm active days, and the last wakeup time:
      * missedWakeups = f(activationTime, alarmDays, lastWakeupTime)
      */
-    function missedWakeups(address user) public view returns (uint32 numMissedWakeups) {
+    function missedWakeups(address user) external view returns (uint numMissedWakeups) {
         uint8[] memory userActiveDaysArr = userAlarms[user].activeOnDays;
-        uint64[] memory userWakeCountArr = userAlarms[user].wakeCount;
-        uint256 daysPassed = _daysPassed(userAlarms[user].activationTime);
+        uint32[] memory userWakeCountArr = userAlarms[user].wakeCountArr;
+        uint256 daysPassed = _daysPassed(userAlarms[user].activationTime, _now());
         uint256 currentDayOfWeek = _dayOfWeek(_nextWakeupTime() - 1 days);
         uint8 activationDay = _dayOfWeek(userAlarms[user].activationTime);
         
         // The expected amount of wakeups for any given alarm day is at least 
         // the amount of weeks elasped.
-        uint32 minWakeups = daysPassed / 7;
+        uint minWakeups = daysPassed / 7;
 
         // Iterate over the days (of the week) that the user is scheduled to wakeup on and check
         // how many of those days (of the week) have passed since the activation time. If the user
         // wakeup count is less than the expected wakeup count on that day, missedWakeups is incremented
         numMissedWakeups = 0;
-        for (uint256 i; i < userActiveDaysArr.length; i++) {
+        for (uint i; i < userActiveDaysArr.length; i++) {
             uint8 checkDay = userActiveDaysArr[i];
-            uint256 expectedWakeupsOnThisDay = minWakeups;
-            if (activationDay <= checkDay <= currentDayOfWeek) {
+            uint expectedWakeupsOnThisDay = minWakeups;
+            if (activationDay <= checkDay && checkDay <= currentDayOfWeek) {
                 expectedWakeupsOnThisDay++;
             }
             numMissedWakeups += expectedWakeupsOnThisDay - userWakeCountArr[checkDay];
         }
+    }
+    
+    function getUserAmountStaked(address user) external view returns(uint) {
+        return userAlarms[user].amountStaked;
     }
 
     /*** Private/Internal Functions ***/
@@ -181,32 +201,41 @@ contract AlarmClockPool is ISocialAlarmClock {
      * Return the current block time adjusted for the pool's timezone 
      */
     function _now() private view returns (uint256) {
-        return now + timezoneOffsetSeconds * 60 * 60;
+        return uint(int(block.timestamp) + timezoneOffsetSeconds);
     }
 
     function _nextWakeupTime() private view returns (uint256) {
-        return firstWakeupTimestamp + (_daysPassed() * 24 hours); 
+        return firstWakeupTimestamp + (
+        _daysPassed(firstWakeupTimestamp, _now()) * 24 hours); 
     }
 
     function _daysPassed(uint256 fromTime, uint256 toTime) private view returns (uint256) {
-        return (toTime - fromTime) / (24 * 60 * 60);
+        return (toTime - fromTime) / SECONDS_PER_DAY;
     }
 
     /**
      * Deactivations are not allowed if the next wakeup day is included in the user's
      * alarm, and the current time is within x hours before the nextwakeup time.
      */
-    function _deactivationAllowed(address user) private returns (bool) {
+    function _deactivationAllowed(address user) private view returns (bool) {
         return _enforceNextWakeup(user) && (_nextWakeupTime() - _now()) > wakeupWindowDuration;
     }
 
     function _enforceNextWakeup(address user) private view returns (bool) {
-        uint8 nextWakeupDayOfWeek = _dayOfWeek(_nextWakeupTime());
-        return false; // Todo
+        // Wakeups are not enforced if alarm is turned off
+        if (!userAlarms[user].on) return false;
+        // If the day of the pool's next wakeup is in user's activeOnDays array, return true
+        uint8 nextWakeupDay = _dayOfWeek(_nextWakeupTime());
+        for (uint i; i < userAlarms[user].activeOnDays.length; i++) {
+            if (userAlarms[user].activeOnDays[i] == nextWakeupDay) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // 1 = Monday, 7 = Sunday
-    function _dayOfWeek(uint256 timestamp) internal pure returns (uint8 dayOfWeek) {
+    function _dayOfWeek(uint256 timestamp) internal view returns (uint8 dayOfWeek) {
         uint256 _days = timestamp / SECONDS_PER_DAY;
         dayOfWeek = uint8((_days + 3) % 7 + 1);
     }
@@ -215,8 +244,11 @@ contract AlarmClockPool is ISocialAlarmClock {
         if (daysActive.length > 7 || daysActive.length == 0) {
             return false;
         }
-        for (uint256 i; i < daysActive.length; i++) {
-            continue;
+        for (uint i; i < daysActive.length; i++) {
+            if (daysActive[i] == 0 || daysActive[i] > 7) {
+                return false;
+            }
         }
+        return true;
     }
 }
