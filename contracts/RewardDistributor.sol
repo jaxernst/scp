@@ -11,11 +11,11 @@ contract AlarmPoolRewardDistributor is IAlarmPoolRewardDistributor {
     uint rewardFundSize;
     uint requiredWakeupsToClaim = 30;
 
-    ISocialAlarmClock alarmPool;
+    IAlarmPool alarmPool;
     mapping(address => uint) userAmountsClaimed;
 
     constructor() {
-        alarmPool = ISocialAlarmClock(msg.sender);
+        alarmPool = IAlarmPool(msg.sender);
     }
 
     // ToDo: Imporve accounting and reward logic so users cannot be entitled to claim

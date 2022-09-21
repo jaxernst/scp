@@ -1,32 +1,55 @@
+import { expect } from "chai";
+import { BigNumberish, Contract } from "ethers";
+import { ethers } from "hardhat";
+import { SignerWithAddress } from "hardhat/types"
 
-describe("Alarm Pool Unit Tests", () => {
-    it('The factory collects a percentage fee when a user joins the pool')
-    it('Alarm penalities can not be enforced on paused user alarms')
-    it('User wakeup counts are reset when')
-    it("User alarm structs are deleted when exiting a pool")
-    
-    // Multi test case tests
-    it(`_dayOfWeek returns {day} for timestamp {timestamp}`) 
-    it('Missed wakeup accounting')
-})
+import { AlarmPool } from "../typechain-types";
 
-describe("Alarm pool time based tests", () => {
-    it('_now() returns the UTC blockhain time adjusted for the timezone offet')
-    it('Enforces wakeups based of the alarm pool timezone')
-    it('Prevents wakeups from being submitted outside the wakeup window')
-})
-
-describe("Security", () => {
-    it("Any user alarm activation time is returned as 0 before user joins")
-    it("Any user alarm activation time is 0 after exits")
-    it("Disallows alarm day arrays with 0 length")
-    it("Disallows alarm day arrays with length greater than 7")
-    it("Disallows alarm day arrays with values outside the range [1,7]")
-    it("Rewards claim function protects against rentrancy attacks")
-})
-
-describe("Rewards Accounting"), () => {
-    it('Users cannot claim rewards until 20 wakeups have been accounted for')
-    it('An elligble user can claim 100% of the reward fund as the sole participant')
-    it('An elligible user can claim 50% of the reward fund with two participants staking equal amounts')
+async function deployAlarmPool(
+  missedWakeupPenaltyBps: BigNumberish,
+  firstWakeupTimestamp: BigNumberish
+): Promise<AlarmPool> {
+  const contractFactory = await ethers.getContractFactory("AlarmPool");
+  const alarmPool = await contractFactory.deploy(
+    missedWakeupPenaltyBps,
+    firstWakeupTimestamp
+  );
+  await alarmPool.deployed();
+  console.log(alarmPool.address)
+  return alarmPool;
 }
+
+function systemTimestamp(): number {
+  return Math.floor(Date.now() / 1000);
+}
+
+describe("Joining Alarm Pools", () => {
+  let user: SignerWithAddress
+  let alarmPool: AlarmPool
+  
+  before(async () => {
+    user = (await ethers.getSigners())[0] 
+  })
+
+  beforeEach(async () => {
+    alarmPool = await deployAlarmPool(1000, systemTimestamp())
+  })
+
+  it("Requires users to join the pool with a value to stake", async () => {
+    const activeOnDays = [1,2,3]
+    const timezoneOffset = 1
+    console.log(alarmPool.address)
+    await expect(alarmPool.joinPool([1], 0)).to.revertedWith("Must send value to stake when joining pool")
+  })
+
+  it("Stores the user's record when joining a pool", async () => {
+    const activeOnDays = [1,2,3]
+    const timezoneOffset = 1
+    console.log(alarmPool.address)
+    await (await alarmPool.joinPool(activeOnDays, timezoneOffset, {value: 1})).wait()
+
+    console.log(alarmPool.userAlarms(user.address))
+  });
+});
+
+describe("Alarm Pool Internal Functions", () => {});
