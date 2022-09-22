@@ -7,6 +7,7 @@
   "dependencies": {
     "@openzeppelin/contracts": "^4.7.3",
     "chai": "^4.3.6",
+    "decimal.js": "^10.4.1",
     "hardhat-ethers": "^1.0.1"
   }
 }

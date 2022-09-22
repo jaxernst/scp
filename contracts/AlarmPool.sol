@@ -68,7 +68,7 @@ contract AlarmPool is IAlarmPool {
         require(msg.value > 0, "Must send value to stake when joining pool");
         require(_validateDaysArr(_activeOnDays), "activeOnDays array invalid");
         require(
-            userAlarms[msg.sender].activationTime != 0,
+            userAlarms[msg.sender].activationTime == 0,
             "User already joined"
         );
         require(
@@ -78,14 +78,19 @@ contract AlarmPool is IAlarmPool {
 
         uint256 fee = (msg.value * poolEntryFee) / 10000;
         int _timezoneOffsetSeconds = _timezoneOffsetHours * 60 * 60;
+        uint activationTime =_offsetTimestamp(
+            _nextWakeupTimestamp(),
+            _timezoneOffsetSeconds
+        ) - 1 days;
+
         userAlarms[msg.sender] = UserAlarm({
             on: true,
             amountStaked: msg.value - fee,
             activeOnDays: _activeOnDays,
             wakeCountArr: new uint32[](7),
             // Round to prev. wakeup timestamp
-            activationTime: _nextWakeupTime(_timezoneOffsetSeconds) - 1 days,
-            // Convert to seconds
+            activationTime: activationTime,
+            // Timezone offset only needed get the day of week in user's time zone
             timezoneOffset: _timezoneOffsetSeconds
         });
 
@@ -98,22 +103,19 @@ contract AlarmPool is IAlarmPool {
      * the user's wakeup time (offset for user's timezone)
      */
     function confirmWakeup() public {
-        // These require statements don't need timezone offsets to be applied
-        // because timezone offsets applied to nextWakeupTime and block timestamp
-        // would cancel eachother out
-        uint256 nextWakeupTime = _nextWakeupTime(0);
+        uint256 nextWakeupTime = _nextWakeupTime(userAlarms[msg.sender].timezoneOffset);
         require(userAlarms[msg.sender].on, "User has no active alarm");
-        require(block.timestamp < nextWakeupTime, "Alarm window missed");
+        
+        // These require statements are currently broken, write a test that fails before fixing it
+        require(block.timestamp < _nextWakeupTime(), "Alarm window missed");
         require(
             (nextWakeupTime - wakeupWindowDuration) < block.timestamp,
             "Window not open yet"
         );
 
         uint8 dayIndex = _dayOfWeek(
-            _offsetTimestamp(
-                block.timestamp,
-                userAlarms[msg.sender].timezoneOffset
-            )
+            block.timestamp,
+            userAlarms[msg.sender].timezoneOffset
         );
 
         userAlarms[msg.sender].wakeCountArr[dayIndex] += 1;
@@ -136,7 +138,8 @@ contract AlarmPool is IAlarmPool {
      */
     function resumeAlarm() public {
         require(!userAlarms[msg.sender].on, "Alarm already active");
-        uint nextWakeupTime = _nextWakeupTime(
+        uint nextWakeupTime = _offsetTimestamp(
+            _nextWakeupTimestamp(),
             userAlarms[msg.sender].timezoneOffset
         );
 
@@ -176,6 +179,13 @@ contract AlarmPool is IAlarmPool {
 
         // Decrease recorded user stake before transferring
         userAlarms[user].amountStaked -= penalty;
+
+        // Reset activation time so users missed wakeups resets to 0
+        userAlarms[user].activationTime = _offsetTimestamp(
+            _nextWakeupTimestamp(),
+            userAlarms[user].timezoneOffset
+        ) - 1 days;
+
         // Transfer user penalty funds to an Escrow contract
         rewardDistributor.depositUserPenalty();
     }
@@ -207,14 +217,18 @@ contract AlarmPool is IAlarmPool {
         uint32[] memory userWakeCountArr = userAlarms[user].wakeCountArr;
         uint256 daysPassed = _daysPassed(
             userAlarms[user].activationTime,
-            _offsetTimestamp(block.timestamp, userAlarms[user].timezoneOffset)
+            block.timestamp
         );
 
-        // The current day of week is taken as the last wakeup time (timezone adjusted)
-        uint256 currentDayOfWeek = _dayOfWeek(
-            _nextWakeupTime(userAlarms[user].timezoneOffset) - 1 days
+        // The current day of week is taken from the last wakeup time (timezone adjusted)
+        uint256 lastWakeupDayOfWeek = _dayOfWeek(
+            _nextWakeupTimestamp() - 1 days,
+            userAlarms[user].timezoneOffset
         );
-        uint8 activationDay = _dayOfWeek(userAlarms[user].activationTime);
+        uint8 activationDay = _dayOfWeek(
+            userAlarms[user].activationTime,
+            userAlarms[user].timezoneOffset
+        );
 
         // The expected amount of wakeups for any given alarm day is at least
         // the amount of weeks elasped.
@@ -222,13 +236,13 @@ contract AlarmPool is IAlarmPool {
 
         // Iterate over the days (of the week) that the user is scheduled to wakeup on and check
         // how many of each those days have passed since the activation time. If the user
-        // wakeup count a day is less than the expected wakeup count on that day,
+        // wakeup count for an active day is less than the expected wakeup count on that day,
         // missedWakeups is incremented by the difference
         numMissedWakeups = 0;
         for (uint i; i < userActiveDaysArr.length; i++) {
             uint8 checkDay = userActiveDaysArr[i];
             uint expectedWakeupsOnThisDay = minWakeups;
-            if (activationDay <= checkDay && checkDay <= currentDayOfWeek) {
+            if (activationDay <= checkDay && checkDay <= lastWakeupDayOfWeek) {
                 expectedWakeupsOnThisDay++;
             }
             numMissedWakeups +=
@@ -243,21 +257,18 @@ contract AlarmPool is IAlarmPool {
 
     /*** Private/Internal Functions ***/
 
-    function _nextWakeupTime(int timezoneOffset)
+    function _nextWakeupTimestamp()
         internal
         view
         returns (uint256)
     {
         uint daysPassed = _daysPassed(firstWakeupTimestamp, block.timestamp);
-        return _offsetTimestamp(
-                firstWakeupTimestamp + (daysPassed * 24 hours),
-                timezoneOffset
-            );
+        return firstWakeupTimestamp + ((daysPassed + 1) * 24 hours);
     }
 
     function _offsetTimestamp(uint timestamp, int offset)
         internal
-        view
+        pure
         returns (uint256)
     {
         return uint(int(timestamp) + offset);
@@ -278,8 +289,9 @@ contract AlarmPool is IAlarmPool {
      */
     function _deactivationAllowed(address user) internal view returns (bool) {
         return
+            this.missedWakeups(msg.sender) == 0 &&
             _enforceNextWakeup(user) &&
-            (_nextWakeupTime(0) - block.timestamp) > wakeupWindowDuration;
+            (_nextWakeupTimestamp() - block.timestamp) > wakeupWindowDuration;
     }
 
     function _enforceNextWakeup(address user) internal view returns (bool) {
@@ -288,7 +300,8 @@ contract AlarmPool is IAlarmPool {
 
         // If the day of the pool's next wakeup is in user's activeOnDays array, return true
         uint8 nextWakeupDay = _dayOfWeek(
-            _nextWakeupTime(userAlarms[user].timezoneOffset)
+            _nextWakeupTimestamp(),
+            userAlarms[user].timezoneOffset
         );
         for (uint i; i < userAlarms[user].activeOnDays.length; i++) {
             if (userAlarms[user].activeOnDays[i] == nextWakeupDay) {
@@ -299,12 +312,12 @@ contract AlarmPool is IAlarmPool {
     }
 
     // 1 = Monday, 7 = Sunday
-    function _dayOfWeek(uint256 timestamp)
+    function _dayOfWeek(uint256 timestamp, int timezoneOffset)
         internal
         view
         returns (uint8 dayOfWeek)
     {
-        uint256 _days = timestamp / SECONDS_PER_DAY;
+        uint256 _days = _offsetTimestamp(timestamp, timezoneOffset) / SECONDS_PER_DAY;
         dayOfWeek = uint8(((_days + 3) % 7) + 1);
     }
 

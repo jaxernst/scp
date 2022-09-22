@@ -2,10 +2,9 @@ pragma solidity ^0.8.0;
 
 import "../AlarmPool.sol";
 
-contract MockAlarmClockPool is AlarmPool {
+contract MockAlarmPool is AlarmPool {
     constructor(
-        int8 _timezoneOffsetHours,
-        uint8 _missedWakeupPenaltyBps,
+        uint16 _missedWakeupPenaltyBps,
         uint256 _firstWakeupTime
     )
         AlarmPool(
