@@ -13,12 +13,12 @@ contract MockAlarmPool is AlarmPool {
         )
     {}
 
-    function nextWakeupTime(int timezoneOffset)
+    function nextWakeupTime()
         public
         view
         returns (uint256)
     {
-        return _nextWakeupTime(timezoneOffset);
+        return nextWakeupTimestamp();
     }
 
     function offsetTimestamp(uint timestamp, int offset)
@@ -45,12 +45,12 @@ contract MockAlarmPool is AlarmPool {
         return _enforceNextWakeup(user);
     }
 
-    function dayOfWeek(uint256 timestamp)
+    function dayOfWeek(uint256 timestamp, int timezoneOffset)
         public
         view
         returns (uint8)
     {
-        return _dayOfWeek(timestamp);
+        return _dayOfWeek(timestamp, timezoneOffset);
     }
 
     function validateDaysArr(uint8[] memory daysActive)

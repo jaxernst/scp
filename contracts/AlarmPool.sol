@@ -1,6 +1,7 @@
 pragma solidity ^0.8.0;
 
 import "./RewardDistributor.sol";
+import "hardhat/console.sol";
 
 interface IAlarmPool {
     struct UserAlarm {
@@ -84,7 +85,7 @@ contract AlarmPool is IAlarmPool {
             activeOnDays: _activeOnDays,
             wakeCountArr: new uint32[](7),
             // Round to prev. wakeup timestamp
-            activationTime: _nextWakeupTimestamp() - 1 days,
+            activationTime: nextWakeupTimestamp(),
             // Timezone offset only needed get the day of week in user's time zone
             timezoneOffset: _timezoneOffsetSeconds
         });
@@ -135,7 +136,7 @@ contract AlarmPool is IAlarmPool {
 
         // Reset alarm vars used to track missed wakeups/penalties
         userAlarms[msg.sender].wakeCountArr = new uint32[](7);
-        userAlarms[msg.sender].activationTime = _nextWakeupTimestamp() - 1 days;
+        userAlarms[msg.sender].activationTime = nextWakeupTimestamp() - 1 days;
         userAlarms[msg.sender].on = true;
     }
 
@@ -177,7 +178,7 @@ contract AlarmPool is IAlarmPool {
         userAlarms[user].amountStaked -= penalty;
 
         // Reset activation time so users missed wakeups resets to 0
-        userAlarms[user].activationTime = _nextWakeupTimestamp() - 1 days;
+        userAlarms[user].activationTime = nextWakeupTimestamp() - 1 days;
 
         // Transfer user penalty funds to an Escrow contract
         rewardDistributor.depositUserPenalty();
@@ -217,7 +218,7 @@ contract AlarmPool is IAlarmPool {
 
         // The current day of week is taken from the last wakeup time (timezone adjusted)
         uint256 lastWakeupDayOfWeek = _dayOfWeek(
-            _nextWakeupTimestamp() - 1 days,
+            nextWakeupTimestamp() - 1 days,
             userAlarms[user].timezoneOffset
         );
 
@@ -230,11 +231,10 @@ contract AlarmPool is IAlarmPool {
         // the amount of weeks elasped.
         uint minWakeups = daysPassed / 7;
 
-        // Iterate over the days (of the week) that the user is scheduled to wakeup on and check
-        // how many of each those days have passed since the activation time. If the user
-        // wakeup count for an active day is less than the expected wakeup count on that day,
-        // missedWakeups is incremented by the difference
+        // If the user wakeup count for an active day is less than the expected 
+        // wakeup count on that day, missedWakeups is incremented by the difference
         numMissedWakeups = 0;
+        console.log(activationDay, lastWakeupDayOfWeek);
         for (uint i; i < userActiveDaysArr.length; i++) {
             uint8 checkDay = userActiveDaysArr[i];
             uint expectedWakeupsOnThisDay = minWakeups;
@@ -243,12 +243,21 @@ contract AlarmPool is IAlarmPool {
             }
             numMissedWakeups +=
                 expectedWakeupsOnThisDay -
-                userWakeCountArr[checkDay];
+                uint(userWakeCountArr[checkDay - 1]);
         }
     }
 
     function getUserAmountStaked(address user) external view override returns (uint) {
         return userAlarms[user].amountStaked;
+    }
+
+    function nextWakeupTimestamp()
+        public
+        view
+        returns (uint256)
+    {
+        uint daysPassed = _daysPassed(firstWakeupTimestamp, block.timestamp);
+        return firstWakeupTimestamp + ((daysPassed + 1) * 24 hours);
     }
 
     /*** Private/Internal Functions ***/
@@ -298,7 +307,7 @@ contract AlarmPool is IAlarmPool {
     function _enforceNextWakeup(address user) internal view returns (bool) {
         // If the day of the pool's next wakeup is in user's activeOnDays array, return true
         uint8 nextWakeupDay = _dayOfWeek(
-            _nextWakeupTimestamp(),
+            nextWakeupTimestamp(),
             userAlarms[user].timezoneOffset
         );
         for (uint i; i < userAlarms[user].activeOnDays.length; i++) {
@@ -309,14 +318,6 @@ contract AlarmPool is IAlarmPool {
         return false;
     }
 
-    function _nextWakeupTimestamp()
-        internal
-        view
-        returns (uint256)
-    {
-        uint daysPassed = _daysPassed(firstWakeupTimestamp, block.timestamp);
-        return firstWakeupTimestamp + ((daysPassed + 1) * 24 hours);
-    }
 
     // 1 = Monday, 7 = Sunday
     function _dayOfWeek(uint256 timestamp, int timezoneOffset)
