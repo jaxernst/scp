@@ -20,7 +20,7 @@ contract AlarmPoolRewardDistributor is IAlarmPoolRewardDistributor {
 
     // ToDo: Imporve accounting and reward logic so users cannot be entitled to claim
     // their own penalties
-    function depositUserPenalty() external payable {   
+    function depositUserPenalty() external override payable {   
         rewardFundSize += msg.value;
     }
 
@@ -28,7 +28,7 @@ contract AlarmPoolRewardDistributor is IAlarmPoolRewardDistributor {
      * Users are entitled to rewards based proportional to the amount they
      * have staked.
      */
-    function claim() external {
+    function claim() external override {
         require(
             alarmPool.totalWakeupCount(msg.sender) >= requiredWakeupsToClaim,
             "Wakeup minimum not met"    

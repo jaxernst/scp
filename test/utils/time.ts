@@ -3,13 +3,18 @@ import { ethers, network } from 'hardhat';
 
 import { bn } from './numbers';
 
+export function systemTimestamp(): number {
+  return Math.floor(Date.now() / 1000);
+}
+
+export function getTimestampAtTime(time: string, date = "January 1, 2020"): number {
+  return new Date(date + " " + time).getTime() / 1000;
+}
+
 export const currentTimestamp = async (): Promise<BigNumber> => {
   const { timestamp } = await network.provider.send('eth_getBlockByNumber', ['latest', true]);
   return bn(timestamp);
 };
-
-const a = async () => console.log((await currentTimestamp()).toString())
-a()
 
 export const fromNow = async (seconds: number): Promise<BigNumber> => {
   const now = await currentTimestamp();

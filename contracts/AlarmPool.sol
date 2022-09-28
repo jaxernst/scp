@@ -14,7 +14,9 @@ interface IAlarmPool {
     }
 
     function totalWakeupCount(address) external returns (uint);
+
     function missedWakeups(address) external returns (uint);
+
     function getUserAmountStaked(address) external returns (uint);
 }
 
@@ -24,12 +26,6 @@ contract AlarmPool is IAlarmPool {
     uint16 public missedWakeupPenalty; // penalty taken for each missed wakeup (bps)
     uint16 public poolEntryFee = 500; // pool fee in basis points (bps)
 
-    /**
-     * Determines the pool wakeup time for the pool. The time of day of this UTC
-     * timestamp is the wakeup time for all pool users, regardless of their timezone
-     * (User timezone offset is included in their alarm record)
-     */
-    uint256 public firstWakeupTimestamp;
     uint256 wakeupWindowDuration = 1 hours; // Before wake time
     uint256 wakeupTimeOfDay; // seconds
 
@@ -38,15 +34,17 @@ contract AlarmPool is IAlarmPool {
 
     mapping(address => UserAlarm) public userAlarms;
 
-    constructor(
-        uint16 _missedWakeupPenaltyBps,
-        uint256 _firstWakeupTime
-    ) {
+    /**
+     * @param _missedWakeupPenaltyBps Basis point penalty for each missed wakeup
+     * @param _wakeupTimeOfDaySeconds Wakeup time of day in seconds after midnight
+     */
+    constructor(uint16 _missedWakeupPenaltyBps, uint256 _wakeupTimeOfDaySeconds)
+    {
         factory = msg.sender;
-        missedWakeupPenalty = _missedWakeupPenaltyBps;
-        firstWakeupTimestamp = _firstWakeupTime;
-        wakeupTimeOfDay = _firstWakeupTime % SECONDS_PER_DAY;
         rewardDistributor = new AlarmPoolRewardDistributor();
+        missedWakeupPenalty = _missedWakeupPenaltyBps;
+
+        wakeupTimeOfDay = _wakeupTimeOfDaySeconds;
     }
 
     /*** Public functions ***/
@@ -61,10 +59,10 @@ contract AlarmPool is IAlarmPool {
      * have a length greater than 7
      * @param _timezoneOffsetHours The user's timezone offset in hours from UTC time
      */
-    function joinPool(
-        uint8[] memory _activeOnDays,
-        int _timezoneOffsetHours
-    ) public payable {
+    function joinPool(uint8[] memory _activeOnDays, int _timezoneOffsetHours)
+        public
+        payable
+    {
         require(msg.value > 0, "Must send value to stake when joining pool");
         require(_validateDaysArr(_activeOnDays), "activeOnDays array invalid");
         require(
@@ -84,11 +82,12 @@ contract AlarmPool is IAlarmPool {
             amountStaked: msg.value - fee,
             activeOnDays: _activeOnDays,
             wakeCountArr: new uint32[](7),
-            // Round to prev. wakeup timestamp
-            activationTime: nextWakeupTimestamp(),
+            activationTime: 0,
             // Timezone offset only needed get the day of week in user's time zone
             timezoneOffset: _timezoneOffsetSeconds
         });
+
+        userAlarms[msg.sender].activationTime = lastWakeupTimestamp(msg.sender);
 
         payable(factory).transfer(fee);
     }
@@ -100,14 +99,16 @@ contract AlarmPool is IAlarmPool {
      */
     function confirmWakeup() public {
         // Do we need to require that today is in the user's wakeup day array?
-        // Current thinking is no, as confirmations on this day index won't be 
+        // Current thinking is no, as confirmations on this day index won't be
         // considered by the missedWakeups function
         require(userAlarms[msg.sender].on, "User has no active alarm");
         require(_inWakeupWindow(msg.sender), "Not in wakeup window");
 
         uint8 day = _dayOfWeek(
-            block.timestamp,
-            userAlarms[msg.sender].timezoneOffset
+            _offsetTimestamp(
+                block.timestamp,
+                userAlarms[msg.sender].timezoneOffset
+            )
         );
 
         userAlarms[msg.sender].wakeCountArr[day] += 1;
@@ -120,7 +121,7 @@ contract AlarmPool is IAlarmPool {
     function pauseAlarm() public {
         require(userAlarms[msg.sender].on, "Alarm not active");
         require(
-            _deactivationAllowed(msg.sender), 
+            _deactivationAllowed(msg.sender),
             "Forbidden, user too close to wakeup or has unpenalized missed wakeups"
         );
         userAlarms[msg.sender].on = false;
@@ -136,7 +137,7 @@ contract AlarmPool is IAlarmPool {
 
         // Reset alarm vars used to track missed wakeups/penalties
         userAlarms[msg.sender].wakeCountArr = new uint32[](7);
-        userAlarms[msg.sender].activationTime = nextWakeupTimestamp() - 1 days;
+        userAlarms[msg.sender].activationTime = lastWakeupTimestamp(msg.sender);
         userAlarms[msg.sender].on = true;
     }
 
@@ -149,7 +150,7 @@ contract AlarmPool is IAlarmPool {
             "User has not joined the pool"
         );
         require(
-            _deactivationAllowed(msg.sender), 
+            _deactivationAllowed(msg.sender),
             "Forbidden, user too close to wakeup or has unpenalized missed wakeups"
         );
 
@@ -166,7 +167,7 @@ contract AlarmPool is IAlarmPool {
      */
     function penalize(address user) public {
         require(userAlarms[user].on, "User alarm not on");
-        
+
         uint256 numMissedWakeups = this.missedWakeups(user);
         require(numMissedWakeups > 0, "User has not missed any wakeups");
 
@@ -178,7 +179,7 @@ contract AlarmPool is IAlarmPool {
         userAlarms[user].amountStaked -= penalty;
 
         // Reset activation time so users missed wakeups resets to 0
-        userAlarms[user].activationTime = nextWakeupTimestamp() - 1 days;
+        userAlarms[user].activationTime = lastWakeupTimestamp(user);
 
         // Transfer user penalty funds to an Escrow contract
         rewardDistributor.depositUserPenalty();
@@ -217,24 +218,17 @@ contract AlarmPool is IAlarmPool {
         );
 
         // The current day of week is taken from the last wakeup time (timezone adjusted)
-        uint256 lastWakeupDayOfWeek = _dayOfWeek(
-            nextWakeupTimestamp() - 1 days,
-            userAlarms[user].timezoneOffset
-        );
+        uint256 lastWakeupDayOfWeek = _dayOfWeek(lastWakeupTimestamp(user));
 
-        uint8 activationDay = _dayOfWeek(
-            userAlarms[user].activationTime,
-            userAlarms[user].timezoneOffset
-        );
+        uint8 activationDay = _dayOfWeek(userAlarms[user].activationTime);
 
         // The expected amount of wakeups for any given alarm day is at least
         // the amount of weeks elasped.
         uint minWakeups = daysPassed / 7;
 
-        // If the user wakeup count for an active day is less than the expected 
+        // If the user wakeup count for an active day is less than the expected
         // wakeup count on that day, missedWakeups is incremented by the difference
         numMissedWakeups = 0;
-        console.log(activationDay, lastWakeupDayOfWeek);
         for (uint i; i < userActiveDaysArr.length; i++) {
             uint8 checkDay = userActiveDaysArr[i];
             uint expectedWakeupsOnThisDay = minWakeups;
@@ -247,54 +241,63 @@ contract AlarmPool is IAlarmPool {
         }
     }
 
-    function getUserAmountStaked(address user) external view override returns (uint) {
+    function getUserAmountStaked(address user)
+        external
+        view
+        override
+        returns (uint)
+    {
         return userAlarms[user].amountStaked;
     }
 
-    function nextWakeupTimestamp()
-        public
-        view
-        returns (uint256)
-    {
-        uint daysPassed = _daysPassed(firstWakeupTimestamp, block.timestamp);
-        return firstWakeupTimestamp + ((daysPassed + 1) * 24 hours);
+    function nextWakeupTimestamp(address user) public view returns (uint256) {
+        uint lastMidnight = _lastMidnight(user);
+
+        if (_wakeupPassedToday(user)) {
+            return lastMidnight + 1 days + wakeupTimeOfDay;
+        } else {
+            return lastMidnight + wakeupTimeOfDay;
+        }
+    }
+
+    function lastWakeupTimestamp(address user) public view returns (uint256) {
+        uint lastMidnight = _lastMidnight(user);
+
+        if (_wakeupPassedToday(user)) {
+            return lastMidnight + wakeupTimeOfDay;
+        } else {
+            return lastMidnight - 1 days + wakeupTimeOfDay;
+        }
     }
 
     /*** Private/Internal Functions ***/
 
-    function _inWakeupWindow(address user) private view returns (bool) {  
-        uint userTimeOfDay = _offsetTimestamp(
-            block.timestamp, 
+    function _lastMidnight(address user) private view returns (uint) {
+        uint _now = _offsetTimestamp(
+            block.timestamp,
             userAlarms[user].timezoneOffset
         );
-
-        if (userTimeOfDay < wakeupTimeOfDay) {
-            if ((wakeupTimeOfDay - userTimeOfDay) > wakeupWindowDuration) {
-                // Too early
-                return false;
-            }
-            return true;
-        }
-
-        // User time is greater than wakeup time of day, but that doesn't necessarily
-        // mean that the wakeup was missed. Specifically when wakeupTime is within 
-        // wakeupWindowDuration after midnight
-
-        // If wakeup time is greater than window duration after than midnight, then the 
-        // wakeup window was certaintly missed
-        if (wakeupTimeOfDay > wakeupWindowDuration) return false;
-
-        if (((24 hours - userTimeOfDay) + wakeupTimeOfDay) < wakeupWindowDuration) {
-            // User time is before midnight, but within wakeup window duration before the morning wakeup
-            return true;
-        }
-
-        return false;
+        return _now - (_now % SECONDS_PER_DAY);
     }
 
-     /**
-     * Deactivations are notx allowed if the next wakeup day is included in the user's
-     * alarm, and the current time is within x hours before the nextwakeup time.
+    function _wakeupPassedToday(address user) private view returns (bool) {
+        uint _now = _offsetTimestamp(
+            block.timestamp,
+            userAlarms[user].timezoneOffset
+        );
+        return (_now % SECONDS_PER_DAY) > wakeupTimeOfDay;
+    }
+
+    function _inWakeupWindow(address user) private view returns (bool) {
+        if (_wakeupPassedToday(user)) return false;
+        return
+            (nextWakeupTimestamp(user) - block.timestamp) <
+            wakeupWindowDuration;
+    }
+
+    /**
+     * Deactivations are not allowed if the next wakeup day is included in the user's
+     * alarm, and the current time is within x hours before the next wakeup time.
      * (adjusted for the user's timezone)
      */
     function _deactivationAllowed(address user) internal view returns (bool) {
@@ -306,10 +309,7 @@ contract AlarmPool is IAlarmPool {
 
     function _enforceNextWakeup(address user) internal view returns (bool) {
         // If the day of the pool's next wakeup is in user's activeOnDays array, return true
-        uint8 nextWakeupDay = _dayOfWeek(
-            nextWakeupTimestamp(),
-            userAlarms[user].timezoneOffset
-        );
+        uint8 nextWakeupDay = _dayOfWeek(nextWakeupTimestamp(user));
         for (uint i; i < userAlarms[user].activeOnDays.length; i++) {
             if (userAlarms[user].activeOnDays[i] == nextWakeupDay) {
                 return true;
@@ -318,14 +318,13 @@ contract AlarmPool is IAlarmPool {
         return false;
     }
 
-
     // 1 = Monday, 7 = Sunday
-    function _dayOfWeek(uint256 timestamp, int timezoneOffset)
+    function _dayOfWeek(uint256 timestamp)
         internal
         view
         returns (uint8 dayOfWeek)
     {
-        uint256 _days = _offsetTimestamp(timestamp, timezoneOffset) / SECONDS_PER_DAY;
+        uint256 _days = timestamp / SECONDS_PER_DAY;
         dayOfWeek = uint8(((_days + 3) % 7) + 1);
     }
 

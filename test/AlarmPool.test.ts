@@ -8,51 +8,11 @@ import {
   MockAlarmPool,
   MockAlarmPoolFactory,
 } from "../typechain-types";
+import { deployAlarmPool, deployMockPoolFactory } from "./utils/deploy";
 import { bn } from "./utils/numbers";
 import { advanceTime, advanceTimeHours } from "./utils/providerUtils";
-import { DAY, HOUR, MINUTE } from "./utils/time";
+import { DAY, getTimestampAtTime, HOUR, MINUTE, systemTimestamp } from "./utils/time";
 
-async function deployAlarmPool(
-  missedWakeupPenaltyBps: BigNumberish,
-  firstWakeupTimestamp: BigNumberish
-): Promise<AlarmPool> {
-  const contractFactory = await ethers.getContractFactory("AlarmPool");
-  const alarmPool = await contractFactory.deploy(
-    missedWakeupPenaltyBps,
-    firstWakeupTimestamp
-  );
-  await alarmPool.deployed();
-  return alarmPool;
-}
-
-async function deployMockAlarmPool(
-  missedWakeupPenaltyBps: BigNumberish,
-  firstWakeupTimestamp: BigNumberish
-): Promise<MockAlarmPool> {
-  const contractFactory = await ethers.getContractFactory("MockAlarmPool");
-  const alarmPool = await contractFactory.deploy(
-    missedWakeupPenaltyBps,
-    firstWakeupTimestamp
-  );
-  await alarmPool.deployed();
-  return alarmPool;
-}
-
-async function deployMockPoolFactory(): Promise<MockAlarmPoolFactory> {
-  const contractFactory = await ethers.getContractFactory(
-    "MockAlarmPoolFactory"
-  );
-  const alarmPoolFacotry = await (await contractFactory.deploy()).deployed();
-  return alarmPoolFacotry;
-}
-
-function systemTimestamp(): number {
-  return Math.floor(Date.now() / 1000);
-}
-
-function getTimestampAtTime(time: string, date = "January 1, 2020"): number {
-  return new Date(date + " " + time).getTime() / 1000;
-}
 
 describe("Joining Alarm Pools", () => {
   const WAKEUP_TIME = "06:30";
