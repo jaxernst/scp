@@ -14,9 +14,7 @@ interface IAlarmPool {
     }
 
     function totalWakeupCount(address) external returns (uint);
-
     function missedWakeups(address) external returns (uint);
-
     function getUserAmountStaked(address) external returns (uint);
 }
 
@@ -87,7 +85,7 @@ contract AlarmPool is IAlarmPool {
             timezoneOffset: _timezoneOffsetSeconds
         });
 
-        userAlarms[msg.sender].activationTime = lastWakeupTimestamp(msg.sender);
+        userAlarms[msg.sender].activationTime = nextWakeupTimestamp(msg.sender);
 
         payable(factory).transfer(fee);
     }
@@ -112,6 +110,10 @@ contract AlarmPool is IAlarmPool {
         );
 
         userAlarms[msg.sender].wakeCountArr[day] += 1;
+    }
+
+    function claimRewards() public {
+        rewardDistributor.claim(msg.sender);
     }
 
     /*
@@ -179,10 +181,10 @@ contract AlarmPool is IAlarmPool {
         userAlarms[user].amountStaked -= penalty;
 
         // Reset activation time so users missed wakeups resets to 0
-        userAlarms[user].activationTime = lastWakeupTimestamp(user);
+        userAlarms[user].activationTime = nextWakeupTimestamp(user);
 
         // Transfer user penalty funds to an Escrow contract
-        rewardDistributor.depositUserPenalty();
+        rewardDistributor.depositUserPenalty{ value: penalty }();
     }
 
     function totalWakeupCount(address user)
@@ -251,7 +253,7 @@ contract AlarmPool is IAlarmPool {
     }
 
     function nextWakeupTimestamp(address user) public view returns (uint256) {
-        uint lastMidnight = _lastMidnight(user);
+        uint lastMidnight = _lastMidnightTimestamp(user);
 
         if (_wakeupPassedToday(user)) {
             return lastMidnight + 1 days + wakeupTimeOfDay;
@@ -261,7 +263,7 @@ contract AlarmPool is IAlarmPool {
     }
 
     function lastWakeupTimestamp(address user) public view returns (uint256) {
-        uint lastMidnight = _lastMidnight(user);
+        uint lastMidnight = _lastMidnightTimestamp(user);
 
         if (_wakeupPassedToday(user)) {
             return lastMidnight + wakeupTimeOfDay;
@@ -271,14 +273,6 @@ contract AlarmPool is IAlarmPool {
     }
 
     /*** Private/Internal Functions ***/
-
-    function _lastMidnight(address user) private view returns (uint) {
-        uint _now = _offsetTimestamp(
-            block.timestamp,
-            userAlarms[user].timezoneOffset
-        );
-        return _now - (_now % SECONDS_PER_DAY);
-    }
 
     function _wakeupPassedToday(address user) private view returns (bool) {
         uint _now = _offsetTimestamp(
@@ -335,6 +329,14 @@ contract AlarmPool is IAlarmPool {
     {
         if (toTime < fromTime) return 0;
         return (toTime - fromTime) / SECONDS_PER_DAY;
+    }
+
+    function _lastMidnightTimestamp(address user) private view returns (uint) {
+        uint _now = _offsetTimestamp(
+            block.timestamp,
+            userAlarms[user].timezoneOffset
+        );
+        return _now - (_now % SECONDS_PER_DAY);
     }
 
     function _offsetTimestamp(uint timestamp, int offset)

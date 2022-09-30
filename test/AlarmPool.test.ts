@@ -13,6 +13,10 @@ import { bn } from "./utils/numbers";
 import { advanceTime, advanceTimeHours } from "./utils/providerUtils";
 import { DAY, getTimestampAtTime, HOUR, MINUTE, systemTimestamp } from "./utils/time";
 
+const getWakeupTimeSeconds = (hours: number, minutes: number) => {
+  return hours * 60 * 60 + minutes * 60
+}
+
 
 describe("Joining Alarm Pools", () => {
   const WAKEUP_TIME = "06:30";
@@ -36,7 +40,7 @@ describe("Joining Alarm Pools", () => {
   it("Records the activationTime as the next wakeup time when joining", async () => {
     await alarmPool.joinPool([5], -11, { value: 1 });
     expect((await alarmPool.userAlarms(user.address)).activationTime).eq(
-      await alarmPool.nextWakeupTimestamp()
+      await alarmPool.nextWakeupTimestamp(user.address)
     );
   });
 
