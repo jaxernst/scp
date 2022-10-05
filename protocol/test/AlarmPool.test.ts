@@ -7,7 +7,7 @@ import {
   AlarmPool,
   MockAlarmPool,
   MockAlarmPoolFactory,
-} from "../typechain-types";
+} from "../../typechain-types";
 import { deployAlarmPool, deployMockPoolFactory } from "./utils/deploy";
 import { bn } from "./utils/numbers";
 import { advanceTime, advanceTimeHours } from "./utils/providerUtils";

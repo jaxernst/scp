@@ -1,5 +1,2 @@
+.yarn
 node_modules
-artifacts
-cache
-typechain-types
-package-lock.json

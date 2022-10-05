@@ -1,0 +1,6 @@
+{
+    "name": "@social-alarm-clock/interface",
+    "dependencies": {
+        "svelte": "^3.50.1"
+    }
+}
