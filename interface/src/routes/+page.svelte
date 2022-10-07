@@ -1,5 +1,8 @@
 <script lang="ts">
-	import DigitalClock from '..//components/DigitalClock.svelte';
+	import AlarmDisplay from "../components/alarm-display/AlarmDisplay.svelte";
 </script>
 
-<DigitalClock/>
+
+<AlarmDisplay/>
+
+

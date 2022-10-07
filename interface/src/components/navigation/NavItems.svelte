@@ -32,10 +32,11 @@
 
 	li a {
 		display: block;
-		color: rgb(217, 249, 237);
+		color: rgb(255, 255, 255);
 		text-align: center;
-		font-size: 10px;
-		padding: 10px 10px;
+		font-size: 18px;
+		font-weight: 400;
+		padding: 10px 18px;
 		text-decoration: none;
 	}
 

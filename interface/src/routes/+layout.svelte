@@ -3,10 +3,11 @@
 	import Navigation from '../components/navigation/Navigation.svelte';
 </script>
 
-<Navigation />
-
 <body>
 	<slot />
+	<div class="lower-nav">
+		<Navigation />
+	</div>
 </body>
 
 <style>
@@ -21,5 +22,11 @@
 
 	:global(*) {
 		font-family: Verdana;
+	}
+
+	.lower-nav {
+		position: fixed;
+		bottom: 0%;
+		width: 100%;
 	}
 </style>

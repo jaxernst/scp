@@ -1,7 +1,7 @@
 {
   "name": "social-alarm-clock",
   "version": "1.0.0",
-  "packageManager": "yarn@3.2.2",
+  "packageManager": "yarn@3.2.4",
   "repository": "https://github.com/jaxernst/the-social-alarm-clock.git",
   "author": "jaxernst <51183683+jaxernst@users.noreply.github.com>",
   "workspaces": [
