@@ -1,15 +1,18 @@
-<h3>
-    The Social Alarm Clock
-</h3>
+<div>
+    <h3>
+        The Social Alarm Clock
+    </h3>
+</div>
 
 <style>
+    div {
+        background-color: --bg-color1;
+    }
+
     h3 {
         margin-top: 0;
-        padding-top: 0px;
-        padding-bottom: 1em;
-        text-align: left;
+        text-align: center;
         font-weight: 100;
-        color: white;
-        border-bottom: 1px solid white
+        color: var(--text-color2);
     }
 </style>

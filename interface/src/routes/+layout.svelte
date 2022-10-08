@@ -1,5 +1,5 @@
 <script>
-	import '../app.css';
+	import '../theme.css';
 	import Navigation from '../components/navigation/Navigation.svelte';
 </script>
 
@@ -15,7 +15,7 @@
 		height: 100%;
 		margin: 0;
 		background: rgb(242, 148, 146);
-		background: linear-gradient(0deg, rgba(242, 148, 146, 1) 0%, rgba(17, 67, 87, 1) 100%);
+		background: var(--background-gradient);
 		background-repeat: no-repeat;
 		background-attachment: fixed;
 	}

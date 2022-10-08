@@ -1,0 +1,16 @@
+:root {
+    --background-gradient: linear-gradient(0deg, rgb(0, 0, 0) 0%, rgba(17, 67, 87, 1) 100%);
+    --background-gradient1: linear-gradient(0deg, rgba(242, 148, 146, 1) 0%, rgba(17, 67, 87, 1) 100%);
+    
+    --bg-color3: rgb(220, 211, 211);
+    
+    --text-color1: white;
+    --text-color2: rgb(145, 185, 214);
+    --text-color3: rgb(106, 235, 106);
+
+    --font-small: 11px;
+    --font-medium: 14px;
+
+}
+
+
