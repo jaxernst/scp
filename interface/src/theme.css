@@ -2,22 +2,24 @@
     --background-gradient: linear-gradient(0deg, rgb(0, 0, 0) 0%, rgba(17, 67, 87, 1) 100%);
     --background-gradient1: linear-gradient(0deg, rgba(242, 148, 146, 1) 0%, rgba(17, 67, 87, 1) 100%);
     
-    --bg-color3: rgb(220, 211, 211);
-    
+    --bg-body-wrapper: rgb(0, 0, 0, 0.2);
+
     --theme-color1: white;
     --theme-color1-dark: rgb(197, 197, 197);
     --theme-color2: rgb(145, 185, 214);
     --theme-color3: rgb(106, 235, 106);
     --theme-color3-dark: rgb(46, 102, 46);
     --theme-color4: rgb(16, 42, 56);
+    
+    --theme-alert-color: rgba(255, 0, 0, 0.803);
+    --theme-alert-color-dark: rgba(255, 0, 0, 0.501);
 
- 
-
-    --font-xsmall: 9px;
+    --font-xsmall: 10px;
     --font-small: 11px;
     --font-medium: 14px;
     --font-xlarge: 28px;
 
+    --border-radius-small: 18px;
     --border-radius-medium: 25px;
 }
 

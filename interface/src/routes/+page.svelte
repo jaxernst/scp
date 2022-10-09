@@ -1,8 +1,6 @@
 <script lang="ts">
 	import StyledTitle from "../components/StyledTitle.svelte";
-	import AlarmActiveDays from "../components/alarm-display/AlarmActiveDays.svelte";
 	import ClockDisplay from "../components/alarm-display/ClockDisplay.svelte";
-	import LabeledDiv from "../components/LabeledDiv.svelte";
 	import AlarmInformationArea from "../components/alarm-display/AlarmInformationArea.svelte";
 
 	import { defaultEvmStores, connected} from "svelte-web3"
@@ -21,11 +19,13 @@
 {#if $connected}
 		<AlarmInformationArea/>
 		<div class="alarm-display-row">
-			<button>Submit Wakeup Confirmation</button>
+			<button class="button-primary">Confirm Wakeup</button>
+			<div style="color:gray"> | </div>
+			<button class="button-secondary">Pause Alarm</button>
 		</div>
 {:else}
 	<div class="alarm-display-row">
-		<button on:click={connectProvider}>
+		<button class="button-primary" on:click={connectProvider}>
 			Please connect your wallet to get started
 		</button>
 	</div>
@@ -58,18 +58,39 @@
 	}
 
 	button {
-		background-color: rgba(255, 255, 255, 0.035);
 		padding: 1em;
-        border: 1px solid var(--theme-color3-dark);
+		margin: 10px;
         border-radius: 12px;
-        color: var(--theme-color1-dark);
 		transition: .3s;
 	}
+	
+	.button-primary {
+		background-color: rgba(255, 255, 255, 0.035);
+		border: 1px solid var(--theme-color3-dark);
+		color: var(--theme-color1-dark);
+	}
+
+	.button-secondary {
+		padding-left: .5em;
+		padding-right: .5em;
+		background-color: transparent;
+		border: none;
+		color: var(--theme-alert-color-dark);
+	}
+
 
     button:hover {
-        background-color: rgb(255,255,255,.2);
+		background-color: rgb(255,255,255,.2);
+	}
+	
+	.button-primary:hover {
 		color: var(--theme-color3);
 		border: 1px solid var(--theme-color3)
     }
+
+	.button-secondary:hover {
+		color: var(--theme-alert-color);
+		border: 1px solid var(--theme-alert-color-dark)
+	}
 
 </style>

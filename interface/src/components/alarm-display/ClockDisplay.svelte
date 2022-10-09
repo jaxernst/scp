@@ -2,7 +2,10 @@
 	import { onMount } from 'svelte';
 	
 	let date = new Date();
-	$: time = date.toLocaleTimeString();
+	
+	$: time = date.toLocaleTimeString()[1] === ":" ? 
+		"0" + date.toLocaleTimeString() :
+		date.toLocaleTimeString();
 	const time0 = new Date(0).toLocaleTimeString()
 
 	onMount(() => {

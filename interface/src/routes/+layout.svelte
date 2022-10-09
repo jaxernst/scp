@@ -41,7 +41,7 @@
 		max-width: 500px;
 		flex-direction: column;
 		padding: 1rem 5%;
-		background-color: rgb(0, 0, 0, 0.2);
+		background-color: var(--bg-body-wrapper);
 		border-radius: var(--border-radius-medium);
 	}
 </style>

@@ -1626,6 +1626,7 @@ __metadata:
     prettier-plugin-svelte: ^2.7.0
     svelte: ^3.44.0
     svelte-check: ^2.7.1
+    svelte-icons: ^2.1.0
     svelte-preprocess: ^4.10.6
     svelte-web3: ^4.0.0
     tslib: ^2.3.1
@@ -5752,7 +5753,7 @@ __metadata:
   dependencies:
     bn.js: ^4.11.8
     ethereumjs-util: ^6.0.0
-  checksum: 03127d09960e5f8a44167463faf25b2894db2f746376dbb8195b789ed11762f93db9c574eaa7c498c400063508e9dfc1c80de2edf5f0e1406b25c87d860ff2f1
+  checksum: ae074be0bb012857ab5d3ae644d1163b908a48dd724b7d2567cfde309dc72222d460438f2411936a70dc949dc604ce1ef7118f7273bd525815579143c907e336
   languageName: node
   linkType: hard
 
@@ -11717,6 +11718,13 @@ __metadata:
   peerDependencies:
     svelte: ">=3.19.0"
   checksum: e15581769aa5a6f8e1eeaf3f47a34b579c76f5a72d2ae1ba32cca6ab71b73d721defde472f1d4b924f8ade0d5bb6a7a04aa1817c3b4705c45dffa2732df07a83
+  languageName: node
+  linkType: hard
+
+"svelte-icons@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "svelte-icons@npm:2.1.0"
+  checksum: a32e305152be010a694cc7afe5848fb8f88dd2dba36624cbd3c92a2bf54e5683c57c44b4faa31bccee19cf9cc855158e588591672c4ae89984e3500bef0c488a
   languageName: node
   linkType: hard
 

@@ -1,15 +1,13 @@
 <script>
-	import LabeledDiv from '../LabeledDiv.svelte';
-
 	let alarmDaysActive = [1, 3, 4];
 	const days = [
+		{ name: 'Sunday', id:7 },
 		{ name:'Monday', id:1 }, 
 		{ name: 'Tuesday', id:2 },
 		{ name: 'Wednesday', id:3 },
 		{ name: 'Thursday', id:4 },
 		{ name: 'Friday', id:5 } , 
 		{ name: 'Saturday', id:6 }, 
-		{ name: 'Sunday', id:7 }
 	]
 
 	let today = new Date()
