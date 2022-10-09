@@ -3,12 +3,12 @@
 </script>
 
 <div class="container">
-    <div>
-        <div class="label-line">
-            <h>{label}</h>
-        </div>
+    <div class="label-box">
+        <h>{label}</h>
     </div>
-    <slot></slot>
+    <div class="wrapper">
+        <slot></slot>
+    </div>
 </div>
 
 <style>
@@ -19,13 +19,19 @@
 
     h {
         padding: 2px;
-        color: var(--text-color1);
+        color: var(--theme-color1);
         font-size: var(--font-small);
     }
-
-    .label-line {
+    
+    .label-box {
         width: 100%;
-        border-bottom: 1px solid var(--text-color2);
         margin-bottom: .5em;
+        position: relative;
+        left: 20px;
+    }
+
+    .wrapper {
+        border: 1px solid white;
+        border-radius: 20px;
     }
 </style>

@@ -13,6 +13,8 @@ interface IAlarmPool {
         int256 timezoneOffset;
     }
 
+    event UserJoined(address indexed);
+
     function totalWakeupCount(address) external returns (uint);
     function missedWakeups(address) external returns (uint);
     function getUserAmountStaked(address) external returns (uint);
@@ -88,6 +90,8 @@ contract AlarmPool is IAlarmPool {
         userAlarms[msg.sender].activationTime = nextWakeupTimestamp(msg.sender);
 
         payable(factory).transfer(fee);
+
+        emit UserJoined(msg.sender);
     }
 
     /**

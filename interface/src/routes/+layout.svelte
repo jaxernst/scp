@@ -4,7 +4,10 @@
 </script>
 
 <body>
-	<slot />
+	<div class="page-container">
+		<slot />
+	</div>
+	
 	<div class="lower-nav">
 		<Navigation />
 	</div>
@@ -28,5 +31,17 @@
 		position: fixed;
 		bottom: 0%;
 		width: 100%;
+	}
+
+	.page-container {
+		position: relative;
+		margin-top: 8vh;
+		margin-right: auto;
+		margin-left: auto;
+		max-width: 500px;
+		flex-direction: column;
+		padding: 1rem 5%;
+		background-color: rgb(0, 0, 0, 0.2);
+		border-radius: var(--border-radius-medium);
 	}
 </style>

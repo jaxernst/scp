@@ -13,6 +13,6 @@
         margin-top: 0;
         text-align: center;
         font-weight: 100;
-        color: var(--text-color2);
+        color: var(--theme-color2);
     }
 </style>

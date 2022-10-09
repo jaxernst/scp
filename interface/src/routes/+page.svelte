@@ -2,38 +2,48 @@
 	import StyledTitle from "../components/StyledTitle.svelte";
 	import AlarmActiveDays from "../components/alarm-display/AlarmActiveDays.svelte";
 	import ClockDisplay from "../components/alarm-display/ClockDisplay.svelte";
+	import LabeledDiv from "../components/LabeledDiv.svelte";
+	import AlarmInformationArea from "../components/alarm-display/AlarmInformationArea.svelte";
+
+	import { defaultEvmStores, connected} from "svelte-web3"
+	import { onMount } from "svelte"
+
+	const connectProvider = () => defaultEvmStores.setProvider()
+
 </script>
 
-<div class="page-container">
-	<StyledTitle/>
-	<div class="spacing-large">
-		<ClockDisplay class="spacing-large"/>
-	</div>
-	<AlarmActiveDays/>
-	<div class="alarm-display-row">
-		<div class="sep"></div>
-		<AlarmActiveDays/>
-	</div>
-	<div class="alarm-display-row">
-		<button>Submit Wakeup Confirmation</button>
-	</div>
+
+<StyledTitle/>
+<div class="spacing-large">
+	<ClockDisplay class="spacing-large"/>
 </div>
 
+{#if $connected}
+		<AlarmInformationArea/>
+		<div class="alarm-display-row">
+			<button>Submit Wakeup Confirmation</button>
+		</div>
+{:else}
+	<div class="alarm-display-row">
+		<button on:click={connectProvider}>
+			Please connect your wallet to get started
+		</button>
+	</div>
+{/if}
+
 <style>
-	.page-container {
-		position: relative;
-		margin-top: 8vh;
-		margin-right: auto;
-		margin-left: auto;
-		max-width: 500px;
-		flex-direction: column;
-		padding: 1rem 5%;
-		background-color: rgb(0, 0, 0, 0.2);
-		border-radius: 20px;
+
+	#awaitConnection {
+		color: var(--theme-color1);
+		font-size: 15px;
+		font-weight: 100;
+		text-align: center;
 	}
+
 
 	.alarm-display-row {
 		padding-top: 1em;
+		padding-bottom: 1em;
 		display: flex;
         justify-content: center;
 		align-items: center;
@@ -48,22 +58,18 @@
 	}
 
 	button {
-		background-color: transparent;
+		background-color: rgba(255, 255, 255, 0.035);
 		padding: 1em;
-        border: none;
-        border-radius: 15px;
-        color: white;
-		
+        border: 1px solid var(--theme-color3-dark);
+        border-radius: 12px;
+        color: var(--theme-color1-dark);
+		transition: .3s;
 	}
 
     button:hover {
-        background-color: rgb(255,255,255,.4);
+        background-color: rgb(255,255,255,.2);
+		color: var(--theme-color3);
+		border: 1px solid var(--theme-color3)
     }
 
-	.sep {
-        outline: 1px solid white;
-		position: absolute;
-		left: 50%;
-		height: 30px;
-    }
 </style>

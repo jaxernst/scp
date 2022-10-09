@@ -1627,6 +1627,7 @@ __metadata:
     svelte: ^3.44.0
     svelte-check: ^2.7.1
     svelte-preprocess: ^4.10.6
+    svelte-web3: ^4.0.0
     tslib: ^2.3.1
     typescript: ^4.7.4
     vite: ^3.1.0
@@ -11768,7 +11769,24 @@ __metadata:
   languageName: node
   linkType: hard
 
-"svelte@npm:^3.44.0":
+"svelte-proxied-store@npm:^1.1.4":
+  version: 1.1.4
+  resolution: "svelte-proxied-store@npm:1.1.4"
+  checksum: c5ef3430cde0315496fae71a1a603de03e75b653aa5c998aeee7975c1165a069e5c2c4de5c41beafef34e0cd4be3f13a7801a90bdfd28b5ed95d955dbe057fe9
+  languageName: node
+  linkType: hard
+
+"svelte-web3@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "svelte-web3@npm:4.0.0"
+  dependencies:
+    svelte: ^3.0.0
+    svelte-proxied-store: ^1.1.4
+  checksum: 1953a606feb81613938466338b22d468d68b5adc9172f44e3fbfc464fe6a39f42673fcb031217398e19a2397efdff50d5adcb4a2ed5ec24c6e55c7bc9a8d3052
+  languageName: node
+  linkType: hard
+
+"svelte@npm:^3.0.0, svelte@npm:^3.44.0":
   version: 3.50.1
   resolution: "svelte@npm:3.50.1"
   checksum: 58d2d8f2c2cdb1695ca41290d241780ad662aeb4d8af8def372820a5fac3185245d6abf5ac7bbae17b9033d907ccab0aa071d0650bc3f0379c5c3818001e41c5

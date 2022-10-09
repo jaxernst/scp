@@ -4,13 +4,21 @@
     
     --bg-color3: rgb(220, 211, 211);
     
-    --text-color1: white;
-    --text-color2: rgb(145, 185, 214);
-    --text-color3: rgb(106, 235, 106);
+    --theme-color1: white;
+    --theme-color1-dark: rgb(197, 197, 197);
+    --theme-color2: rgb(145, 185, 214);
+    --theme-color3: rgb(106, 235, 106);
+    --theme-color3-dark: rgb(46, 102, 46);
+    --theme-color4: rgb(16, 42, 56);
 
+ 
+
+    --font-xsmall: 9px;
     --font-small: 11px;
     --font-medium: 14px;
+    --font-xlarge: 28px;
 
+    --border-radius-medium: 25px;
 }
 
 
