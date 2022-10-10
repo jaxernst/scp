@@ -2,7 +2,7 @@
 
 The Social Alarm Clock is a smart contract protocol that allows individuals to come together, put their money at stake, and ultimately built better morning habits.
 
-The core component to the Social Alarm Clock is an Alarm Clock Pool, which is a smart contract consisting of 2 or more users that all agree to wakeup at the same time. When joing (or creating) a pool, a user chooses how much to put at stake, what days to enfore the alarm, and what the penatly (or fee) is for missing a wakeup.
+The core component to the Social Alarm Clock is an Alarm Clock Pool, which is a smart contract consisting of 2 or more users that all agree to wakeup at the same time. When joing (or creating) a pool, a user chooses how much to put at stake, what days to enforce the alarm, and what the penatly (or fee) is for missing a wakeup.
 
 After joining a pool, any user who misses their alarm gets a portion of their funds distributed to other users in the pool.
 
