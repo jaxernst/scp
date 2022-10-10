@@ -24,9 +24,10 @@
 			<button class="button-secondary">Pause Alarm</button>
 		</div>
 {:else}
+	<h3> Welcome, please connect your Metamask wallet to begin:</h3>
 	<div class="alarm-display-row">
 		<button class="button-primary" on:click={connectProvider}>
-			Please connect your wallet to get started
+			Connect
 		</button>
 	</div>
 {/if}

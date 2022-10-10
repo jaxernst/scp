@@ -27,6 +27,13 @@
 		font-family: Verdana;
 	}
 
+	:global(h3) {
+		color: var(--theme-color1);
+		font-size: medium;
+		font-weight: 100;
+		text-align: center;
+	}
+
 	.lower-nav {
 		position: fixed;
 		bottom: 0%;
