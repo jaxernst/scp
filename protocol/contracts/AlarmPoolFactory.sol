@@ -23,6 +23,4 @@ contract AlarmPoolFactory {
         deployedPools[_wakeupTimeOfDaySeconds][nextPoolId] = pool;
         nextPoolId++;
     }
-
-    function joinPool
 }
