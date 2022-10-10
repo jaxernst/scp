@@ -36,6 +36,11 @@ yarn test-protocol
 yarn start-interface
 ```
 
+# Contribution
+
+This is an open source project and I welcome anyone who would like to contribute. For more information about the project and/or the devlopment work being done, feel free to message me on telegram @jaxernst. 
+
+
 
 # Protocol Full Pitch:
 
