@@ -1,8 +1,12 @@
-<div>
-    <h3>
-        The Social Alarm Clock
-    </h3>
-</div>
+<script>
+    export let text = "placeholder"
+</script>
+
+
+<h3>
+    {text}
+</h3>
+
 
 <style>
     div {

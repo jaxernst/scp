@@ -1,47 +1,27 @@
 <script lang="ts">
-	import StyledTitle from "../components/StyledTitle.svelte";
-	import ClockDisplay from "../components/alarm-display/ClockDisplay.svelte";
-	import AlarmInformationArea from "../components/alarm-display/AlarmInformationArea.svelte";
-
-	import { defaultEvmStores, connected} from "svelte-web3"
-	import { onMount } from "svelte"
-
-	const connectProvider = () => defaultEvmStores.setProvider()
-
+	import ClockDisplay from "src/components/alarm-display/ClockDisplay.svelte";
+	import AlarmInformationArea from "src/components/alarm-display/AlarmInformationArea.svelte";
+	import AlarmActiveDays from "src/components/alarm-display/AlarmActiveDays.svelte";
 </script>
 
-
-<StyledTitle/>
 <div class="spacing-large">
 	<ClockDisplay class="spacing-large"/>
+	<div class="left-in-flex" style="display:flex; ">
+		<button class="button-primary">Confirm Wakeup</button>
+		<div style="color:gray"> | </div>
+		<button class="button-secondary">Pause Alarm</button>
+		<div class="next-wakeup=display">
+			<h>Wakeup</h>
+		</div>
+	</div>
 </div>
 
-{#if $connected}
-		<AlarmInformationArea/>
-		<div class="alarm-display-row">
-			<button class="button-primary">Confirm Wakeup</button>
-			<div style="color:gray"> | </div>
-			<button class="button-secondary">Pause Alarm</button>
-		</div>
-{:else}
-	<h3> Welcome, please connect your Metamask wallet to begin:</h3>
+<AlarmInformationArea/>
 	<div class="alarm-display-row">
-		<button class="button-primary" on:click={connectProvider}>
-			Connect
-		</button>
 	</div>
-{/if}
+<AlarmInformationArea/>
 
 <style>
-
-	#awaitConnection {
-		color: var(--theme-color1);
-		font-size: 15px;
-		font-weight: 100;
-		text-align: center;
-	}
-
-
 	.alarm-display-row {
 		padding-top: 1em;
 		padding-bottom: 1em;
@@ -56,6 +36,12 @@
 	.spacing-large {
 		padding-top: 20px;
 		padding-bottom: 20px;
+	}
+
+	.left-in-flex {
+		display: flex;
+		justify-content: left;
+		align-items: center;
 	}
 
 	button {

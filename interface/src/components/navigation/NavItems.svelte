@@ -1,8 +1,7 @@
 <div class="nav-container">
     <ul>
         <li><a href="/">Home</a></li>
-        <li><a href="/browse">Browse Pools</a></li>
-        <li><a href="/join">Join Pool</a></li>
+        <li><a href="/pools">Pools</a></li>
         <li><a href="/about">About</a></li>
     </ul>
 </div>

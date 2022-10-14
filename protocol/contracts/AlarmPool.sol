@@ -1,7 +1,13 @@
 pragma solidity ^0.8.0;
 
 import "./RewardDistributor.sol";
+import "./CommitmentProtocolHub.sol";
 import "hardhat/console.sol";
+
+interface ICommitmentPool {
+    event UserJoined(address indexed, uint);
+    function joinPool(uint8[] memory, int) external payable;
+}
 
 interface IAlarmPool {
     struct UserAlarm {
@@ -20,7 +26,8 @@ interface IAlarmPool {
     function getUserAmountStaked(address) external returns (uint);
 }
 
-contract AlarmPool is IAlarmPool {
+
+contract AlarmPool is ICommitmentPool, IAlarmPool {
     uint32 SECONDS_PER_DAY = 86400; // hardcode for gas saving
 
     uint16 public missedWakeupPenalty; // penalty taken for each missed wakeup (bps)
@@ -29,7 +36,7 @@ contract AlarmPool is IAlarmPool {
     uint256 wakeupWindowDuration = 1 hours; // Before wake time
     uint256 wakeupTimeOfDay; // seconds
 
-    address public factory;
+    ICommitmentProtocolHub public manager;
     IAlarmPoolRewardDistributor rewardDistributor;
 
     mapping(address => UserAlarm) public userAlarms;
@@ -40,7 +47,7 @@ contract AlarmPool is IAlarmPool {
      */
     constructor(uint16 _missedWakeupPenaltyBps, uint256 _wakeupTimeOfDaySeconds)
     {
-        factory = msg.sender;
+        manager = ICommitmentProtocolHub(msg.sender);
         rewardDistributor = new AlarmPoolRewardDistributor();
         missedWakeupPenalty = _missedWakeupPenaltyBps;
 
@@ -60,7 +67,8 @@ contract AlarmPool is IAlarmPool {
      * @param _timezoneOffsetHours The user's timezone offset in hours from UTC time
      */
     function joinPool(uint8[] memory _activeOnDays, int _timezoneOffsetHours)
-        public
+        external
+        override
         payable
     {
         require(msg.value > 0, "Must send value to stake when joining pool");
@@ -89,8 +97,8 @@ contract AlarmPool is IAlarmPool {
 
         userAlarms[msg.sender].activationTime = nextWakeupTimestamp(msg.sender);
 
-        payable(factory).transfer(fee);
-
+        payable(address(manager)).transfer(fee);
+        manager.recordUserJoin(msg.sender);
         emit UserJoined(msg.sender);
     }
 
@@ -163,6 +171,7 @@ contract AlarmPool is IAlarmPool {
         // Delete user record prior to transferring to protect again reentrancy attacks
         delete userAlarms[msg.sender];
         payable(msg.sender).transfer(userAlarms[msg.sender].amountStaked);
+        manager.recordUserExit(msg.sender);
     }
 
     /**

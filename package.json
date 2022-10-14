@@ -4,12 +4,10 @@
   "packageManager": "yarn@3.2.4",
   "repository": "https://github.com/jaxernst/the-social-alarm-clock.git",
   "author": "jaxernst <51183683+jaxernst@users.noreply.github.com>",
-  
-  "scripts" : {
-    "test-protocol" : "yarn workspace @social-alarm-clock/protocol test",
-    "start-interface" : "yarn workspace @social-alarm-clock/interface dev"
+  "scripts": {
+    "test-protocol": "yarn workspace @social-alarm-clock/protocol test",
+    "start-interface": "yarn workspace @social-alarm-clock/interface dev"
   },
-  
   "workspaces": [
     "protocol",
     "interface"

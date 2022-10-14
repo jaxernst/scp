@@ -1,9 +1,23 @@
 <script>
 	import '../theme.css';
 	import Navigation from '../components/navigation/Navigation.svelte';
+	import Modal from "svelte-simple-modal"
+	import { onMount } from 'svelte'
+	import { modal } from 'src/lib/stores/stores';
+	import ConnectWalletPopup from 'src/components/ConnectWalletPopup.svelte';
+
+	onMount(() => {
+		modal.set(ConnectWalletPopup);
+	})
+
 </script>
 
+
+
 <body>
+	<Modal show={ConnectWalletPopup}>
+		Hello
+	</Modal>
 	<div class="page-container">
 		<slot />
 	</div>

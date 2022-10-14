@@ -2,7 +2,6 @@
 	import LabeledLine from '../LabeledLine.svelte';
 	import AlarmActiveDays from './AlarmActiveDays.svelte';
 	import AlarmStats from './AlarmStats.svelte';
-	import IoIosSettings from 'svelte-icons/io/IoIosSettings.svelte';
 
 	let alarmPoolName = 'Alarm Pool 0001';
 </script>
@@ -25,13 +24,5 @@
 	.alarm-info-area {
 		display: flex;
 		flex-direction: column;
-	}
-
-	.icon {
-        position: relative;
-		color: white;
-        padding: 5px;
-		width: 15px;
-		height: 15px;
 	}
 </style>
