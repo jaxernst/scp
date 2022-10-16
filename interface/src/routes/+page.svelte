@@ -1,47 +1,73 @@
 <script lang="ts">
 	import ClockDisplay from "src/components/alarm-display/ClockDisplay.svelte";
 	import AlarmInformationArea from "src/components/alarm-display/AlarmInformationArea.svelte";
-	import AlarmActiveDays from "src/components/alarm-display/AlarmActiveDays.svelte";
+	import ConnectWalletPopup from "src/components/ConnectWalletPopup.svelte";
+	import Modal from "svelte-simple-modal";
+	import { modal } from "src/lib/stores/stores"
+	import { onMount } from "svelte";
+	import { connected } from "svelte-web3"
+
+	let nextWakeupTime = "8:30am"
+
+	onMount(() => {
+		if (!$connected) {
+			modal.set(ConnectWalletPopup);
+		}
+	})
+//<Modal show={$connected ? null : $modal}/>
 </script>
 
 <div class="spacing-large">
-	<ClockDisplay class="spacing-large"/>
-	<div class="left-in-flex" style="display:flex; ">
-		<button class="button-primary">Confirm Wakeup</button>
-		<div style="color:gray"> | </div>
-		<button class="button-secondary">Pause Alarm</button>
-		<div class="next-wakeup=display">
-			<h>Wakeup</h>
+	<ClockDisplay widthVw={9}/>
+	<div class="flexbox-container">
+		<div class="flexbox-item inline-buttons">
+			<button class="button-primary" style="margin-left:0">Confirm Wakeup</button>
+			<div class="separator"></div>
+			<button class="button-secondary">Pause</button>
+		</div>
+		<div class="flexbox-item next-wakeup-container">
+			<div class="label" style="padding-left:10px">Next wakeup</div>
+			<ClockDisplay overrideTime={'12'} widthVw={5}/>
 		</div>
 	</div>
 </div>
 
 <AlarmInformationArea/>
-	<div class="alarm-display-row">
-	</div>
-<AlarmInformationArea/>
 
 <style>
-	.alarm-display-row {
-		padding-top: 1em;
-		padding-bottom: 1em;
-		display: flex;
-        justify-content: center;
-		align-items: center;
-		grid-auto-columns: max-content auto max-content;
- 		grid-auto-flow: column;
-		width: 100%
-	}
-
 	.spacing-large {
 		padding-top: 20px;
 		padding-bottom: 20px;
 	}
 
-	.left-in-flex {
+	.flexbox-container {
 		display: flex;
-		justify-content: left;
+		flex-wrap: wrap;
+		justify-content: flex-start;
+		padding: 0;
+	}
+
+	.flexbox-item {
+		min-width: 200px;
+	}
+
+	.next-wakeup-container {
+		flex-grow: 2;
+	}
+
+	.inline-buttons {
+		display: inline-flex;
 		align-items: center;
+	}
+
+	.separator {
+		border-left: 1px solid white;
+		height: 20px;
+	}
+
+	.label {
+		color: var(--theme-color1-dark);
+		font-size: var(--font-xsmall);
 	}
 
 	button {

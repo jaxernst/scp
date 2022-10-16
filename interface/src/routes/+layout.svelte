@@ -1,23 +1,13 @@
 <script>
 	import '../theme.css';
 	import Navigation from '../components/navigation/Navigation.svelte';
-	import Modal from "svelte-simple-modal"
-	import { onMount } from 'svelte'
-	import { modal } from 'src/lib/stores/stores';
-	import ConnectWalletPopup from 'src/components/ConnectWalletPopup.svelte';
-
-	onMount(() => {
-		modal.set(ConnectWalletPopup);
-	})
+	import { connected } from "svelte-web3"
 
 </script>
 
-
-
 <body>
-	<Modal show={ConnectWalletPopup}>
-		Hello
-	</Modal>
+	<div>{$connected ? 'connected' : 'not connected'}</div>
+
 	<div class="page-container">
 		<slot />
 	</div>
@@ -60,7 +50,8 @@
 		margin-right: auto;
 		margin-left: auto;
 		max-width: 500px;
-		flex-direction: column;
+		overflow: hidden;
+		
 		padding: 1rem 5%;
 		background-color: var(--bg-body-wrapper);
 		border-radius: var(--border-radius-medium);

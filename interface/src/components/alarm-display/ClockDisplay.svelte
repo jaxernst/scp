@@ -1,12 +1,16 @@
-<script>
+<script lang="ts">
 	import { onMount } from 'svelte';
-	
+	export let widthVw = 15;
+	export let overrideTime: null | string = null;
+
 	let date = new Date();
-	
-	$: time = date.toLocaleTimeString()[1] === ":" ? 
-		"0" + date.toLocaleTimeString() :
-		date.toLocaleTimeString();
-	const time0 = new Date(0).toLocaleTimeString()
+
+	$: time = overrideTime
+		? overrideTime
+		: date.toLocaleTimeString()[1] === ':'
+		? '0' + date.toLocaleTimeString()
+		: date.toLocaleTimeString();
+	const time0 = new Date(0).toLocaleTimeString();
 
 	onMount(() => {
 		const timerId = setInterval(() => {
@@ -17,16 +21,31 @@
 			clearInterval(timerId);
 		};
 	});
+
 </script>
 
-
 <div class="clock-text-box">
-	<div class="clock-text">
-		{time}
-	</div>
-	<div class="clock-text background">
-		88:88:88 80
-	</div>
+	{#if ['am', 'pm'].includes(time.slice(-2).toLowerCase())}
+		<div class="clock-text">
+			<p style="font-size:{widthVw}vw" data-end={time.slice(-2)}>
+				{time.slice(0, -2)}
+			</p>
+		</div>
+	{:else}
+		<div class="clock-text">
+			<p style="font-size:{widthVw}vw" data-end={time.slice(-2)}>
+				{time}
+			</p>
+		</div>
+	{/if}
+
+	{#if !overrideTime}
+		<div class="clock-text background">
+			<p style="font-size:{widthVw}vw">
+				88:88:88 80
+			</p>
+		</div>
+	{/if}
 </div>
 
 <style>
@@ -37,27 +56,40 @@
 	}
 
 	.clock-text-box {
-		position: relative;
 		left: 50%;
-		transform: translateX(-50%);
+		transform: translatey(0);
 		text-align: center;
+		width: 100%;
+		max-width: 500
 	}
 
-	.clock-text {
+	p::after {
+		content: attr(data-end) ;
+		background-color: #f3ec78;
+		background-image: var(--background-gradient);
+		background-size: 100%;
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent; 
+	}	
+
+
+
+	.clock-text p {
 		font-family: 'digital-7', sans-serif;
 		font-weight: 500;
-		font-size: 100px;
 		color: white;
 		white-space: nowrap;
 		overflow: hidden;
+		margin: 0;
 	}
 
 	.background {
-		color: white;
-		opacity: .05;
 		position: absolute;
-		left: 0%;
+		color: white;
+		opacity: 0.09;
 		top: 0%;
-		z-index: -100 ;
+		left: 50%;
+		transform: translateX(-50%);
+		z-index: -100;
 	}
 </style>
