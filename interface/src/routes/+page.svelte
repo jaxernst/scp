@@ -1,11 +1,11 @@
 <script lang="ts">
 	import ClockDisplay from "src/components/alarm-display/ClockDisplay.svelte";
-	import AlarmInformationArea from "src/components/alarm-display/AlarmInformationArea.svelte";
 	import ConnectWalletPopup from "src/components/ConnectWalletPopup.svelte";
 	import Modal from "svelte-simple-modal";
 	import { modal } from "src/lib/stores/stores"
 	import { onMount } from "svelte";
 	import { connected } from "svelte-web3"
+	import { bodyContainerWidthPx } from "src/theme"
 
 	let nextWakeupTime = "8:30am"
 
@@ -14,60 +14,41 @@
 			modal.set(ConnectWalletPopup);
 		}
 	})
-//<Modal show={$connected ? null : $modal}/>
+
+	let clockFontSize: string = "90px"
+	let pageWidth: any = 600
+	$: if (pageWidth > ( bodyContainerWidthPx + 50)) {
+		clockFontSize = "100px"
+	} else {
+		clockFontSize = "18.1vw"
+	}
+	
 </script>
 
-<div class="spacing-large">
-	<ClockDisplay widthVw={9}/>
-	<div class="flexbox-container">
-		<div class="flexbox-item inline-buttons">
-			<button class="button-primary" style="margin-left:0">Confirm Wakeup</button>
-			<div class="separator"></div>
-			<button class="button-secondary">Pause</button>
-		</div>
-		<div class="flexbox-item next-wakeup-container">
-			<div class="label" style="padding-left:10px">Next wakeup</div>
-			<ClockDisplay overrideTime={'12'} widthVw={5}/>
-		</div>
-	</div>
-</div>
+<svelte:window bind:innerWidth={pageWidth}/>
+<Modal show={$connected ? null : $modal}/>
 
+<div class="spacing-large">
+	<ClockDisplay --font-size={clockFontSize}/>
+</div>
+<span>
+	<button class="button-primary" style="margin-left:0">Confirm Wakeup</button>
+</span>
+
+<!--
 <AlarmInformationArea/>
+-->
 
 <style>
 	.spacing-large {
-		padding-top: 20px;
-		padding-bottom: 20px;
+		padding-top: 10px;
+		padding-bottom: 10px;
 	}
 
-	.flexbox-container {
+	span {
 		display: flex;
-		flex-wrap: wrap;
-		justify-content: flex-start;
-		padding: 0;
-	}
-
-	.flexbox-item {
-		min-width: 200px;
-	}
-
-	.next-wakeup-container {
-		flex-grow: 2;
-	}
-
-	.inline-buttons {
-		display: inline-flex;
+		justify-content: center;
 		align-items: center;
-	}
-
-	.separator {
-		border-left: 1px solid white;
-		height: 20px;
-	}
-
-	.label {
-		color: var(--theme-color1-dark);
-		font-size: var(--font-xsmall);
 	}
 
 	button {

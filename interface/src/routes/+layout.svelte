@@ -2,14 +2,15 @@
 	import '../theme.css';
 	import Navigation from '../components/navigation/Navigation.svelte';
 	import { connected } from "svelte-web3"
-
+	import { bodyContainerWidthPx } from "src/theme"
+	import ConnectionStatus from 'src/components/ConnectionStatus.svelte';
 </script>
 
 <body>
-	<div>{$connected ? 'connected' : 'not connected'}</div>
+	<ConnectionStatus/>
 
-	<div class="page-container">
-		<slot />
+	<div class="page-container" style="--content-width:{bodyContainerWidthPx}px">
+		<slot/>
 	</div>
 	
 	<div class="lower-nav">
@@ -49,7 +50,7 @@
 		margin-top: 8vh;
 		margin-right: auto;
 		margin-left: auto;
-		max-width: 500px;
+		max-width: var(--content-width);
 		overflow: hidden;
 		
 		padding: 1rem 5%;
