@@ -4,6 +4,7 @@ import "./RewardDistributor.sol";
 import "./CommitmentProtocolHub.sol";
 import "hardhat/console.sol";
 
+
 interface ICommitmentPool {
     event UserJoined(address indexed, uint);
     function joinPool(uint8[] memory, int) external payable;
@@ -36,7 +37,7 @@ contract AlarmPool is ICommitmentPool, IAlarmPool {
     uint256 wakeupWindowDuration = 1 hours; // Before wake time
     uint256 wakeupTimeOfDay; // seconds
 
-    ICommitmentProtocolHub public manager;
+    ICommitmentProtocolHub public hub;
     IAlarmPoolRewardDistributor rewardDistributor;
 
     mapping(address => UserAlarm) public userAlarms;
@@ -47,7 +48,7 @@ contract AlarmPool is ICommitmentPool, IAlarmPool {
      */
     constructor(uint16 _missedWakeupPenaltyBps, uint256 _wakeupTimeOfDaySeconds)
     {
-        manager = ICommitmentProtocolHub(msg.sender);
+        hub = ICommitmentProtocolHub(msg.sender);
         rewardDistributor = new AlarmPoolRewardDistributor();
         missedWakeupPenalty = _missedWakeupPenaltyBps;
 
@@ -97,8 +98,8 @@ contract AlarmPool is ICommitmentPool, IAlarmPool {
 
         userAlarms[msg.sender].activationTime = nextWakeupTimestamp(msg.sender);
 
-        payable(address(manager)).transfer(fee);
-        manager.recordUserJoin(msg.sender);
+        payable(address(hub)).transfer(fee);
+        hub.recordUserJoin(msg.sender);
         emit UserJoined(msg.sender);
     }
 
@@ -171,7 +172,7 @@ contract AlarmPool is ICommitmentPool, IAlarmPool {
         // Delete user record prior to transferring to protect again reentrancy attacks
         delete userAlarms[msg.sender];
         payable(msg.sender).transfer(userAlarms[msg.sender].amountStaked);
-        manager.recordUserExit(msg.sender);
+        hub.recordUserExit(msg.sender);
     }
 
     /**

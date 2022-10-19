@@ -2,7 +2,7 @@
 	import { modal } from "$lib/stores/stores";
     import { connected, chainId } from "svelte-web3"
 	import ConnectWalletPopup from "./ConnectWalletPopup.svelte";
-    console.log($connected)
+ 
     $: indicatorColor = $connected ? "lime" : "red"
     $: connectedText = $connected ? "wallet connected" : "not connected"
 
@@ -15,7 +15,7 @@
         <div class="indicator" style="color:{indicatorColor}"/>
         <div class="text">{connectedText} </div>
         {#if $connected}
-            {" | "}
+            <div class="separator"/>
             <div class="text">Chain ID: {$chainId}</div>
         {/if}
     </div>
@@ -40,5 +40,12 @@
         border-radius: 100%;
         background-color: var(--indicator-color);
         margin: 0 .5em;
+    }
+
+    .separator {
+        border-left: 1px solid white;
+        height: 10px;
+        margin-left: 5px;
+        margin-right: 5px
     }
 </style>

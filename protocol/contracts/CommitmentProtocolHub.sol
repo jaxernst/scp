@@ -8,14 +8,12 @@ interface ICommitmentProtocolHub {
 }
 
 contract CommitmentProtocolHub is ICommitmentProtocolHub {
-    mapping(address => bool) public activeUsers;
-
-    // alarm time => poolId => CommitmentPool Instance
-    mapping(uint => mapping(uint => ICommitmentPool)) deployedPools;
-    uint nextPoolId;
+    // alarm  poolId => CommitmentPool Instance
+    mapping(uint => ICommitmentPool) public deployedPools;
+    uint public nextPoolId = 1;
 
     // Deployed commitment pools
-    mapping(address => ICommitmentPool) userPools;
+    mapping(address => ICommitmentPool) public userPools;
     mapping(ICommitmentPool => bool) deployedByHub;
 
     function createAlarmPool(
@@ -27,7 +25,7 @@ contract CommitmentProtocolHub is ICommitmentProtocolHub {
             _wakeupTimeOfDaySeconds
         );
 
-        deployedPools[_wakeupTimeOfDaySeconds][nextPoolId] = pool;
+        deployedPools[nextPoolId] = pool;
         deployedByHub[pool] = true;
 
         nextPoolId++;
@@ -42,4 +40,6 @@ contract CommitmentProtocolHub is ICommitmentProtocolHub {
         require(deployedByHub[ICommitmentPool(msg.sender)], "Error: Forbidden");
         delete userPools[user];
     }
+
+    receive() external payable {}
 }

@@ -1,9 +1,19 @@
 <script lang="ts">
 	import AlarmInformationArea from "./alarm-display/AlarmInformationArea.svelte";
 	import { defaultEvmStores, connected} from "svelte-web3"
+	import { modal } from "$lib/stores/stores";
+	import WakeupButton from "./WakeupButton.svelte";
 
     const onConnectClick = () => {
         defaultEvmStores.setProvider()
+            .then(() => {
+                console.log("sucess")
+                modal.set(null) // Close modal on success
+            })
+            .catch(() => {
+                console.log("failed")
+                modal.set(WakeupButton)
+            })
     }
     
 </script>

@@ -4,10 +4,21 @@
 	import { connected } from "svelte-web3"
 	import { bodyContainerWidthPx } from "src/theme"
 	import ConnectionStatus from 'src/components/ConnectionStatus.svelte';
+	import ConnectWalletPopup from 'src/components/ConnectWalletPopup.svelte';
+	import { modal } from "$lib/stores/stores"
+	import Modal from 'svelte-simple-modal';
+	import { onMount } from 'svelte';
+
+	onMount(() => {
+		if (!$connected) {
+			modal.set(ConnectWalletPopup);
+		}
+	});
 </script>
 
 <body>
 	<ConnectionStatus/>
+	<Modal show={$modal}/>
 
 	<div class="page-container" style="--content-width:{bodyContainerWidthPx}px">
 		<slot/>
