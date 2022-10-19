@@ -1,13 +1,24 @@
 <script lang='ts'>
-    import { connected } from "svelte-web3"
+	import { modal } from "$lib/stores/stores";
+    import { connected, chainId } from "svelte-web3"
+	import ConnectWalletPopup from "./ConnectWalletPopup.svelte";
     console.log($connected)
     $: indicatorColor = $connected ? "lime" : "red"
     $: connectedText = $connected ? "wallet connected" : "not connected"
+
+    const showConnectWalletModal = () => modal.set(ConnectWalletPopup)
 </script>
 
-<div class="container" style="--indicator-color:{indicatorColor}">
-    <div class="indicator" style="color:{indicatorColor}"/>
-    <div class="text">{connectedText}</div>
+<!-- svelte-ignore a11y-click-events-have-key-events -->
+<div class="clickable" on:click={showConnectWalletModal}>
+    <div class="container" style="--indicator-color:{indicatorColor}">
+        <div class="indicator" style="color:{indicatorColor}"/>
+        <div class="text">{connectedText} </div>
+        {#if $connected}
+            {" | "}
+            <div class="text">Chain ID: {$chainId}</div>
+        {/if}
+    </div>
 </div>
 
 <style>

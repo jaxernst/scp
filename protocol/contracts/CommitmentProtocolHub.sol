@@ -29,6 +29,7 @@ contract CommitmentProtocolHub is ICommitmentProtocolHub {
 
         deployedPools[_wakeupTimeOfDaySeconds][nextPoolId] = pool;
         deployedByHub[pool] = true;
+
         nextPoolId++;
     }
 

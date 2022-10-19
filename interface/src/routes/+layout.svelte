@@ -53,7 +53,7 @@
 		max-width: var(--content-width);
 		overflow: hidden;
 		
-		padding: 1rem 5%;
+		padding: 1rem 4%;
 		background-color: var(--bg-body-wrapper);
 		border-radius: var(--border-radius-medium);
 	}

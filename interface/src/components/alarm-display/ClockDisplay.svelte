@@ -30,6 +30,7 @@
 		}
 		return background
 	}
+
 </script>
 
 <div class="clock-text-container">
@@ -55,6 +56,7 @@
 		text-align: center;
 		overflow: hidden;
 		white-space: nowrap;
+		padding: 1em ;
 	}
 	
 	.clock-text {
@@ -64,6 +66,7 @@
 		font-weight: 400;
 		color: white;
 		transform: translateY(11%);
+		text-shadow: 2px 2px #670c9b;
 	}
 
 	.background {
