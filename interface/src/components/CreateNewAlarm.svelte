@@ -1,1 +1,0 @@
-<div>Create a new alarm</div>

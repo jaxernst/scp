@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import '../theme.css';
 	import Navigation from '../components/navigation/Navigation.svelte';
 	import { connected } from "svelte-web3"
@@ -7,7 +7,7 @@
 	import ConnectWalletPopup from 'src/components/ConnectWalletPopup.svelte';
 	import { modal } from "$lib/stores/stores"
 	import Modal from 'svelte-simple-modal';
-	import { onMount } from 'svelte';
+	import { onMount, SvelteComponent } from 'svelte';
 
 	onMount(() => {
 		if (!$connected) {
@@ -18,8 +18,11 @@
 
 <body>
 	<ConnectionStatus/>
-	<Modal show={$modal}/>
-
+	<Modal 
+		on:close={() => modal.set(null)} 
+		show={$modal}
+		styleWindow={{ backgroundColor: 'var(--dark-gray)'}}
+	/>
 	<div class="page-container" style="--content-width:{bodyContainerWidthPx}px">
 		<slot/>
 	</div>
@@ -65,7 +68,7 @@
 		overflow: hidden;
 		
 		padding: 1rem 4%;
-		background-color: var(--bg-body-wrapper);
+		background-color: var(--black-trans-50);
 		border-radius: var(--border-radius-medium);
 	}
 </style>

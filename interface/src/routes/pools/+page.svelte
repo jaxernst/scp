@@ -1,6 +1,6 @@
 <script>
 	import AlarmActiveDays from "src/components/alarm-display/AlarmActiveDays.svelte";
-    import CreateNewAlarm from "src/components/CreateNewAlarm.svelte";
+    import CreateNewAlarm from "src/components/new-alarm/CreateNewAlarm.svelte";
     import MdAddAlarm from 'svelte-icons/md/MdAddAlarm.svelte'
     import { modal } from "$lib/stores/stores";
     import Modal, { bind } from 'svelte-simple-modal';
@@ -17,8 +17,12 @@
     <!-- svelte-ignore a11y-click-events-have-key-events -->
     <div on:click={openNewAlarmModal} class="icon"><MdAddAlarm/></div>
 </div>
+<div class="high"/>
 
 <style>
+    .high {
+        height: 400px;
+    }
     .header-row {
         display: grid;
         grid-template-columns: 1fr auto 1fr;

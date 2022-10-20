@@ -12,6 +12,7 @@
 	import { bodyContainerWidthPx } from 'src/theme';
 	import { ProtocolHubAddr } from 'src/addresses';
 	import WakeupButton from 'src/components/WakeupButton.svelte';
+	import CreateNewAlarm from 'src/components/new-alarm/CreateNewAlarm.svelte';
 
 	
 	defaultEvmStores.attachContract(
@@ -44,7 +45,9 @@
 {#if userAlarm.active}
 	<LabeledLine label="Active Alarm" />
 	<AlarmActiveDays daysActive={[1, 3, 4, 5, 7]} />
-	<WakeupButton/>
+	<div on:click={() => modal.set(CreateNewAlarm)}>
+		<WakeupButton/>
+	</div>
 
 {:else}
 	<AlarmActiveDays/>	
@@ -52,15 +55,3 @@
 {/if}
 
 
-<!--
-<AlarmInformationArea/>
--->
-<style>
-	.flex-row {
-		display: flex;
-		flex-direction: row;
-		justify-content: center;
-		align-items: center;
-	}
-
-</style>

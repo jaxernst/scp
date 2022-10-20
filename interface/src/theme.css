@@ -3,7 +3,9 @@
     --background-gradient2: linear-gradient(0deg, rgb(0, 0, 0) 0%, rgba(17, 67, 87, 1) 100%);
     --background-gradient1: linear-gradient(0deg, rgba(242, 148, 146, 1) 0%, rgba(17, 67, 87, 1) 100%);
     
-    --bg-body-wrapper: rgb(0, 0, 0, 0.5);
+    --black-trans-50: rgb(0, 0, 0, 0.5);
+    --dark-gray: rgb(33, 33, 33);
+
 
     --theme-color1: rgb(255, 255, 255);
     --theme-color1-dark: rgb(172, 172, 172);
@@ -12,8 +14,8 @@
     --theme-color3-dark: rgb(66, 144, 66);
     --theme-color4: rgb(16, 42, 56);
     
-    --theme-alert-color: rgba(255, 0, 0);
-    --theme-alert-color-dark: rgba(255, 0, 0);
+    --alert-color: rgba(255, 0, 0);
+    --alert-color-dark: rgba(255, 0, 0);
 
     --font-xsmall: 10px;
     --font-small: 11px;
@@ -25,4 +27,47 @@
     --border-radius-medium: 25px;
 }
 
+h2 {
+    color: var(--theme-color1);
+    font-weight: 200;
+    text-align: center;
+}
+
+h3 {
+    color: var(--theme-color1-dark);
+}
+
+button {
+    padding: 1em;
+    border-radius: 12px;
+    transition: 0.3s;
+}
+
+.button-primary {
+    background-color: rgba(255, 255, 255, 0.035);
+    border: 1px solid var(--theme-color3-dark);
+    color: var(--theme-color1-dark);
+}
+
+.button-secondary {
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+    background-color: rgb(46, 46, 46);
+    border: none;
+    color: var(--alert-color-dark);
+}
+
+button:hover {
+    background-color: rgb(255, 255, 255, 0.2);
+}
+
+.button-primary:hover {
+    color: var(--theme-color3);
+    border: 1px solid var(--theme-color3);
+}
+
+.button-secondary:hover {
+    color: var(--alert-color);
+    border: 1px solid var(--theme-color2);
+}
 
