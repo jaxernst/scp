@@ -30,11 +30,11 @@
 h2 {
     color: var(--theme-color1);
     font-weight: 200;
-    text-align: center;
 }
 
 h3 {
     color: var(--theme-color1-dark);
+    font-weight: 100
 }
 
 button {
