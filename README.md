@@ -1,12 +1,15 @@
 # Overview
 
-The Social Alarm Clock is a smart contract protocol that allows individuals to come together, put their money at stake, and ultimately built morning habits.
+The Social Commitment Protocol is a smart contract protocol that allows individuals to come together, put their money at stake, and ultimately built better habits in a social and colaborative way.
 
-The core component to the Social Alarm Clock is an Alarm Clock Pool, which is a smart contract consisting of 2 or more users that all agree to wakeup at the same time. When joing (or creating) a pool, a user chooses how much to put at stake, what days to enforce the alarm, and what the penatly (or fee) is for missing a wakeup.
+The core component to the protocol is a Commitment Pool. Commitment pools are heavily customizable templates for helping groups of people acheive specific goals at regular intervals. Commitment Pools enforce users' goals by requiring proofs of completion to be submitted before some agreed upon deadline. Any user that fails to submit their proof of completion before the deadline risks losing a portion of their staked funds, which will get distributed to the other users in a pool. 
 
-After joining a pool, any user who misses their alarm loses a portion of their stake, and that portion gets distributed to the other users in the pool.
+The idea of this project is to allow individuals to help eachother built better morning habits in a game-like social enviroment. Stay true to your goals, and you will be rewarded for doing so. This repository contains the protocol source code along with an open source interface.
 
-The idea of this project is to allow individuals to help eachother built better morning habits in a game-like social enviroment. This repository contains the protocol source code along with an open source interface.
+### Alarm Clock Pool
+
+The MVP version of this protocol consist of commitment pool type that I'm calling an "Alarm Clock Pool". An alarm clock pool implements a Commitment Pool template with the sole goal of helping pool members wake up earlier in the morning. Alarm pools are created with a preset wakeup time, and anyone joining the pool agrees to wakeup at that time. Users joining an Alarm Clock Pool get to choose what days the alarm is enforced, and these days can be changed. To prove to the pool that you woke up on time (for your chosen days), you simply must submit a wakeup confirmation transaction. This wakeup proof logic can be exapanded to ensure users are truly getting out of bed and getting their day going, but the initial version will just involve signing a transaction to act as a wakeup proof. 
+
 
 ### Development
 
