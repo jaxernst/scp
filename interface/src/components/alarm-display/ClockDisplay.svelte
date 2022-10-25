@@ -22,10 +22,12 @@
 	const backgroundText = () => {
 		let background = ""
 		for (let i=0; i<time.length; i++) {
-			if (time[i] === " " || isNaN(Number(time[i]))) {
+			if (["A", "M", "P"].includes(time[i])) {
+				background += "8"
+			} else if (time[i] === " " || isNaN(Number(time[i]))) {
 				background += time[i]
 			} else {
-				background += "0"
+				background += "8"
 			}
 		}
 		return background

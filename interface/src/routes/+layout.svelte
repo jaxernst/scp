@@ -1,13 +1,23 @@
 <script lang="ts">
 	import '../theme.css';
-	import Navigation from '../components/navigation/Navigation.svelte';
-	import { connected } from "svelte-web3"
-	import { bodyContainerWidthPx } from "src/theme"
+	import Navigation from 'src/components/navigation/Navigation.svelte';
 	import ConnectionStatus from 'src/components/ConnectionStatus.svelte';
 	import ConnectWalletPopup from 'src/components/ConnectWalletPopup.svelte';
+	
+	import CommitmentProtocolHubAbi from 'src/abi/CommitmentProtocolHub.json';
+	import { ProtocolHubAddr } from 'src/addresses';
+
+	import { connected, defaultEvmStores } from "svelte-web3"
+	import { bodyContainerWidthPx } from "src/theme"
 	import { modal } from "$lib/stores/stores"
-	import Modal from 'svelte-simple-modal';
 	import { onMount, SvelteComponent } from 'svelte';
+	import Modal from 'svelte-simple-modal';
+
+	defaultEvmStores.attachContract(
+		'ProtocolHub',
+		ProtocolHubAddr,
+		CommitmentProtocolHubAbi
+	);
 
 	onMount(() => {
 		if (!$connected) {

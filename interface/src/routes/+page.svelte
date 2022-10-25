@@ -3,31 +3,19 @@
 	import ConnectWalletPopup from 'src/components/ConnectWalletPopup.svelte';
 	import LabeledLine from 'src/components/LabeledLine.svelte';
 	import AlarmActiveDays from 'src/components/alarm-display/AlarmActiveDays.svelte';
-	import CommitmentProtocolHubAbi from 'src/abi/CommitmentProtocolHub.json';
+	
 
 	import Modal from 'svelte-simple-modal';
 	import { modal } from '$lib/stores/stores';
 	import { onMount } from 'svelte';
 	import { connected, defaultEvmStores, contracts } from 'svelte-web3';
 	import { bodyContainerWidthPx } from 'src/theme';
-	import { ProtocolHubAddr } from 'src/addresses';
 	import WakeupButton from 'src/components/WakeupButton.svelte';
 	import CreateNewAlarm from 'src/components/new-alarm/CreateNewAlarm.svelte';
-
-	
-	defaultEvmStores.attachContract(
-		'ProtocolHub',
-		ProtocolHubAddr,
-		CommitmentProtocolHubAbi
-	);
 
 	let userAlarm = {
 		active: true
 	}
-
-	$contracts.CPHub?.methods?.userPools().then(poolAddr => {
-		
-	})
 
 	let clockFontSize: string = '90px';
 	let pageWidth: any = 600;
@@ -45,6 +33,7 @@
 {#if userAlarm.active}
 	<LabeledLine label="Active Alarm" />
 	<AlarmActiveDays daysActive={[1, 3, 4, 5, 7]} />
+	<!-- svelte-ignore a11y-click-events-have-key-events -->
 	<div on:click={() => modal.set(CreateNewAlarm)}>
 		<WakeupButton/>
 	</div>

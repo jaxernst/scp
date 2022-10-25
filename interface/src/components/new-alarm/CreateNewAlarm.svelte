@@ -1,21 +1,22 @@
-<script>
+<script lang="ts">
 	import NumMembers from './options-cards/NumMembers.svelte';
 	import PoolPenalty from './options-cards/PoolPenalty.svelte';
 	import WakeupTime from './options-cards/WakeupTime.svelte';
-	import { backIn, bounceOut, circIn, circInOut, cubicInOut } from 'svelte/easing';
-	import { onMount } from 'svelte';
+	import { cubicInOut } from 'svelte/easing';
+	import { swipeColor } from 'src/lib/transitions/swipeColor'
+    import { contracts, selectedAccount } from 'svelte-web3'
 	import { alarmParams } from './alarmCreationStore';
 
 	export const flyParams = {
 		in: { x: 500, duration: 400, easing: cubicInOut },
 		out: { x: 500, duration: 400, easing: cubicInOut },
 		setFlyFromRight: function () {
-			this.in.x = Math.abs(this.in.x);
-			this.out.x = -Math.abs(this.out.x);
-		},
-		setFlyFromLeft: function () {
 			this.in.x = -Math.abs(this.in.x);
 			this.out.x = Math.abs(this.out.x);
+		},
+		setFlyFromLeft: function () {
+			this.in.x = Math.abs(this.in.x);
+			this.out.x = -Math.abs(this.out.x);
 		}
 	};
 
@@ -34,24 +35,18 @@
 		trigger = !trigger;
 	};
 
-	function swipeColor(node, params) {
-		const { duration, delay, easing } = params || {};
-		const { color } = window.getComputedStyle(node);
-		return {
-			duration,
-			delay,
-			easing,
-			css(t) {
-				// transform t from range [0.5, 1] into percentage [0, 100]
-				// t: 0.5 -> 1
-				// u: 0 -> 0.5
-				const u = t;
-				// percentage: 0 -> 100
-				const percentage = u * 200;
-				return `background: linear-gradient(to left, transparent 0, ${percentage}%, ${color} ${percentage}%); color: ${color}`;
-			}
-		};
+    const submitCreateAlarm = () => {
+        console.log($alarmParams.poolPenatlyBps, $alarmParams.wakeupTimeSeconds)
+        $contracts.ProtocolHub?.methods?.createAlarmPool(
+            $alarmParams.poolPenatlyBps,
+            $alarmParams.wakeupTimeSeconds
+        )
+        .send({ from: $selectedAccount })
+        .then((r: any) => console.log(r))
+        .catch((err: any) => console.log(err))
 	}
+
+	
 </script>
 
 <h3 style="position:relative; color:dimgray" transition:swipeColor={{ duration: 850 }}>
@@ -62,31 +57,31 @@
 </h3>
 
 <div class="container">
-	<button
-		class="button-left"
-		on:click={() => {
-			ops.previous();
-			flyParams.setFlyFromRight();
-			triggerEffect();
-		}}
-	>
-		{'<'}</button
-	>
-	<div>
-		<svelte:component this={ops.active()} {flyParams} />
-	</div>
-	<button
-		class="button-right"
-		on:click={() => {
-			ops.next();
+    <button
+        class="button-left"
+        on:click={() => {
+            ops.previous();
+            flyParams.setFlyFromRight();
+            triggerEffect();
+        }}
+    >
+        {'<'}</button
+    >
+    <div>
+        <svelte:component this={ops.active()} {flyParams} />
+    </div>
+    <button
+        class="button-right"
+        on:click={() => {
+            ops.next();
             flyParams.setFlyFromLeft();
-			triggerEffect();
-		}}>{'>'}</button
-	>
-</div>
+            triggerEffect();
+        }}>{'>'}</button
+    >
+</div>  
 
 <div style="display:flex; justify-content: center; padding:1em;">
-	<button class="button-primary" style="width:90%">Create</button>
+	<button class="button-primary" style="width:90%" on:click={submitCreateAlarm}>Create</button>
 </div>
 
 <style>
