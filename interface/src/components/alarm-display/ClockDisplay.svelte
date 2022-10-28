@@ -68,12 +68,12 @@
 		font-weight: 400;
 		color: white;
 		transform: translateY(11%);
-		text-shadow: 2px 2px #670c9b;
 	}
 
 	.background {
-		opacity: .07;
+		opacity: .05;
 		position: absolute;
+		text-shadow: 5px 3px #000000;
 	}
 
 </style>

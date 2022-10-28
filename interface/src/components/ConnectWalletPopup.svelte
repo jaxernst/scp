@@ -1,12 +1,12 @@
 <script lang="ts">
-	import { defaultEvmStores, connected, selectedAccount } from 'svelte-web3';
+	import { defaultEvmStores, connected, signerAddress } from 'svelte-ethers-store';
 	import { modal } from '$lib/stores/stores';
 
 	let warning: string | null = null;
 	const onConnectClick = () => {
 		defaultEvmStores.setProvider().then(() => {
-			console.log($connected, $selectedAccount);
-			if ($connected && $selectedAccount) {
+			console.log($connected, $signerAddress);
+			if ($connected && $signerAddress) {
 				console.log('Connection Successful');
 				modal.set(null); // Close modal on success
 				return;

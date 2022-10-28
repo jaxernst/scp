@@ -1,14 +1,26 @@
-<script>
-	import AlarmActiveDays from "src/components/alarm-display/AlarmActiveDays.svelte";
+<script lang="ts">
     import CreateNewAlarm from "src/components/new-alarm/CreateNewAlarm.svelte";
     import MdAddAlarm from 'svelte-icons/md/MdAddAlarm.svelte'
     import { modal } from "$lib/stores/stores";
-    import Modal, { bind } from 'svelte-simple-modal';
+    import { contracts } from "svelte-ethers-store"
+    import type { CommitmentProtocolHub } from "@social-alarm-clock/protocol/typechain-types"
+	import { ProtocolHubAddr } from "src/addresses";
 
     const openNewAlarmModal = () => {
         modal.set(CreateNewAlarm);
-        console.log("set")
     }
+
+    const getPoolIdsArr = async (protocolHub: CommitmentProtocolHub) => {
+        await new Promise(r => setTimeout(r, 1000))
+        const numPools = Number(await protocolHub.nextPoolId())
+        return [...Array(numPools).keys()]
+    }
+
+    let pools: any[] | Promise<any[]> = []
+    $: if ($contracts.ProtocolHub) {
+        pools = []
+    }
+
 </script>
 
 
@@ -17,12 +29,25 @@
     <!-- svelte-ignore a11y-click-events-have-key-events -->
     <div on:click={openNewAlarmModal} class="icon"><MdAddAlarm/></div>
 </div>
-<div class="high"/>
+<div class="pool-cards-container">
+    {#await pools}
+        <div> loading pools...</div>
+    {:then pools}
+        {#if pools && pools.length > 0} 
+            {#each pools as id}
+                <h>{id}</h>
+            {/each}
+        {:else}
+            <div></div>
+        {/if}
+    {:catch err} 
+        <div>{err}</div>
+    {/await}
+</div>
+
+
 
 <style>
-    .high {
-        height: 400px;
-    }
     .header-row {
         display: grid;
         grid-template-columns: 1fr auto 1fr;

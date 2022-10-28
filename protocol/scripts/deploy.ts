@@ -10,7 +10,7 @@ async function main() {
   signer.sendTransaction({
     to: "0xdD044684cfA651c491b844AE0E8646aD7c56205b",
     value: parseEther('1')
-})
+  })
 }
 
 // We recommend this pattern to be able to use async/await everywhere

@@ -1,16 +1,20 @@
-import { object_without_properties } from 'svelte/internal';
 import { writable } from 'svelte/store';
 
+const defaultWakeupTimeSeconds = 60	* 60 * 8
+const defaultPoolPenalty = 5000
+
 interface NewAlarmParams {
-	wakeupTimeSeconds: number | null;
-	poolPenatlyBps: number | null;
+	wakeupTimeSeconds: number;
+	poolPenatlyBps: number;
 }
 
 function createAlarmStore() {
-	const alarm = writable<NewAlarmParams>({
-		wakeupTimeSeconds: null,
-		poolPenatlyBps: null
-	});
+	const initState: NewAlarmParams = {
+		wakeupTimeSeconds: defaultWakeupTimeSeconds,
+		poolPenatlyBps: defaultPoolPenalty
+	}
+	
+	const alarm = writable<NewAlarmParams>(initState);
 
 	return {
 		subscribe: alarm.subscribe,
@@ -24,7 +28,8 @@ function createAlarmStore() {
 			alarm.update((alarm: NewAlarmParams) => {
 				return { ...alarm, poolPenatlyBps: percFee * 100 };
 			});
-		}
+		},
+		resetDefault: () => alarm.set(initState)
 	};
 }
 

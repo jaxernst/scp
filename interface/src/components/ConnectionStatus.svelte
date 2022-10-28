@@ -1,14 +1,14 @@
 <script lang='ts'>
 	import { modal } from "$lib/stores/stores";
-    import { connected, chainId, selectedAccount } from "svelte-web3"
+    import { connected, chainId, signerAddress } from "svelte-ethers-store"
 	import ConnectWalletPopup from "./ConnectWalletPopup.svelte";
  
-    $: indicatorColor = $connected && $selectedAccount ? "lime" : "red"
+    $: indicatorColor = $connected && $signerAddress ? "lime" : "red"
     
     let connectedWalletText: string | null = null
     $: {
-        if ($connected && $selectedAccount) {
-            connectedWalletText = "Connected to " + shorthandAddress($selectedAccount)
+        if ($connected && $signerAddress) {
+            connectedWalletText = "Connected to " + shorthandAddress($signerAddress)
         } else {
             connectedWalletText = "Not connected"
         }

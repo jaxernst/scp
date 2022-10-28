@@ -2,10 +2,24 @@
 	import NumMembers from './options-cards/NumMembers.svelte';
 	import PoolPenalty from './options-cards/PoolPenalty.svelte';
 	import WakeupTime from './options-cards/WakeupTime.svelte';
+	import PendingTransaction from './PendingTransaction.svelte';
+
+	import type { ContractTransaction } from 'ethers';
 	import { cubicInOut } from 'svelte/easing';
-	import { swipeColor } from 'src/lib/transitions/swipeColor'
-    import { contracts, selectedAccount } from 'svelte-web3'
+	import { contracts } from 'svelte-ethers-store';
 	import { alarmParams } from './alarmCreationStore';
+	import { modal } from '$lib/stores/stores';
+	import { bind } from 'svelte-simple-modal';
+	import { createEventDispatcher, onDestroy } from 'svelte';
+	import { applyAction } from '$app/forms';
+
+	// Create a promise that resolves once the component is
+	// destroyed (All transitions have completed)
+	const compDestroyed: Promise<void> = new Promise((r) => {
+		onDestroy(() => {
+			r();
+		});
+	});
 
 	export const flyParams = {
 		in: { x: 500, duration: 400, easing: cubicInOut },
@@ -30,26 +44,49 @@
 		previous: () => ops.i--
 	};
 
+    const onArrowClick = (direction: "right" | "left") => {
+        switch (direction) {
+            case "right":
+                ops.next();
+                flyParams.setFlyFromLeft();
+                break
+            case "left":
+                ops.previous();
+                flyParams.setFlyFromRight();
+                break
+        }    
+
+        triggerEffect();
+    }
+
 	let trigger = false;
 	const triggerEffect = () => {
 		trigger = !trigger;
 	};
 
-    const submitCreateAlarm = () => {
-        console.log($alarmParams.poolPenatlyBps, $alarmParams.wakeupTimeSeconds)
-        $contracts.ProtocolHub?.methods?.createAlarmPool(
-            $alarmParams.poolPenatlyBps,
-            $alarmParams.wakeupTimeSeconds
-        )
-        .send({ from: $selectedAccount })
-        .then((r: any) => console.log(r))
-        .catch((err: any) => console.log(err))
-	}
+	const submitCreateAlarm = async () => {
+		console.log($alarmParams.poolPenatlyBps, $alarmParams.wakeupTimeSeconds);
+		let tx: ContractTransaction;
+		try {
+			tx = await $contracts.ProtocolHub?.createAlarmPool(
+				$alarmParams.poolPenatlyBps,
+				$alarmParams.wakeupTimeSeconds
+			);
+		} catch (err: unknown) {
+			console.log(err);
+			alarmParams.resetDefault();
+			// modal.set(ErrorComponent)
+			return;
+		}
 
-	
+		modal.set(bind(PendingTransaction, { complete: false, waitFor: compDestroyed }));
+		await new Promise((r) => setTimeout(r, 3000));
+		await tx.wait();
+		modal.set(bind(PendingTransaction, { complete: true }));
+	};
 </script>
 
-<h3 style="position:relative; color:dimgray" transition:swipeColor={{ duration: 850 }}>
+<h3 style="position:relative; color:dimgray">
 	Create a New Alarm Pool /
 	<span class="header">
 		Select {ops.activeHeader()}
@@ -57,31 +94,22 @@
 </h3>
 
 <div class="container">
-    <button
-        class="button-left"
-        on:click={() => {
-            ops.previous();
-            flyParams.setFlyFromRight();
-            triggerEffect();
-        }}
-    >
-        {'<'}</button
-    >
-    <div>
-        <svelte:component this={ops.active()} {flyParams} />
-    </div>
-    <button
-        class="button-right"
-        on:click={() => {
-            ops.next();
-            flyParams.setFlyFromLeft();
-            triggerEffect();
-        }}>{'>'}</button
-    >
-</div>  
+	<button class="button-left" on:click={()=> onArrowClick("left")}>
+        {'<'}
+    </button>
+
+	<div>
+		<svelte:component this={ops.active()} {flyParams} />
+	</div>
+
+	<button
+		class="button-right"
+		on:click={() => onArrowClick("right")}>{'>'}</button
+	>
+</div>
 
 <div style="display:flex; justify-content: center; padding:1em;">
-	<button class="button-primary" style="width:90%" on:click={submitCreateAlarm}>Create</button>
+	<button class="button-primary" style="width:30%" on:click={submitCreateAlarm}>Create</button>
 </div>
 
 <style>
@@ -112,7 +140,7 @@
 	.button-left,
 	.button-right {
 		border: none;
-		background-color: rgb(73, 73, 73);
+		background-color: rgb(36, 36, 36);
 		height: 50px;
 		transition: 0.1s;
 		color: white;

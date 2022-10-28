@@ -7,7 +7,7 @@
 	import CommitmentProtocolHubAbi from 'src/abi/CommitmentProtocolHub.json';
 	import { ProtocolHubAddr } from 'src/addresses';
 
-	import { connected, defaultEvmStores } from "svelte-web3"
+	import { connected, defaultEvmStores } from "svelte-ethers-store"
 	import { bodyContainerWidthPx } from "src/theme"
 	import { modal } from "$lib/stores/stores"
 	import { onMount, SvelteComponent } from 'svelte';
@@ -16,7 +16,7 @@
 	defaultEvmStores.attachContract(
 		'ProtocolHub',
 		ProtocolHubAddr,
-		CommitmentProtocolHubAbi
+		JSON.stringify(CommitmentProtocolHubAbi)
 	);
 
 	onMount(() => {
