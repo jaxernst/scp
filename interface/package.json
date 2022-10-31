@@ -24,6 +24,7 @@
 		"prettier-plugin-svelte": "^2.7.0",
 		"svelte": "^3.44.0",
 		"svelte-check": "^2.7.1",
+		"svelte-loading-spinners": "^0.3.4",
 		"svelte-preprocess": "^4.10.6",
 		"svelte-simple-modal": "^1.4.1",
 		"tslib": "^2.3.1",
@@ -32,6 +33,8 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"ethers": "^5.7.2",
+		"svelte-ethers-store": "^2.5.8",
 		"svelte-icons": "^2.1.0",
 		"svelte-web3": "^4.0.0",
 		"web3modal": "^1.9.9"
