@@ -3,8 +3,9 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import { textSpanContainsPosition } from "typescript";
 import { CommitmentHub } from "../typechain-types";
+import { deploy } from "./utils/deploy";
 
-describe("CommitmentHub: Creating Commitments", () => {
+describe("CommitmentHub", () => {
   let commitmentHub: CommitmentHub;
   let user: SignerWithAddress;
 
@@ -16,20 +17,49 @@ describe("CommitmentHub: Creating Commitments", () => {
     commitmentHub = await (await ethers.getContractFactory("CommitmentHub")).deploy()
   });
 
-  it("Records commitment addresses indexed by an incrementing id", async () => {
-    const startingId = await commitmentHub.nextCommitmentId()
-    const tx = commitmentHub.createStandardCommitment("")
-    await expect(tx).to.not.be.reverted
-    expect(await commitmentHub.commitments(startingId)).to.be.properAddress
-    expect(await commitmentHub.nextCommitmentId()).to.eq(startingId.add(1))
+  describe("Commitment Type registration", () => {
+    it("Cannot create a commitment without a registered template contract", async () => {
+      await expect(commitmentHub.createStandardCommitment("")).to.revertedWith("Type Not Registered")
+      
+      const commitment = await deploy("StandardCommitment")
+      await (await (commitmentHub.registerType(0, commitment.address))).wait()
+      await expect(commitmentHub.createStandardCommitment("")).to.not.reverted
+    })
+    it("Only allows templates to be registered by the owner")
+    it("Prevents re-registration of the same type")
+
+  })
+
+  beforeEach(async () => {
+    commitmentHub = await (await ethers.getContractFactory("CommitmentHub")).deploy()
   });
 
-  it("Reduces commitment deployment gas costs with a minimal proxy", async () => {
-    const tx1 = await commitmentHub.createStandardCommitment("")
-    const tx2 = await commitmentHub.createStandardCommitment("")
-    const rc1 = await tx1.wait()
-    const rc2 = await tx2.wait()
-    console.log(Number(rc1.gasUsed), Number(rc2.gasUsed))
-    expect(rc1.gasUsed).to.gt(rc2.gasUsed)
-  });
+  describe("Commitment Creation", () => {
+    // Register commitment types to be tested
+    beforeEach(async () => {
+      const commitment = await deploy("StandardCommitment")
+      await (await (commitmentHub.registerType(0, commitment.address))).wait()
+    })
+    
+    it("Can create commitments from registered template contracts", async () => {
+      // Type 0 commitment (standard commitment) 
+      expect(await commitmentHub.templateRegistry(0))
+      await expect(commitmentHub.createStandardCommitment("")).to.not.reverted
+      
+      // Check create event was emitted
+      
+    })
+
+    it("Sets the commitment owner as user who sent the commitment creation transaction", () => {
+      
+    })
+  
+    it("Records commitment addresses indexed by an incrementing id", async () => {
+      const startingId = await commitmentHub.nextCommitmentId()
+      const tx = commitmentHub.createStandardCommitment("")
+      await expect(tx).to.not.be.reverted
+      expect(await commitmentHub.commitments(startingId)).to.be.properAddress
+      expect(await commitmentHub.nextCommitmentId()).to.eq(startingId.add(1))
+    });
+  })
 });

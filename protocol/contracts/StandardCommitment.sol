@@ -4,7 +4,11 @@ pragma solidity ^0.8.9;
 import { ICommitment } from "./interfaces/ICommitment.sol";
 import { SingleOwner } from "./library/SingleOwner.sol";
 
-contract StandardCommitment is ICommitment, SingleOwner {
+interface IStandardCommitment is ICommitment {
+    function init(string calldata, address) external;
+}
+
+contract StandardCommitment is ICommitment, IStandardCommitment, SingleOwner {
      /** Attrs **
      * owner: address
      * pool?: CommitmentPool  
