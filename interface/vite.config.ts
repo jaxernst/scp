@@ -8,6 +8,7 @@ const config: UserConfig = {
 		alias: {
 			src: path.resolve('./src'),
 			protocol: path.resolve('../protocol')
+			
 		}
 	}
 };

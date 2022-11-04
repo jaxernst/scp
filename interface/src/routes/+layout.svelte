@@ -3,20 +3,19 @@
 	import Navigation from 'src/components/navigation/Navigation.svelte';
 	import ConnectionStatus from 'src/components/ConnectionStatus.svelte';
 	import ConnectWalletPopup from 'src/components/ConnectWalletPopup.svelte';
-	
-	import CommitmentProtocolHubAbi from 'src/abi/CommitmentProtocolHub.json';
-	import { ProtocolHubAddr } from 'src/addresses';
 
+	import cph from "@social-alarm-clock/protocol/artifacts/contracts/CommitmentProtocolHub.sol/CommitmentProtocolHub.json"
 	import { connected, defaultEvmStores } from "svelte-ethers-store"
 	import { bodyContainerWidthPx } from "src/theme"
 	import { modal } from "$lib/stores/stores"
-	import { onMount, SvelteComponent } from 'svelte';
+	import { onMount } from 'svelte';
 	import Modal from 'svelte-simple-modal';
+	import { CommitmentProtocolHubAddr } from 'src/addresses';
 
 	defaultEvmStores.attachContract(
-		'ProtocolHub',
-		ProtocolHubAddr,
-		JSON.stringify(CommitmentProtocolHubAbi)
+		cph.contractName,
+		CommitmentProtocolHubAddr,
+		JSON.stringify(cph.abi)
 	);
 
 	onMount(() => {
