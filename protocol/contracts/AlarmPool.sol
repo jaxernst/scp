@@ -37,6 +37,8 @@ contract AlarmPool is ICommitmentPool, IAlarmPool {
     uint256 wakeupWindowDuration = 1 hours; // Before wake time
     uint256 wakeupTimeOfDay; // seconds
 
+    // Used by commitment protocol hub to track pools and users
+    uint public poolId;
     ICommitmentProtocolHub public hub;
     IAlarmPoolRewardDistributor rewardDistributor;
 
@@ -46,13 +48,16 @@ contract AlarmPool is ICommitmentPool, IAlarmPool {
      * @param _missedWakeupPenaltyBps Basis point penalty for each missed wakeup
      * @param _wakeupTimeOfDaySeconds Wakeup time of day in seconds after midnight
      */
-    constructor(uint16 _missedWakeupPenaltyBps, uint256 _wakeupTimeOfDaySeconds)
-    {
+    constructor(
+        uint16 _missedWakeupPenaltyBps, 
+        uint256 _wakeupTimeOfDaySeconds, 
+        uint _poolId
+    ) {
         hub = ICommitmentProtocolHub(msg.sender);
         rewardDistributor = new AlarmPoolRewardDistributor();
         missedWakeupPenalty = _missedWakeupPenaltyBps;
-
         wakeupTimeOfDay = _wakeupTimeOfDaySeconds;
+        poolId = _poolId;
     }
 
     /*** Public functions ***/
@@ -99,7 +104,7 @@ contract AlarmPool is ICommitmentPool, IAlarmPool {
         userAlarms[msg.sender].activationTime = nextWakeupTimestamp(msg.sender);
 
         payable(address(hub)).transfer(fee);
-        hub.recordUserJoin(msg.sender);
+        hub.recordUserJoin(msg.sender, poolId);
         emit UserJoined(msg.sender);
     }
 
@@ -172,7 +177,7 @@ contract AlarmPool is ICommitmentPool, IAlarmPool {
         // Delete user record prior to transferring to protect again reentrancy attacks
         delete userAlarms[msg.sender];
         payable(msg.sender).transfer(userAlarms[msg.sender].amountStaked);
-        hub.recordUserExit(msg.sender);
+        hub.recordUserExit(msg.sender, poolId);
     }
 
     /**

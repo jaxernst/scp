@@ -10,7 +10,7 @@ contract MockAlarmPoolFactory {
         uint256 _firstWakeupTime
     ) public {
         alarmPool = address(
-            new AlarmPool(_missedWakeupPenaltyBps, _firstWakeupTime)
+            new AlarmPool(_missedWakeupPenaltyBps, _firstWakeupTime, 0)
         );
     }
 

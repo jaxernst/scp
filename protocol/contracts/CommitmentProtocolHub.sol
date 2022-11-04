@@ -3,8 +3,11 @@ pragma solidity ^0.8.0;
 import "./AlarmPool.sol";
 
 interface ICommitmentProtocolHub {
-    function recordUserJoin(address) external;
-    function recordUserExit(address) external;
+    event JoinPool(address indexed user, uint indexed poolId);
+    event ExitPool(address indexed user, uint indexed poolId);
+    function createAlarmPool(uint16, uint256) external;
+    function recordUserJoin(address, uint) external;
+    function recordUserExit(address, uint) external;
 }
 
 contract CommitmentProtocolHub is ICommitmentProtocolHub {
@@ -13,7 +16,7 @@ contract CommitmentProtocolHub is ICommitmentProtocolHub {
     uint public nextPoolId = 1;
 
     // Deployed commitment pools
-    mapping(address => ICommitmentPool) public userPools;
+    mapping(address => mapping(uint => ICommitmentPool)) public userPools;
     mapping(ICommitmentPool => bool) deployedByHub;
 
     function createAlarmPool(
@@ -22,7 +25,8 @@ contract CommitmentProtocolHub is ICommitmentProtocolHub {
     ) public {
         ICommitmentPool pool = new AlarmPool(
             _missedWakeupPenaltyBps, 
-            _wakeupTimeOfDaySeconds
+            _wakeupTimeOfDaySeconds,
+            nextPoolId
         );
 
         deployedPools[nextPoolId] = pool;
@@ -31,14 +35,16 @@ contract CommitmentProtocolHub is ICommitmentProtocolHub {
         nextPoolId++;
     }
 
-    function recordUserJoin(address user) external override {
+    function recordUserJoin(address user, uint poolId) external override {
         require(deployedByHub[ICommitmentPool(msg.sender)], "Error: Forbidden");
-        userPools[user] = ICommitmentPool(msg.sender);
+        userPools[user][poolId] = ICommitmentPool(msg.sender);
+        emit JoinPool(user, poolId);
     }
 
-     function recordUserExit(address user) external override {
+     function recordUserExit(address user, uint poolId) external override {
         require(deployedByHub[ICommitmentPool(msg.sender)], "Error: Forbidden");
-        delete userPools[user];
+        delete userPools[user][poolId];
+        emit ExitPool(user, poolId);
     }
 
     receive() external payable {}

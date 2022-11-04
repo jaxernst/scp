@@ -5,11 +5,13 @@ import "../AlarmPool.sol";
 contract MockAlarmPool is AlarmPool {
     constructor(
         uint16 _missedWakeupPenaltyBps,
-        uint256 _firstWakeupTime
+        uint256 _firstWakeupTime,
+        uint poolId
     )
         AlarmPool(
             _missedWakeupPenaltyBps,
-            _firstWakeupTime
+            _firstWakeupTime,
+            poolId
         )
     {}
 
