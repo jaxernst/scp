@@ -1,19 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.2;
 
-// **** Proof Of Completion Modules **** //
 
-interface ProofModule {
-    /** Attrs **
-     * proofHistory: timestamp[]
-     */
 
-    /** Internal Functions **
-     * _recordProof() internal
-     */
-}
-
-interface ContestableProof is ProofModule {
+interface Contestable {
     /** Attrs **
      * revokedProofs
      * 
@@ -52,54 +42,69 @@ interface ContestableProof is ProofModule {
 
 // **** Commitments **** //
 
-interface Commitment is ProofModule {
+interface Commitment {
     /** Attrs **
      * owner: address
      * pool?: CommitmentPool  
-     * proofModule: ProofModule
-     * status: active | inactive
+     * status: active | inactive | complete
+     * submissions: number
      */
 
+    /** Events **
+     * ProofSubmitted(uri)
+     */
 
     /** External Functions **
-     * 
      * submitProof() virtual
-     * 
-     * missedProofs() virtual
-     * 
      * joinPool() onlyOwner
-     * 
-     * invalidateProof() onlyProofModule
-     * 
+     * endCommitment() onlyOwner
      */
 }
 
-interface ContestableCommitment {
-    /* removeProof(proofHistoryIndex)
-        * Requires proof to be apart of a pool
-        * Only the pool can remove a proof
-    */   
-}
-
-interface RateableCommitment is Commitment {
-    // Rating
-
-    // rate()
-    // _calculateRating()
-}
 
 interface DeadlineCommitment is Commitment {
-    // deadline 
+    /** Attrs **
+     * deadline: timestamp
+     * submissionWindow: number
+     */ 
+
+    /** External Functions **
+     * submitProof() override onlyOwner
+     *  - Require: submissions = 0
+        - Require: in submission window
+     *  - State changes:
+     *      submissions++
+     *      status = complete
+     *
+     * missedProofs() override
+     */
+}
+
+interface DayOfWeekCommitment is Commitment, Contestable {
+    /** Attrs **
+     * daysActive: number[] (max length 7) 
+     * submissionArray: number[] (length 7)
+     * */ 
 
     // missedProofs() override
 }
 
-interface DayOfWeekCommitment is Commitment {
-    // daysActive 
+interface RateableCommitment is DeadlineCommitment | DayOfWeekCommitment {
+    /** Attrs **
+     * totalRating: number
+     * commitmentRigor: number (1-10)
+     * scheduleRigor: number (1-10)
+     * proveability: number (1-10)
+     */ 
 
-    // missedProofs() override
+    /** Events **
+     * Rated(totalRating, commitmentRigor, scheduleRigor, proveability)
+     */
+
+    /** External Functions **
+     * rate(scheuleRigor, commitmentRigor, proveability)
+     */ 
 }
-
 
 
 
@@ -110,7 +115,7 @@ interface CommitmentPool {
      * rewardFund: IRewardFund
      * 
      * nextCommitmentId: number
-     * commitmentEntry {
+     * userCommitment {
      *  commitment: address,
      *  valueStaked: number,
      *  numPenalties: number 
