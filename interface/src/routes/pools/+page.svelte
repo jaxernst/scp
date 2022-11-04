@@ -2,23 +2,39 @@
     import CreateNewAlarm from "src/components/new-alarm/CreateNewAlarm.svelte";
     import MdAddAlarm from 'svelte-icons/md/MdAddAlarm.svelte'
     import { modal } from "$lib/stores/stores";
-    import { contracts } from "svelte-ethers-store"
-    import type { CommitmentProtocolHub } from "@social-alarm-clock/protocol/typechain-types"
-	import { ProtocolHubAddr } from "src/addresses";
+    import { connected } from "svelte-ethers-store"
+    import type { AlarmPool, CommitmentProtocolHub } from "@social-alarm-clock/protocol/typechain-types"
+	import { getComittmentProtocolHub, getPool } from "$lib/getContract";
+	import type { PromiseOrValue } from "@social-alarm-clock/protocol/typechain-types/common";
+	import PoolCard from "src/components/PoolCard.svelte";
+	import { onMount } from "svelte";
 
     const openNewAlarmModal = () => {
         modal.set(CreateNewAlarm);
     }
 
     const getPoolIdsArr = async (protocolHub: CommitmentProtocolHub) => {
-        await new Promise(r => setTimeout(r, 1000))
+        await new Promise(r => setTimeout(r, 500))
         const numPools = Number(await protocolHub.nextPoolId())
         return [...Array(numPools).keys()]
     }
 
-    let pools: any[] | Promise<any[]> = []
-    $: if ($contracts.ProtocolHub) {
-        pools = []
+    let poolIds: PromiseOrValue<number[]> = []
+    let pools: PromiseOrValue<AlarmPool>[] = []
+    const fetchPools = (hub: CommitmentProtocolHub) => {
+        console.log("Fetching pools")
+        poolIds = getPoolIdsArr(hub)
+        poolIds.then((poolIds) => {
+            for (const id of poolIds) {
+                pools = [...pools, getPool(hub, id)]
+            }   
+        })
+    }
+
+    $: if ($connected) {
+        const hub = getComittmentProtocolHub()
+        if (!hub) throw Error("No Hub")
+        fetchPools(hub)
     }
 
 </script>
@@ -30,18 +46,12 @@
     <div on:click={openNewAlarmModal} class="icon"><MdAddAlarm/></div>
 </div>
 <div class="pool-cards-container">
-    {#await pools}
-        <div> loading pools...</div>
-    {:then pools}
-        {#if pools && pools.length > 0} 
-            {#each pools as id}
-                <h>{id}</h>
-            {/each}
-        {:else}
-            <div></div>
-        {/if}
-    {:catch err} 
-        <div>{err}</div>
+    {#await poolIds}
+        <div>Loading pools...</div>
+    {:then}
+        {#each pools as alarmPool}
+            <PoolCard {alarmPool}/>
+        {/each}
     {/await}
 </div>
 
@@ -49,6 +59,7 @@
 
 <style>
     .header-row {
+        padding-bottom: 1em;
         display: grid;
         grid-template-columns: 1fr auto 1fr;
         justify-content: center;
@@ -60,6 +71,14 @@
         color: var(--theme-color1);
         font-size: var(--font-large);
         height: min-content;
+    }
+
+    .pool-cards-container {
+        padding-top: 1em;
+        padding-bottom: 1.5em;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+        grid-gap: 20px;
     }
 
     .icon {

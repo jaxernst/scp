@@ -6,12 +6,11 @@
 
 	import type { ContractTransaction } from 'ethers';
 	import { cubicInOut } from 'svelte/easing';
-	import { contracts } from 'svelte-ethers-store';
 	import { alarmParams } from './alarmCreationStore';
 	import { modal } from '$lib/stores/stores';
 	import { bind } from 'svelte-simple-modal';
-	import { createEventDispatcher, onDestroy } from 'svelte';
-	import { applyAction } from '$app/forms';
+	import { onDestroy } from 'svelte';
+    import { getComittmentProtocolHub } from '$lib/getContract';
 
 	// Create a promise that resolves once the component is
 	// destroyed (All transitions have completed)
@@ -65,10 +64,10 @@
 	};
 
 	const submitCreateAlarm = async () => {
-		console.log($alarmParams.poolPenatlyBps, $alarmParams.wakeupTimeSeconds);
 		let tx: ContractTransaction;
 		try {
-			tx = await $contracts.ProtocolHub?.createAlarmPool(
+			const hub = getComittmentProtocolHub()!
+            tx = await hub.createAlarmPool(
 				$alarmParams.poolPenatlyBps,
 				$alarmParams.wakeupTimeSeconds
 			);
@@ -78,7 +77,7 @@
 			// modal.set(ErrorComponent)
 			return;
 		}
-
+        
 		modal.set(bind(PendingTransaction, { complete: false, waitFor: compDestroyed }));
 		await new Promise((r) => setTimeout(r, 3000));
 		await tx.wait();
