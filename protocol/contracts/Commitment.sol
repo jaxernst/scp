@@ -1,25 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-interface ICommitment {
-    enum Status {
-        Active,
-        Complete,
-        Terminated,
-        Paused
-    }
-    function init(string calldata, address) external;
-}
+import { ICommitment } from "./interfaces/ICommitment.sol";
+import { SingleOwner } from "./library/SingleOwner.sol";
 
-contract Ownable {
-    address owner;
-    modifier onlyOwner() {
-        require(msg.sender == owner, "ONLY_OWNER");
-        _;
-    }
-}
-
-contract Commitment is ICommitment, Ownable {
+contract StandardCommitment is ICommitment, SingleOwner {
      /** Attrs **
      * owner: address
      * pool?: CommitmentPool  
