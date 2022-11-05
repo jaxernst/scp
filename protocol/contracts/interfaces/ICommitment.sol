@@ -8,4 +8,6 @@ interface ICommitment {
         Terminated,
         Paused
     }
+    
+    function owner() external view returns(address);
 }

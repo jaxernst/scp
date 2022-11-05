@@ -18,7 +18,7 @@ enum CommitmentType {
 */
 contract CommitmentFactory is Ownable {
     mapping(CommitmentType => address) public templateRegistry;
-    function createCommitment(CommitmentType _type) internal returns(address) {
+    function _createCommitment(CommitmentType _type) internal returns(address) {
         require(templateRegistry[_type]!= address(0), "Type Not Registered");
         return Clones.clone(templateRegistry[_type]);
     }
@@ -27,19 +27,30 @@ contract CommitmentFactory is Ownable {
         require(templateRegistry[_type] == address(0), "Type registered");
         templateRegistry[_type] = deployedAt;
     }
-
 }
 
 contract CommitmentHub is CommitmentFactory {
     uint public nextCommitmentId = 1;
     mapping(uint => ICommitment) public commitments;
 
-    event CommitmentCreated(address user, address commitmenAddr);
+    event CommitmentCreation(
+        address indexed user, 
+        CommitmentType indexed _type, 
+        address indexed commitmentAddr);
 
+    /** 
+     * Creates and initializes a standard commitment 
+     */
     function createStandardCommitment(string calldata description) public {  
-        address commitment = createCommitment(CommitmentType.Standard);
-        IStandardCommitment(commitment).init(description, msg.sender);
+        address commitment = _createCommitment(CommitmentType.Standard);
+        IStandardCommitment(commitment).init(description);
         commitments[++nextCommitmentId] = ICommitment(commitment);
-        emit CommitmentCreated(msg.sender, commitment);
+        emit CommitmentCreation(msg.sender, CommitmentType.Standard, commitment);
+    }
+
+    function createCommitment(CommitmentType _type) public {
+        address commitment = _createCommitment(_type);
+        commitments[++nextCommitmentId] = ICommitment(commitment);
+        emit CommitmentCreation(msg.sender, _type, commitment);
     }
 }

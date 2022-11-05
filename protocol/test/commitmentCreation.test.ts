@@ -13,5 +13,5 @@ describe("Standard Commitment Creation", () => {
     [user] = await ethers.getSigners();
   });
 
-  it("Set a commitments status to active when created");
+  it("Set a commitments status to active when initialized");
 });

@@ -4,11 +4,13 @@ pragma solidity ^0.8.9;
 import { ICommitment } from "./interfaces/ICommitment.sol";
 import { SingleOwner } from "./library/SingleOwner.sol";
 
-interface IStandardCommitment is ICommitment {
-    function init(string calldata, address) external;
+import "hardhat/console.sol";
+
+interface IStandardCommitment {
+    function init(string calldata) external;
 }
 
-contract StandardCommitment is ICommitment, IStandardCommitment, SingleOwner {
+contract StandardCommitment is ICommitment, IStandardCommitment {
      /** Attrs **
      * owner: address
      * pool?: CommitmentPool  
@@ -16,13 +18,22 @@ contract StandardCommitment is ICommitment, IStandardCommitment, SingleOwner {
      * submissions: number
      */
 
+    address public override owner;
     string description;
     Status status;
 
-    function init(string calldata _description, address _owner) external override {
-        owner = _owner;
-        description = description;
+    constructor() {
+        console.log("Set owner", tx.origin);
+        console.log("This addr", address(this));
+        owner = tx.origin;
+    }
+
+    bool initialized = false;
+    function init(string calldata _description) external override {
+        require(!initialized);
+        description = _description;
         status = Status.Active;
+        initialized = true;
     }
 
     /** Events **
