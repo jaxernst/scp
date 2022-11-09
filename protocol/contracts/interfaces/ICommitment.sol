@@ -10,4 +10,7 @@ interface ICommitment {
     }
     
     function owner() external view returns(address);
+    function status() external view returns(Status);
+    function initialized() external view returns(bool);
+    function init(bytes calldata initData) external;
 }

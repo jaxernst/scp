@@ -17,15 +17,15 @@ enum CommitmentType {
  * address can be registered here
 */
 contract CommitmentFactory is Ownable {
-    mapping(CommitmentType => address) public templateRegistry;
-    function _createCommitment(CommitmentType _type) internal returns(address) {
-        require(templateRegistry[_type]!= address(0), "Type Not Registered");
-        return Clones.clone(templateRegistry[_type]);
+    mapping(CommitmentType => address) public commitTemplateRegistry;
+    function _createCommitment(CommitmentType _type) internal returns(ICommitment) {
+        require(commitTemplateRegistry[_type]!= address(0), "Type Not Registered");
+        return ICommitment(Clones.clone(commitTemplateRegistry[_type]));
     }
 
-    function registerType(CommitmentType _type, address deployedAt) public onlyOwner {
-        require(templateRegistry[_type] == address(0), "Type registered");
-        templateRegistry[_type] = deployedAt;
+    function registerCommitType(CommitmentType _type, address deployedAt) public onlyOwner {
+        require(commitTemplateRegistry[_type] == address(0), "Type registered");
+        commitTemplateRegistry[_type] = deployedAt;
     }
 }
 
@@ -39,18 +39,12 @@ contract CommitmentHub is CommitmentFactory {
         address indexed commitmentAddr);
 
     /** 
-     * Creates and initializes a standard commitment 
+     * Creates and initializes a commitment 
      */
-    function createStandardCommitment(string calldata description) public {  
-        address commitment = _createCommitment(CommitmentType.Standard);
-        IStandardCommitment(commitment).init(description);
+    function createCommitment(CommitmentType _type, bytes memory _data) public {
+        ICommitment commitment = _createCommitment(_type);
+        commitment.init(_data);
         commitments[++nextCommitmentId] = ICommitment(commitment);
-        emit CommitmentCreation(msg.sender, CommitmentType.Standard, commitment);
-    }
-
-    function createCommitment(CommitmentType _type) public {
-        address commitment = _createCommitment(_type);
-        commitments[++nextCommitmentId] = ICommitment(commitment);
-        emit CommitmentCreation(msg.sender, _type, commitment);
+        emit CommitmentCreation(msg.sender, _type, address(commitment));
     }
 }

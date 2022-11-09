@@ -7,10 +7,10 @@ import { SingleOwner } from "./library/SingleOwner.sol";
 import "hardhat/console.sol";
 
 interface IStandardCommitment {
-    function init(string calldata) external;
+    function pledgeDescription() external returns(string memory);
 }
 
-contract StandardCommitment is ICommitment, IStandardCommitment {
+contract StandardCommitment is ICommitment {
      /** Attrs **
      * owner: address
      * pool?: CommitmentPool  
@@ -19,22 +19,18 @@ contract StandardCommitment is ICommitment, IStandardCommitment {
      */
 
     address public override owner;
-    string description;
-    Status status;
+    string pledgeDescription;
+    Status public status;
 
-    constructor() {
-        console.log("Set owner", tx.origin);
-        console.log("This addr", address(this));
-        owner = tx.origin;
-    }
-
-    bool initialized = false;
-    function init(string calldata _description) external override {
+    bool public override initialized = false;
+    function init(bytes calldata initData) external override {
         require(!initialized);
-        description = _description;
+        owner = tx.origin;
         status = Status.Active;
         initialized = true;
+        pledgeDescription = abi.decode(initData, (string));
     }
+
 
     /** Events **
      * ProofSubmitted(uri)
