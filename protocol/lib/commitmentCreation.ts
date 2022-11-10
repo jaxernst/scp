@@ -1,16 +1,16 @@
 import { ethers } from "ethers";
 import { deploy } from "../test/helpers/deploy";
 import {
+  Commitment,
   CommitmentHub,
-  ICommitment,
-  ICommitment__factory,
+  Commitment__factory,
 } from "../typechain-types";
-import { CommitContractNames, CommitInitDataTypes, CommitTypeVals, SolidityCommitInitTypes } from "./types";
+import { CommiFactoryMapping, CommitContractNames, CommitContractTypes, CommitInitDataTypes, CommitTypeVals, SolidityCommitInitTypes } from "./types";
 
 export async function createCommitment<
   Hub extends CommitmentHub,
   T extends CommitTypeVals
->(hub: Hub, type: T, initData: CommitInitDataTypes[T]): Promise<ICommitment> {
+>(hub: Hub, type: T, initData: CommitInitDataTypes[T]): Promise<CommitContractTypes[T]> {
 
   if ((await hub.commitTemplateRegistry(type)) === ethers.constants.AddressZero) {
     const commit =  await deploy(CommitContractNames[type])
@@ -32,5 +32,5 @@ export async function createCommitment<
     }
   }
 
-  return ICommitment__factory.connect(commitAddr!, hub.signer);
+  return CommiFactoryMapping[type].connect(commitAddr!, hub.signer);
 }

@@ -4,7 +4,7 @@ pragma solidity ^0.8.9;
 import { Clones } from "@openzeppelin/contracts/proxy/Clones.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { StandardCommitment, IStandardCommitment } from "./StandardCommitment.sol";
-import { ICommitment } from "./interfaces/ICommitment.sol";
+import { Commitment } from "./Commitment.sol";
 import "hardhat/console.sol";
 
 enum CommitmentType {
@@ -18,9 +18,9 @@ enum CommitmentType {
 */
 contract CommitmentFactory is Ownable {
     mapping(CommitmentType => address) public commitTemplateRegistry;
-    function _createCommitment(CommitmentType _type) internal returns(ICommitment) {
+    function _createCommitment(CommitmentType _type) internal returns(Commitment) {
         require(commitTemplateRegistry[_type]!= address(0), "Type Not Registered");
-        return ICommitment(Clones.clone(commitTemplateRegistry[_type]));
+        return Commitment(Clones.clone(commitTemplateRegistry[_type]));
     }
 
     function registerCommitType(CommitmentType _type, address deployedAt) public onlyOwner {
@@ -31,20 +31,21 @@ contract CommitmentFactory is Ownable {
 
 contract CommitmentHub is CommitmentFactory {
     uint public nextCommitmentId = 1;
-    mapping(uint => ICommitment) public commitments;
+    mapping(uint => Commitment) public commitments;
 
     event CommitmentCreation(
         address indexed user, 
         CommitmentType indexed _type, 
-        address indexed commitmentAddr);
+        address indexed commitmentAddr
+    );
 
     /** 
      * Creates and initializes a commitment 
      */
     function createCommitment(CommitmentType _type, bytes memory _data) public {
-        ICommitment commitment = _createCommitment(_type);
+        Commitment commitment = _createCommitment(_type);
         commitment.init(_data);
-        commitments[++nextCommitmentId] = ICommitment(commitment);
+        commitments[++nextCommitmentId] = Commitment(commitment);
         emit CommitmentCreation(msg.sender, _type, address(commitment));
     }
 }
