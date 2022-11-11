@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-interface IDeadlineCommitment {
+ interface IDeadlineCommitment {
     /** Attrs **
      * deadline: timestamp
      * submissionWindow: seconds before deadline completion transaction can be made
@@ -19,6 +19,6 @@ interface IDeadlineCommitment {
      *
      * missedProofs() override
      */
-    function submitCompletion(string memory) external;
-    function missedProofs() external;
+
+    function missedDeadlines() external view returns(uint);
 }

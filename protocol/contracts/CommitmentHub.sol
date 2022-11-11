@@ -3,12 +3,12 @@ pragma solidity ^0.8.9;
 
 import { Clones } from "@openzeppelin/contracts/proxy/Clones.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
-import { StandardCommitment, IStandardCommitment } from "./StandardCommitment.sol";
 import { Commitment } from "./Commitment.sol";
 import "hardhat/console.sol";
 
 enum CommitmentType {
-    Standard
+    Base,
+    Deadline
 }
 
 /** 
@@ -42,9 +42,13 @@ contract CommitmentHub is CommitmentFactory {
     /** 
      * Creates and initializes a commitment 
      */
-    function createCommitment(CommitmentType _type, bytes memory _data) public {
+    function createCommitment(
+        CommitmentType _type, 
+        string memory _name, 
+        bytes memory _data
+    ) public {
         Commitment commitment = _createCommitment(_type);
-        commitment.init(_data);
+        commitment.init(_name, _data);
         commitments[++nextCommitmentId] = Commitment(commitment);
         emit CommitmentCreation(msg.sender, _type, address(commitment));
     }

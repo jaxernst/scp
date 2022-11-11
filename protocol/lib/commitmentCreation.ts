@@ -1,16 +1,16 @@
-import { ethers } from "ethers";
+import { Contract, ethers } from "ethers";
 import { deploy } from "../test/helpers/deploy";
 import {
   Commitment,
   CommitmentHub,
   Commitment__factory,
 } from "../typechain-types";
-import { CommiFactoryMapping, CommitContractNames, CommitContractTypes, CommitInitDataTypes, CommitTypeVals, SolidityCommitInitTypes } from "./types";
+import { CommitFactoryMapping, CommitContractNames, CommitContractTypes, CommitInitDataTypes, CommitTypeVals, SolidityCommitInitTypes } from "./types";
 
 export async function createCommitment<
   Hub extends CommitmentHub,
   T extends CommitTypeVals
->(hub: Hub, type: T, initData: CommitInitDataTypes[T]): Promise<CommitContractTypes[T]> {
+>(hub: Hub, type: T, name: string, initData: CommitInitDataTypes[T]): Promise<CommitContractTypes[T]> {
 
   if ((await hub.commitTemplateRegistry(type)) === ethers.constants.AddressZero) {
     const commit =  await deploy(CommitContractNames[type])
@@ -22,7 +22,7 @@ export async function createCommitment<
     initData
   );
 
-  const rc = await (await hub.createCommitment(type, byteData)).wait();
+  const rc = await (await hub.createCommitment(type, name, byteData)).wait();
   if (!rc.events) throw Error("No events found in tx");
 
   let commitAddr: string;
@@ -32,5 +32,5 @@ export async function createCommitment<
     }
   }
 
-  return CommiFactoryMapping[type].connect(commitAddr!, hub.signer);
+  return (CommitFactoryMapping[type] as any).connect(commitAddr!, hub.signer);
 }
