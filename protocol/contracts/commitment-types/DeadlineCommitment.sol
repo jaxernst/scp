@@ -23,7 +23,7 @@ contract DeadlineCommitment is Commitment, IDeadlineCommitment {
       require(block.timestamp <= deadline, "DEADLINE_MISSED");
       require(deadline - submissionWindow < block.timestamp, "NOT_IN_WINDOW");
       emit ConfirmationSubmitted();
-      markComplete();
+      _markComplete();
    }
 
    function missedDeadlines() public view override returns(uint) {

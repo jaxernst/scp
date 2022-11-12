@@ -17,7 +17,6 @@ abstract contract Commitment {
     string public name;
     Status public status;
     address public owner;
-    
     bool initialized = false;
     function init(
         string memory _name, 
@@ -46,13 +45,13 @@ abstract contract Commitment {
         emit ConfirmationSubmitted();
     }
 
-    function markComplete() internal virtual {
-        emit StatusChanged(status, Status.Complete);
-        status = Status.Complete;
-    }
-
     function terminate() public virtual onlyOwner {
         emit StatusChanged(status, Status.Terminated);
         status = Status.Terminated;
+    }
+
+    function _markComplete() internal virtual {
+        emit StatusChanged(status, Status.Complete);
+        status = Status.Complete;
     }
 }

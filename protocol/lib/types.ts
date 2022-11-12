@@ -1,6 +1,8 @@
 import { BigNumberish } from "ethers";
 import { string } from "hardhat/internal/core/params/argumentTypes";
-import { BaseCommitment, BaseCommitment__factory, Commitment, Commitment__factory, DeadlineCommitment, DeadlineCommitment__factory, StandardCommitment, StandardCommitment__factory } from "../typechain-types";
+import { Commitment, Commitment__factory, DeadlineCommitment, DeadlineCommitment__factory, StandardCommitment, StandardCommitment__factory } from "../typechain-types";
+import { BaseCommitment } from "../typechain-types/contracts/commitment-types";
+import { BaseCommitment__factory } from "../typechain-types/factories/contracts/commitment-types";
 
 export type DayOfWeek = 1 | 2 | 3 | 4 | 5 | 6 | 7
 
