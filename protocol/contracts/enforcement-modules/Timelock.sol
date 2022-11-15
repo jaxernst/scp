@@ -14,10 +14,10 @@ contract DeadlineTimelock is EnforcementModule {
 
     mapping(address => userEntry) userEntries;
 
-    function join(DeadlineCommitment commitment, uint timelockDuration) public payable {
-        uint commitDeadline = commitment.deadline();
+    function join(address commitment, uint timelockDuration) public payable {
+        uint commitDeadline = DeadlineCommitment(commitment).deadline();
         require(block.timestamp < commitDeadline, "DEADLINE_PASSED");
-        require(msg.sender == commitment.owner(), "ONLY_OWNER_ACTION");
+        require(msg.sender == DeadlineCommitment(commitment).owner(), "ONLY_OWNER_ACTION");
         require(msg.value > 0, "STAKE_VALUE_NOT_SENT");
 
         userEntries[commitment.owner()] = userEntry({
@@ -35,7 +35,7 @@ contract DeadlineTimelock is EnforcementModule {
         require(userEntries[owner].stake > 0, "USER_NOT_STAKED");
         
         uint missedDeadlines = commitment.missedDeadlines();
-        require(missedDeadlines > 0, "NOTHING_TO _PENALIZE");
+        require(missedDeadlines > 0, "NOTHING_TO_PENALIZE");
 
         // If a user stake is locked, the user cannot withdraw until their
         // specified timelock duration has passed

@@ -50,6 +50,19 @@ abstract contract Commitment {
         status = Status.Terminated;
     }
 
+    /**
+     * Can be implemented by child commitments to allow external enforcement 
+     * modules to modifiy (revoke) submitted confirmations and/or proofs
+     * @param contestor The contract containing the contestment logic. For comitments
+     * that are not algorithmically provable, this will likely be a social consensysus
+     * voting contract that can decide to revoke commitments that the user has faled
+     * to proove
+     * @param duration How long this commitment will be contestable.
+     */
+    function makeContestable(address contestor, uint duration) public virtual onlyOwner {
+        revert("NOT_IMPLEMENTED");
+    }
+    
     function _markComplete() internal virtual {
         emit StatusChanged(status, Status.Complete);
         status = Status.Complete;
