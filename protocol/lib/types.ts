@@ -34,13 +34,13 @@ export const CommitContractNames = {
 
 export type CommitInitDataTypes = {
     0: [string],
-    1: [string, BigNumberish, BigNumberish],
+    1: [BigNumberish, BigNumberish],
     2: [string, string, DayOfWeek[]]
 }
 
 export const SolidityCommitInitTypes = {
     0: ["string"],
-    1: ["string", "uint256", "uint256"],
+    1: ["uint256", "uint256"],
     2: ["string", "string"]
 }
 

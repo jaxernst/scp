@@ -3,8 +3,11 @@ pragma solidity ^0.8.9;
 
 import { Commitment } from "../Commitment.sol";
 import "../interfaces/IDeadlineCommitment.sol";
+import "./ScheduleTypes.sol";
 
-abstract contract DeadlineSchedule {
+abstract contract DeadlineScheduledCommitment is Commitment {
+   ScheduleType public override scheduleType = ScheduleType.DEADLINE;
+   
    uint public deadline;
    uint public submissionWindow;
    bool public deadlineMet = false;
@@ -15,17 +18,17 @@ abstract contract DeadlineSchedule {
       submissionWindow = _submissionWindow;
    }
 
-   function setDeadlineMet() internal {
+   function _setDeadlineMet() internal {
       deadlineMet = true;
    }
 
-   function inSubmissionWindow() public view returns(bool) {
+   function _inSubmissionWindow() internal view returns(bool) {
       return 
          block.timestamp <= deadline &&
          deadline - submissionWindow < block.timestamp;
    }
 
-   function missedDeadlines() public view returns(uint) {
+   function missedDeadlines() public override view returns(uint) {
       // Deadline commitments can only be marked complete if a confirmation
       // was submitted within the window
       if (block.timestamp < deadline || deadlineMet ) {

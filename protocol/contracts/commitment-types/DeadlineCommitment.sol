@@ -2,36 +2,24 @@
 pragma solidity ^0.8.9;
 
 import { Commitment } from "../Commitment.sol";
-import "../interfaces/IDeadlineCommitment.sol";
+import { DeadlineScheduledCommitment } from "../schedule-modules/DeadlineSchedule.sol";
+import "../schedule-modules/ScheduleTypes.sol";
 
-contract DeadlineCommitment is Commitment, IDeadlineCommitment {
-   /** Attrs **
-   * deadline: timestamp
-   * submissionWindow: seconds before deadline completion transaction can be made
-   */ 
-
-   string public description;
-   uint public deadline;
-   uint public submissionWindow;
+contract DeadlineCommitment is DeadlineScheduledCommitment {
+   event ToDoCommitmentCreated(uint deadline);
 
    function _decodeInitData(bytes calldata initData) internal override {
-      (description, deadline, submissionWindow) = abi.decode(initData, (string, uint, uint));
+      (deadline, submissionWindow) = abi.decode(initData, (uint, uint));
       require(block.timestamp < deadline, "DEADLINE_PASSED");
+      __init_deadline_schedule(deadline, submissionWindow);
+
+      emit ToDoCommitmentCreated(deadline);
    }
 
    function submitConfirmation() public override onlyOwner {
-      require(block.timestamp <= deadline, "DEADLINE_MISSED");
-      require(deadline - submissionWindow < block.timestamp, "NOT_IN_WINDOW");
+      require(_inSubmissionWindow(), "NOT_IN_SUBMISSION_WINDOW");
       emit ConfirmationSubmitted();
+      _setDeadlineMet();
       _markComplete();
-   }
-
-   function missedDeadlines() public view override returns(uint) {
-      // Deadline commitments can only be marked complete if a confirmation
-      // was submitted within the window
-      if (block.timestamp < deadline || status == Status.Complete) {
-         return 0;
-      }
-      return 1;
    }
 } 

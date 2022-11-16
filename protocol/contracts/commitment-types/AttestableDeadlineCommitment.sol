@@ -1,22 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "./DeadlineCommitment.sol";
 import "../schedule-modules/DeadlineSchedule.sol";
 
-contract AttestableDeadlineCommitment is DeadlineSchedule, Commitment {
+contract AttestableDeadlineCommitment is DeadlineScheduledCommitment {
     uint nextProofId;
-    uint256 attestations;
+    uint256 attestationCount;
     string proofDescription;
-    string commitmentDescription;
 
     function _decodeInitData(bytes calldata initData) internal override {
         (
             proofDescription,
-            commitmentDescription,
             deadline,
             submissionWindow
-        ) = abi.decode(initData, (string, string, uint256, uint256));
+        ) = abi.decode(initData, (string, uint256, uint256));
         __init_deadline_schedule(deadline, submissionWindow);
     }
 
@@ -25,8 +22,8 @@ contract AttestableDeadlineCommitment is DeadlineSchedule, Commitment {
         override
         onlyOwner
     {
-        require(inSubmissionWindow(), "NOT_IN_WINDOW");
-        setDeadlineMet();
+        require(_inSubmissionWindow(), "NOT_IN_WINDOW");
+        _setDeadlineMet();
         emit ProofSubmitted(proofUri, ++nextProofId);
     }
 }

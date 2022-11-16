@@ -45,10 +45,11 @@ contract CommitmentHub is CommitmentFactory {
     function createCommitment(
         CommitmentType _type, 
         string memory _name, 
+        string memory _description,
         bytes memory _data
     ) public {
         Commitment commitment = _createCommitment(_type);
-        commitment.init(_name, _data);
+        commitment.init(_name, _description, _data);
         commitments[++nextCommitmentId] = Commitment(commitment);
         emit CommitmentCreation(msg.sender, _type, address(commitment));
     }

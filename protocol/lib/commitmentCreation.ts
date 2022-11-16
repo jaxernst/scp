@@ -21,6 +21,7 @@ export async function createCommitment<
   hub: Hub,
   type: T,
   name: string,
+  description: string,
   initData: CommitInitDataTypes[T]
 ): Promise<CommitContractTypes[T]> {
   if (
@@ -35,7 +36,10 @@ export async function createCommitment<
     initData
   );
 
-  const rc = await (await hub.createCommitment(type, name, byteData)).wait();
+  const rc = await (
+    await hub.createCommitment(type, name, description, byteData)
+  ).wait();
+  
   if (!rc.events) throw Error("No events found in tx");
 
   let commitAddr: string;

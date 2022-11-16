@@ -6,7 +6,7 @@ import "./Commitment.sol";
 abstract contract EnforcementModule {
     uint entries;
 
-    function join(address commitment, bytes memory joinData) public payable virtual;
-    function exit() public virtual;
-    function penalize(address commitment) public virtual;
+    //function join(address commitment, bytes memory joinData) public payable virtual;
+    //function exit() public virtual;
+    //function penalize(address commitment) public virtual;
 }
