@@ -3,7 +3,7 @@ pragma solidity ^0.8.9;
 
 abstract contract Commitment {
     event ConfirmationSubmitted();
-    event ProofSubmitted(string proofURI);
+    event ProofSubmitted(string proofURI, uint proofId);
 
     event StatusChanged(Status from, Status to);
     enum Status {
@@ -18,6 +18,7 @@ abstract contract Commitment {
     Status public status;
     address public owner;
     bool initialized = false;
+    
     function init(
         string memory _name, 
         bytes calldata initData
@@ -35,10 +36,10 @@ abstract contract Commitment {
         _;
     }
 
-    function _decodeInitData(bytes calldata initData) internal virtual {}
+    function _decodeInitData(bytes calldata initData) internal virtual;
     
-    function submitProof(string memory proofUri) public virtual onlyOwner {
-        emit ProofSubmitted(proofUri);
+    function submitConfirmationWithProof(string memory proofUri) public virtual onlyOwner {
+        revert("NOT_IMPLEMENTED");
     }
 
     function submitConfirmation() public virtual onlyOwner {
@@ -50,15 +51,6 @@ abstract contract Commitment {
         status = Status.Terminated;
     }
 
-    /**
-     * Can be implemented by child commitments to allow external enforcement 
-     * modules to modifiy (revoke) submitted confirmations and/or proofs
-     * @param contestor The contract containing the contestment logic. For comitments
-     * that are not algorithmically provable, this will likely be a social consensysus
-     * voting contract that can decide to revoke commitments that the user has faled
-     * to proove
-     * @param duration How long this commitment will be contestable.
-     */
     function makeContestable(address contestor, uint duration) public virtual onlyOwner {
         revert("NOT_IMPLEMENTED");
     }
