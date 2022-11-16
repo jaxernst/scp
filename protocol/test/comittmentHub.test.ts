@@ -3,7 +3,7 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import { CommitType } from "../lib/types";
 import { CommitmentHub } from "../typechain-types";
-import { encodedString, ZERO_ADDRESS } from "./constants";
+import { encodedString, ZERO_ADDRESS } from "./helpers/constants";
 import { deploy } from "./helpers/deploy";
 
 
