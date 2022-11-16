@@ -24,6 +24,8 @@ This is a very young project, so many details here may be outdated.
 
 ## Setup frontend and test smart contracts
 
+*** Warning: The frontend will not currently run due to protocol refactoring ***
+
 This repo uses yarn package manager. With yarn installed run the following:
 
 * Ensure the correct version of yarn is being used:
