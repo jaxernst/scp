@@ -1,47 +1,50 @@
 import { BigNumberish } from "ethers";
 import { string } from "hardhat/internal/core/params/argumentTypes";
-import { Commitment, Commitment__factory, DeadlineCommitment, DeadlineCommitment__factory, StandardCommitment, StandardCommitment__factory } from "../typechain-types";
-import { BaseCommitment } from "../typechain-types/contracts/commitment-types";
+import { BaseCommitment, DeadlineCommitment, DeadlineCommitment__factory } from "../typechain-types";
 import { BaseCommitment__factory } from "../typechain-types/factories/contracts/commitment-types";
 
 export type DayOfWeek = 1 | 2 | 3 | 4 | 5 | 6 | 7
 
-export type CommitTypeVals = 0 | 1 | 2
+export type CommitTypeVals = 0 | 1
 
 export enum CommitType {
     BASE,
-    DEADLINE,
-    INTERVAL
+    DEADLINE
 }
 
 export type CommitContractTypes = {
     0: BaseCommitment,
-    1: DeadlineCommitment,
-    2: Commitment,
+    1: DeadlineCommitment
 }
 
 export const CommitFactoryMapping = {
     0: BaseCommitment__factory,
-    1: DeadlineCommitment__factory,
-    2: Commitment__factory
+    1: DeadlineCommitment__factory
 }
 
 export const CommitContractNames = {
     0: "BaseCommitment",
-    1: "DeadlineCommitment",
-    2: "AlarmCommitment"
+    1: "DeadlineCommitment"
+}
+
+export type InitializationTypes = {
+    0: { name: string, description: string}
+    1: { 
+        name: string, 
+        description: string, 
+        deadline: BigNumberish, 
+        submissionWindow: BigNumberish
+    }
 }
 
 export type CommitInitDataTypes = {
-    0: [string],
-    1: [BigNumberish, BigNumberish],
-    2: [string, string, DayOfWeek[]]
+    0: [string, string],
+    1: [string, string, BigNumberish, BigNumberish]
 }
 
 export const SolidityCommitInitTypes = {
-    0: ["string"],
-    1: ["uint256", "uint256"],
-    2: ["string", "string"]
+    0: ["string", "string"],
+    1: ["string", "string", "uint256", "uint256"],
 }
 
 export enum CommitStatus {

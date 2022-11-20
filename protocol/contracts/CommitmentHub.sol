@@ -3,7 +3,7 @@ pragma solidity ^0.8.9;
 
 import { Clones } from "@openzeppelin/contracts/proxy/Clones.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
-import { Commitment } from "./Commitment.sol";
+import { BaseCommitment } from "./Commitment.sol";
 import "hardhat/console.sol";
 
 enum CommitmentType {
@@ -18,20 +18,27 @@ enum CommitmentType {
 */
 contract CommitmentFactory is Ownable {
     mapping(CommitmentType => address) public commitTemplateRegistry;
-    function _createCommitment(CommitmentType _type) internal returns(Commitment) {
+    mapping(CommitmentType => bytes4) public initSelectorRegistry;
+
+    function _createCommitment(CommitmentType _type) internal returns(BaseCommitment) {
         require(commitTemplateRegistry[_type]!= address(0), "Type Not Registered");
-        return Commitment(Clones.clone(commitTemplateRegistry[_type]));
+        return BaseCommitment(Clones.clone(commitTemplateRegistry[_type]));
     }
 
-    function registerCommitType(CommitmentType _type, address deployedAt) public onlyOwner {
+    function registerCommitType(
+        CommitmentType _type, 
+        bytes4 initializationSelector,
+        address deployedAt
+    ) public onlyOwner {
         require(commitTemplateRegistry[_type] == address(0), "Type registered");
         commitTemplateRegistry[_type] = deployedAt;
+        initSelectorRegistry[_type] = initializationSelector;
     }
 }
 
 contract CommitmentHub is CommitmentFactory {
     uint public nextCommitmentId = 1;
-    mapping(uint => Commitment) public commitments;
+    mapping(uint => BaseCommitment) public commitments;
 
     event CommitmentCreation(
         address indexed user, 
@@ -44,13 +51,22 @@ contract CommitmentHub is CommitmentFactory {
      */
     function createCommitment(
         CommitmentType _type, 
-        string memory _name, 
-        string memory _description,
-        bytes memory _data
+        bytes memory _initData
     ) public {
-        Commitment commitment = _createCommitment(_type);
-        commitment.init(_name, _description, _data);
-        commitments[++nextCommitmentId] = Commitment(commitment);
+        BaseCommitment commitment = _createCommitment(_type);
+    
+        console.logBytes(abi.encodePacked(initSelectorRegistry[_type], _initData));
+        console.logBytes(abi.encode(initSelectorRegistry[_type], _initData));
+
+        // Call to initialize the contract created as a minimal proxy
+        (bool success, bytes memory err) = address(commitment).call(
+            abi.encodePacked(initSelectorRegistry[_type], _initData)
+        );
+        
+        console.logBytes(err);
+        require(success, "Initialization failed");
+
+        commitments[++nextCommitmentId] = BaseCommitment(commitment);
         emit CommitmentCreation(msg.sender, _type, address(commitment));
     }
 }

@@ -1,10 +1,8 @@
 import { Contract, ethers } from "ethers";
+import { AbiCoder, keccak256 } from "ethers/lib/utils";
 import { deploy } from "../test/helpers/deploy";
-import {
-  Commitment,
-  CommitmentHub,
-  Commitment__factory,
-} from "../typechain-types";
+import { BaseCommitment__factory, CommitmentHub } from "../typechain-types";
+import { BaseCommitment } from "../typechain-types/contracts/Commitment.sol";
 import {
   CommitFactoryMapping,
   CommitContractNames,
@@ -12,7 +10,10 @@ import {
   CommitInitDataTypes,
   CommitTypeVals,
   SolidityCommitInitTypes,
+  CommitType,
+  InitializationTypes,
 } from "./types";
+
 
 export async function createCommitment<
   Hub extends CommitmentHub,
@@ -20,24 +21,22 @@ export async function createCommitment<
 >(
   hub: Hub,
   type: T,
-  name: string,
-  description: string,
-  initData: CommitInitDataTypes[T]
+  initData: InitializationTypes[T]
 ): Promise<CommitContractTypes[T]> {
   if (
     (await hub.commitTemplateRegistry(type)) === ethers.constants.AddressZero
   ) {
-    const commit = await deploy(CommitContractNames[type]);
-    await (await hub.registerCommitType(type, commit.address)).wait();
+    await registerNewType(hub, CommitContractNames[type], type)
   }
+
 
   const byteData = ethers.utils.defaultAbiCoder.encode(
     SolidityCommitInitTypes[type],
-    initData
+    Object.values(initData)
   );
 
   const rc = await (
-    await hub.createCommitment(type, name, description, byteData)
+    await hub.createCommitment(type, byteData)
   ).wait();
   
   if (!rc.events) throw Error("No events found in tx");
@@ -50,4 +49,22 @@ export async function createCommitment<
   }
 
   return (CommitFactoryMapping[type] as any).connect(commitAddr!, hub.signer);
+}
+
+export async function registerNewType(
+  hub: CommitmentHub, 
+  contractName: string, 
+  type: CommitType
+) {
+  const commit = await deploy(contractName)
+  const funcSig = "__init__" + contractName + "(bytes)"
+  if (!commit.interface.functions[funcSig]) {
+    throw Error("Expected initialization function not found in interface")
+  }
+
+  const initSelector = commit.interface.getSighash(
+    commit.interface.functions[funcSig]
+  )
+
+  await (await hub.registerCommitType(type, initSelector, commit.address)).wait();
 }

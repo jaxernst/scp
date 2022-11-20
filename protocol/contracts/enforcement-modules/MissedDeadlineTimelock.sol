@@ -2,19 +2,19 @@
 pragma solidity ^0.8.9;
 
 import "../EnforcementModule.sol";
-import "../commitment-types/DeadlineCommitment.sol";
+import "../commitment-types/scheduled/DeadlineCommitment.sol";
 
 contract MissedDeadlineTimelock is EnforcementModule {
     struct userEntry {
         uint256 stake;
         uint256 unlockTime;
-        Commitment commitment;
+        DeadlineCommitment commitment;
         bool locked;
     }
 
     mapping(address => userEntry) userEntries;
 
-    function join(Commitment commitment, uint lockDuration) public payable {
+    function join(DeadlineCommitment commitment, uint lockDuration) public payable {
         require(
             commitment.scheduleType() == ScheduleType.DEADLINE,
             "INCOMPATIBLE_COMMIT_TYPE"
@@ -36,7 +36,7 @@ contract MissedDeadlineTimelock is EnforcementModule {
         entries++;
     }
 
-    function penalize(Commitment commitment) public {
+    function penalize(DeadlineCommitment commitment) public {
         address owner = commitment.owner();
         require(userEntries[owner].stake > 0, "USER_NOT_STAKED");
         require(

@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "./schedule-modules/ScheduleTypes.sol";
+import "./ScheduleTypes.sol";
+import "hardhat/console.sol";
 
-abstract contract Commitment {
+contract BaseCommitment {
     event ConfirmationSubmitted();
     event ProofSubmitted(string proofURI, uint proofId);
     event StatusChanged(Status from, Status to);
@@ -23,21 +24,21 @@ abstract contract Commitment {
     string public name;
     string public commitmentDescription;
     address public owner;
+
+    uint nextProofId = 1;
+
     bool initialized = false;
-    
-    function init(
-        string memory _name, 
-        string memory _commitmentDescription,
-        bytes calldata initData
-    ) external {
-        require(!initialized, "ALREADY_INITIALIZED");
+    function __init__BaseCommitment(bytes memory data) public initializer returns(bool) {
         owner = tx.origin;
         status = Status.Active;
         initialized = true;
-        name = _name;
-        commitmentDescription = _commitmentDescription;
+        (name, commitmentDescription) = abi.decode(data, (string, string));
+        return true;
+    }
 
-        _decodeInitData(initData);
+    modifier initializer() {
+        require(!initialized, "ALREADY_INITIALIZED");
+        _;
     }
 
     modifier onlyOwner() {
@@ -45,10 +46,8 @@ abstract contract Commitment {
         _;
     }
 
-    function _decodeInitData(bytes calldata initData) internal virtual;
-
     function submitConfirmationWithProof(string memory proofUri) public virtual onlyOwner {
-        revert("NOT_IMPLEMENTED");
+        emit ProofSubmitted(proofUri, ++nextProofId);
     }
 
     function submitConfirmation() public virtual onlyOwner {
@@ -62,10 +61,5 @@ abstract contract Commitment {
     function terminate() public virtual onlyOwner {
         emit StatusChanged(status, Status.Terminated);
         status = Status.Terminated;
-    }
-    
-    function _markComplete() internal virtual {
-        emit StatusChanged(status, Status.Complete);
-        status = Status.Complete;
     }
 }
