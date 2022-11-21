@@ -1,7 +1,6 @@
 import { BigNumberish } from "ethers";
 import { string } from "hardhat/internal/core/params/argumentTypes";
-import { BaseCommitment, DeadlineCommitment, DeadlineCommitment__factory } from "../typechain-types";
-import { BaseCommitment__factory } from "../typechain-types/factories/contracts/commitment-types";
+import { BaseCommitment, BaseCommitment__factory, DeadlineCommitment, DeadlineCommitment__factory } from "../typechain-types";
 
 export type DayOfWeek = 1 | 2 | 3 | 4 | 5 | 6 | 7
 
@@ -39,7 +38,7 @@ export type InitializationTypes = {
 
 export type CommitInitDataTypes = {
     0: [string, string],
-    1: [string, string, BigNumberish, BigNumberish]
+    1: [string, string, BigNumberish, BigNumberish, ]
 }
 
 export const SolidityCommitInitTypes = {

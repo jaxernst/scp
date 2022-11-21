@@ -3,7 +3,7 @@ pragma solidity ^0.8.9;
 
 import { Clones } from "@openzeppelin/contracts/proxy/Clones.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
-import { BaseCommitment } from "./Commitment.sol";
+import { BaseCommitment } from "./BaseCommitment.sol";
 import "hardhat/console.sol";
 
 enum CommitmentType {
@@ -54,16 +54,12 @@ contract CommitmentHub is CommitmentFactory {
         bytes memory _initData
     ) public {
         BaseCommitment commitment = _createCommitment(_type);
-    
-        console.logBytes(abi.encodePacked(initSelectorRegistry[_type], _initData));
-        console.logBytes(abi.encode(initSelectorRegistry[_type], _initData));
 
         // Call to initialize the contract created as a minimal proxy
-        (bool success, bytes memory err) = address(commitment).call(
-            abi.encodePacked(initSelectorRegistry[_type], _initData)
+        (bool success,) = address(commitment).call(
+            abi.encodeWithSelector(initSelectorRegistry[_type], _initData)
         );
         
-        console.logBytes(err);
         require(success, "Initialization failed");
 
         commitments[++nextCommitmentId] = BaseCommitment(commitment);

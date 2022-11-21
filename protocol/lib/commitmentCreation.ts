@@ -29,7 +29,6 @@ export async function createCommitment<
     await registerNewType(hub, CommitContractNames[type], type)
   }
 
-
   const byteData = ethers.utils.defaultAbiCoder.encode(
     SolidityCommitInitTypes[type],
     Object.values(initData)

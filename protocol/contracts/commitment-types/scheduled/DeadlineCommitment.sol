@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import { BaseCommitment } from "../../Commitment.sol";
+import { BaseCommitment } from "../../BaseCommitment.sol";
 import "../../interfaces/IDeadlineCommitment.sol";
 import "../../ScheduleTypes.sol";
+import "hardhat/console.sol";
 
 contract DeadlineCommitment is BaseCommitment {
     ScheduleType public override scheduleType = ScheduleType.DEADLINE;
@@ -13,12 +14,14 @@ contract DeadlineCommitment is BaseCommitment {
     bool public deadlineMet = false;
 
     function __init__DeadlineCommitment(bytes memory _data) public initializer returns(bool) {
-        bytes memory data;
-        (deadline, submissionWindow, data) = abi.decode(
+        string memory name;
+        string memory description;
+        (name, description, deadline, submissionWindow) = abi.decode(
             _data,
-            (uint, uint, bytes)
+            (string, string, uint, uint)
         );
-        return __init__BaseCommitment(data);
+        require(block.timestamp < deadline, "DEADLINE_PASSED");
+        return __init__BaseCommitment(abi.encode(name, description));
     }
 
     function submitConfirmation() public virtual override onlyOwner {
@@ -41,7 +44,7 @@ contract DeadlineCommitment is BaseCommitment {
     function missedDeadlines() public view override returns (uint) {
         // Deadline commitments can only be marked complete if a confirmation
         // was submitted within the window
-        if (block.timestamp < deadline || deadlineMet) {
+        if (block.timestamp < deadline || status == Status.Complete) {
             return 0;
         }
         return 1;
