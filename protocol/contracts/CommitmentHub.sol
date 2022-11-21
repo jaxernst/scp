@@ -61,7 +61,6 @@ contract CommitmentHub is CommitmentFactory {
         );
         
         require(success, "Initialization failed");
-
         commitments[++nextCommitmentId] = BaseCommitment(commitment);
         emit CommitmentCreation(msg.sender, _type, address(commitment));
     }

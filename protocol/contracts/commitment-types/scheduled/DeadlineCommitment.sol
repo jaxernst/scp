@@ -7,11 +7,10 @@ import "../../ScheduleTypes.sol";
 import "hardhat/console.sol";
 
 contract DeadlineCommitment is BaseCommitment {
-    ScheduleType public override scheduleType = ScheduleType.DEADLINE;
+    ScheduleType public constant override scheduleType = ScheduleType.DEADLINE;
 
     uint public deadline;
     uint public submissionWindow;
-    bool public deadlineMet = false;
 
     function __init__DeadlineCommitment(bytes memory _data) public initializer returns(bool) {
         string memory name;
@@ -25,7 +24,7 @@ contract DeadlineCommitment is BaseCommitment {
     }
 
     function submitConfirmation() public virtual override onlyOwner {
-        require(_inSubmissionWindow(), "NOT_IN_SUBMISSION_WINDOW");
+        require(inSubmissionWindow(), "NOT_IN_SUBMISSION_WINDOW");
         emit ConfirmationSubmitted();
         status = Status.Complete;
     }
@@ -36,7 +35,7 @@ contract DeadlineCommitment is BaseCommitment {
         override
         onlyOwner
     {
-        require(_inSubmissionWindow(), "NOT_IN_SUBMISSION_WINDOW");
+        require(inSubmissionWindow(), "NOT_IN_SUBMISSION_WINDOW");
         emit ProofSubmitted(proofUri, ++nextProofId);
         status = Status.Complete;
     }
@@ -50,7 +49,7 @@ contract DeadlineCommitment is BaseCommitment {
         return 1;
     }
 
-    function _inSubmissionWindow() internal view returns (bool) {
+    function inSubmissionWindow() public view returns (bool) {
         return
             block.timestamp <= deadline &&
             deadline - submissionWindow < block.timestamp;

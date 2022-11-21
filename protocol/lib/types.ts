@@ -11,6 +11,12 @@ export enum CommitType {
     DEADLINE
 }
 
+export enum ScheduleType {
+    NONE,
+    DEADLINE,
+    DAY_OF_WEEK
+}
+
 export type CommitContractTypes = {
     0: BaseCommitment,
     1: DeadlineCommitment

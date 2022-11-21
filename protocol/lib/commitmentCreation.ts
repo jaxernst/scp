@@ -1,7 +1,7 @@
 import { Contract, ethers } from "ethers";
 import { AbiCoder, keccak256 } from "ethers/lib/utils";
 import { deploy } from "../test/helpers/deploy";
-import { BaseCommitment__factory, CommitmentHub } from "../typechain-types";
+import { CommitmentHub } from "../typechain-types";
 import { BaseCommitment } from "../typechain-types/contracts/Commitment.sol";
 import {
   CommitFactoryMapping,
@@ -23,6 +23,7 @@ export async function createCommitment<
   type: T,
   initData: InitializationTypes[T]
 ): Promise<CommitContractTypes[T]> {
+
   if (
     (await hub.commitTemplateRegistry(type)) === ethers.constants.AddressZero
   ) {

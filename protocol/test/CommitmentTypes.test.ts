@@ -3,7 +3,7 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import { isExportDeclaration } from "typescript";
 import { createCommitment } from "../lib/commitmentCreation";
-import { CommitStatus, CommitType, CommitTypeVals, InitializationTypes } from "../lib/types";
+import { CommitStatus, CommitType, CommitTypeVals, InitializationTypes, ScheduleType } from "../lib/types";
 import { BaseCommitment, CommitmentHub, DeadlineCommitment } from "../typechain-types";
 import { maxUint } from "./helpers/numbers";
 import { advanceTime } from "./helpers/providerUtils";
@@ -50,6 +50,18 @@ describe("Commitment Spec Test", () => {
   });
 
   describe("Commitment type: Deadline", async () => {
+    let genericCommit: DeadlineCommitment
+    
+    before(async () => {
+      genericCommit = await createCommitment(hub, CommitType.DEADLINE, {
+        name: "", description: "", deadline: maxUint(256), submissionWindow: 60
+      })
+    })
+
+    it("Sets the schedule type as the 'DEADLINE' schedule type", async () => {
+      expect(await genericCommit.scheduleType()).to.equal(ScheduleType.DEADLINE)
+    })
+    
     it("Sets the commitment name and description as specified by the user", async () => {
       const commitment = await createCommitment(hub, CommitType.DEADLINE, {
         name: "Name", 
