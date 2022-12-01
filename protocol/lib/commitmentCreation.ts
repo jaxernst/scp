@@ -30,11 +30,7 @@ export async function createCommitment<
     await registerNewType(hub, CommitContractNames[type], type)
   }
 
-  const byteData = ethers.utils.defaultAbiCoder.encode(
-    SolidityCommitInitTypes[type],
-    Object.values(initData)
-  );
-
+  const byteData = encodeCreationParams(type, initData)
   const rc = await (
     await hub.createCommitment(type, byteData)
   ).wait();
@@ -49,6 +45,16 @@ export async function createCommitment<
   }
 
   return (CommitFactoryMapping[type] as any).connect(commitAddr!, hub.signer);
+}
+
+export function encodeCreationParams<T extends CommitTypeVals>(
+  type: T, 
+  initData: InitializationTypes[T]
+): string {
+  return ethers.utils.defaultAbiCoder.encode(
+    SolidityCommitInitTypes[type],
+    Object.values(initData)
+  );
 }
 
 export async function registerNewType(

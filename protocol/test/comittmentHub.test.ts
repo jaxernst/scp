@@ -1,10 +1,11 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
+import { encodeCreationParams, registerNewType } from "../lib/commitmentCreation";
 import { CommitType } from "../lib/types";
-import { CommitmentHub } from "../typechain-types";
+import { BaseCommitment, CommitmentHub } from "../typechain-types";
 import { encodedString, ZERO_ADDRESS } from "./helpers/constants";
-import { deploy } from "./helpers/deploy";
+import { deploy, deployTyped } from "./helpers/deploy";
 
 
 
@@ -22,10 +23,23 @@ describe("CommitmentHub", () => {
 
   describe("Commitment Type registration", () => {
     it("Cannot create a commitment without a registered template contract", async () => {
-      await expect(commitmentHub.createCommitment(0, "", "", encodedString)).to.revertedWith("Type Not Registered")
-      const commitment = await deploy("BaseCommitment")
-      await (await (commitmentHub.registerCommitType(0, commitment.address))).wait()
-      await expect(commitmentHub.createCommitment(0, "", "", encodedString)).to.not.reverted
+      const initData = encodeCreationParams(CommitType.BASE, { name: "", description: ""})
+      await expect(commitmentHub.createCommitment(CommitType.BASE, initData))
+        .to.revertedWith("Type Not Registered")
+      
+      const commitment = await deployTyped<BaseCommitment>("BaseCommitment")
+      const initSelector = commitment.interface.getSighash(
+        commitment.interface.functions["__init__BaseCommitment(bytes)"]
+      )
+
+      await (await (commitmentHub.registerCommitType(
+        CommitType.BASE, 
+        initSelector, 
+        commitment.address
+      ))).wait()
+
+      await expect(commitmentHub.createCommitment(CommitType.BASE, initData))
+        .to.not.reverted
     })
 
     it("Only allows templates to be registered by the owner")
@@ -37,11 +51,16 @@ describe("CommitmentHub", () => {
   })
 
 
-  describe("Commitment Creation", () => {
+  describe("Commitment Creation (minimal proxy cloning)", () => {
+    const baseInitData = encodeCreationParams(
+      CommitType.BASE, 
+      { name: "", description: ""}
+    )
+
     // Register commitment types to be tested
     beforeEach(async () => {
       const commitment = await deploy("BaseCommitment")
-      await (await (commitmentHub.registerCommitType(0, commitment.address))).wait()
+      await registerNewType(commitmentHub, "BaseCommitment", CommitType.BASE)
     })
     
     it("Creates commitments from registered template contracts", async () => {
@@ -49,17 +68,18 @@ describe("CommitmentHub", () => {
       expect(
         await commitmentHub.commitTemplateRegistry(CommitType.BASE)
       ).to.not.equal(ZERO_ADDRESS)
-      const tx = commitmentHub.createCommitment(CommitType.BASE, "name", "", encodedString)
+
+      const tx = commitmentHub.createCommitment(CommitType.BASE, baseInitData)
       await expect(tx).to.not.reverted
     })
 
     it("Emits CommitmentCreation events", async () => {
-      const tx = commitmentHub.createCommitment(CommitType.BASE, "name", "", encodedString)
+      const tx = commitmentHub.createCommitment(CommitType.BASE, baseInitData)
       await expect(tx).to.emit(commitmentHub, "CommitmentCreation")
     })
 
     it("Allows all user commitments to be retrieved by querying events", async () => {
-      const txs = await repeat(commitmentHub.createCommitment, [0, "name", "", encodedString], 5)
+      const txs = await repeat(commitmentHub.createCommitment, [CommitType.BASE, baseInitData], 5)
       await waitAll(txs)
       const events = await commitmentHub.queryFilter(
         commitmentHub.filters.CommitmentCreation(user.address as any)
@@ -69,7 +89,8 @@ describe("CommitmentHub", () => {
 
     it("Records commitment addresses indexed by an incrementing id", async () => {
       const startingId = await commitmentHub.nextCommitmentId()
-      const tx = commitmentHub.createCommitment(0, "", "", encodedString)
+      const tx = commitmentHub.createCommitment(CommitType.BASE, baseInitData)
+      
       await expect(tx).to.not.be.reverted
       expect(await commitmentHub.commitments(startingId)).to.be.properAddress
       expect(await commitmentHub.nextCommitmentId()).to.eq(startingId.add(1))

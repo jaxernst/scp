@@ -1,10 +1,14 @@
-import { BigNumberish } from "ethers"
+import { BigNumberish, Contract } from "ethers"
 import { ethers } from "hardhat";
 
-export async function deploy(name: string): Contract {
+export async function deploy(name: string): Promise<Contract> {
   const contract = await (await ethers.getContractFactory(name)).deploy()
   await contract.deployed()
   return contract
+}
+
+export async function deployTyped<T extends Contract>(name: string): Promise<T> {
+  return await deploy(name) as T
 }
 
 
