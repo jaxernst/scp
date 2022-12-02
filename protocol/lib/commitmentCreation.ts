@@ -1,8 +1,6 @@
 import { Contract, ethers } from "ethers";
-import { AbiCoder, keccak256 } from "ethers/lib/utils";
 import { deploy } from "../test/helpers/deploy";
 import { CommitmentHub } from "../typechain-types";
-import { BaseCommitment } from "../typechain-types/contracts/Commitment.sol";
 import {
   CommitFactoryMapping,
   CommitContractNames,

@@ -11,9 +11,8 @@ contract BaseCommitment {
     enum Status {
         Active,
         Complete,
-        Terminated,
-        Paused,
-        Contesting
+        Cancelled,
+        Terminated
     }
 
     Status public status;
@@ -57,7 +56,7 @@ contract BaseCommitment {
     function missedDeadlines() public virtual view returns(uint) {
         revert("NOT_IMPLEMENTED");
     }
-
+    
     function terminate() public virtual onlyOwner {
         emit StatusChanged(status, Status.Terminated);
         status = Status.Terminated;
