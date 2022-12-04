@@ -12,7 +12,9 @@ contract DeadlineCommitment is BaseCommitment {
     uint public deadline;
     uint public submissionWindow;
 
-    function __init__DeadlineCommitment(bytes memory _data) public initializer returns(bool) {
+    function __init__DeadlineCommitment(
+        bytes memory _data
+    ) public initializer returns(bool) {
         string memory name;
         string memory description;
         (name, description, deadline, submissionWindow) = abi.decode(

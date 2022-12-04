@@ -39,9 +39,8 @@ describe("Commitment Spec Test", () => {
     });
 
     it("Cannot be re-initialized after being created through the hub", async () => {
-      expect(genericCommit.__init__BaseCommitment("0x234")).to.revertedWith(
-        "ALREADY_INITIALIZED"
-      );
+      expect(genericCommit.__init__BaseCommitment("0x234"))
+        .to.revertedWith("ALREADY_INITIALIZED");
     });
 
     it("Sets the base commitment's status to active when initialized", async () => {
@@ -51,7 +50,6 @@ describe("Commitment Spec Test", () => {
 
   describe("Commitment type: Deadline", async () => {
     let genericCommit: DeadlineCommitment
-    
     before(async () => {
       genericCommit = await createCommitment(hub, CommitType.DEADLINE, {
         name: "", description: "", deadline: maxUint(256), submissionWindow: 60

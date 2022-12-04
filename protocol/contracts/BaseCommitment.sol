@@ -10,6 +10,7 @@ contract BaseCommitment {
     event StatusChanged(Status from, Status to);
     enum Status {
         Active,
+        Paused,
         Complete,
         Cancelled,
         Terminated
