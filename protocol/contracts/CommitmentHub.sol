@@ -18,7 +18,6 @@ enum CommitmentType {
 */
 contract CommitmentFactory is Ownable {
     mapping(CommitmentType => address) public commitTemplateRegistry;
-    mapping(CommitmentType => bytes4) public initSelectorRegistry;
 
     function _createCommitment(CommitmentType _type) internal returns(BaseCommitment) {
         require(commitTemplateRegistry[_type]!= address(0), "Type Not Registered");
@@ -27,12 +26,10 @@ contract CommitmentFactory is Ownable {
 
     function registerCommitType(
         CommitmentType _type, 
-        bytes4 initializationSelector,
         address deployedAt
     ) public onlyOwner {
         require(commitTemplateRegistry[_type] == address(0), "Type registered");
         commitTemplateRegistry[_type] = deployedAt;
-        initSelectorRegistry[_type] = initializationSelector;
     }
 }
 
@@ -54,13 +51,7 @@ contract CommitmentHub is CommitmentFactory {
         bytes memory _initData
     ) public {
         BaseCommitment commitment = _createCommitment(_type);
-
-        // Call to initialize the contract created as a minimal proxy
-        (bool success,) = address(commitment).call(
-            abi.encodeWithSelector(initSelectorRegistry[_type], _initData)
-        );
-        
-        require(success, "Initialization failed");
+        commitment.init(_initData);
         commitments[++nextCommitmentId] = BaseCommitment(commitment);
         emit CommitmentCreation(msg.sender, _type, address(commitment));
     }

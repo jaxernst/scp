@@ -61,14 +61,5 @@ export async function registerNewType(
   type: CommitType
 ) {
   const commit = await deploy(contractName)
-  const funcSig = "__init__" + contractName + "(bytes)"
-  if (!commit.interface.functions[funcSig]) {
-    throw Error("Expected initialization function not found in interface")
-  }
-
-  const initSelector = commit.interface.getSighash(
-    commit.interface.functions[funcSig]
-  )
-
-  await (await hub.registerCommitType(type, initSelector, commit.address)).wait();
+  await (await hub.registerCommitType(type, commit.address)).wait();
 }

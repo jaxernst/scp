@@ -9,7 +9,7 @@ import {
   DeadlineCommitment,
   MissedDeadlineTimelock,
 } from "../typechain-types";
-import { deploy } from "./helpers/deploy";
+import { deploy, deployTyped } from "./helpers/deploy";
 import { maxUint } from "./helpers/numbers";
 import { advanceTime, advanceToTimestamp } from "./helpers/providerUtils";
 import { currentTimestamp, fromNow } from "./helpers/time";
@@ -20,7 +20,7 @@ describe("EnforcementModules", () => {
   let rando: SignerWithAddress
 
   before(async () => {
-    hub = await deploy("CommitmentHub");
+    hub = await deployTyped<CommitmentHub>("CommitmentHub");
     user = (await ethers.getSigners())[0]
     rando = (await ethers.getSigners()).splice(-1)[0]
   });
@@ -35,15 +35,15 @@ describe("EnforcementModules", () => {
     let joinedTimelock: MissedDeadlineTimelock;
 
     beforeEach(async () => {
-      timelock = await deploy("MissedDeadlineTimelock")
+      timelock = await deployTyped<MissedDeadlineTimelock>("MissedDeadlineTimelock")
       genericDeadlineCommit = await createCommitment(hub, CommitType.DEADLINE, {
-        name: "",
-        description: "",
         deadline: await fromNow(commitDuration),
         submissionWindow,
+        name: "",
+        description: "",
       });
 
-      joinedTimelock = await deploy("MissedDeadlineTimelock")
+      joinedTimelock = await deployTyped<MissedDeadlineTimelock>("MissedDeadlineTimelock")
       await (await joinedTimelock.join(
         genericDeadlineCommit.address, 
         timelockDuration, 

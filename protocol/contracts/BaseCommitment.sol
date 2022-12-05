@@ -12,8 +12,7 @@ contract BaseCommitment {
         Active,
         Paused,
         Complete,
-        Cancelled,
-        Terminated
+        Cancelled
     }
 
     Status public status;
@@ -27,17 +26,19 @@ contract BaseCommitment {
 
     uint nextProofId = 1;
 
+    function init(bytes calldata data) public virtual initializer {
+        (name, commitmentDescription) = abi.decode(
+            data, 
+            (string, string)
+        ); 
+    }
+
     bool initialized = false;
-    function __init__BaseCommitment(bytes memory data) public initializer returns(bool) {
+    modifier initializer() {
+        require(!initialized, "ALREADY_INITIALIZED");
         owner = tx.origin;
         status = Status.Active;
         initialized = true;
-        (name, commitmentDescription) = abi.decode(data, (string, string));
-        return true;
-    }
-
-    modifier initializer() {
-        require(!initialized, "ALREADY_INITIALIZED");
         _;
     }
 
@@ -59,7 +60,7 @@ contract BaseCommitment {
     }
     
     function terminate() public virtual onlyOwner {
-        emit StatusChanged(status, Status.Terminated);
-        status = Status.Terminated;
+        emit StatusChanged(status, Status.Cancelled);
+        status = Status.Cancelled;
     }
 }

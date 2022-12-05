@@ -39,7 +39,7 @@ describe("Commitment Spec Test", () => {
     });
 
     it("Cannot be re-initialized after being created through the hub", async () => {
-      expect(genericCommit.__init__BaseCommitment("0x234"))
+      expect(genericCommit.init("0x234"))
         .to.revertedWith("ALREADY_INITIALIZED");
     });
 
@@ -52,7 +52,7 @@ describe("Commitment Spec Test", () => {
     let genericCommit: DeadlineCommitment
     before(async () => {
       genericCommit = await createCommitment(hub, CommitType.DEADLINE, {
-        name: "", description: "", deadline: maxUint(256), submissionWindow: 60
+        deadline: maxUint(256), submissionWindow: 60, name: "", description: "", 
       })
     })
 
@@ -62,10 +62,10 @@ describe("Commitment Spec Test", () => {
     
     it("Sets the commitment name and description as specified by the user", async () => {
       const commitment = await createCommitment(hub, CommitType.DEADLINE, {
+        deadline: maxUint(256),
+        submissionWindow: 1,
         name: "Name", 
         description: "Description", 
-        deadline: maxUint(256),
-        submissionWindow: 1
       });
 
       expect(await commitment.name()).to.equal("Name");
@@ -75,18 +75,18 @@ describe("Commitment Spec Test", () => {
     it("Cannot be initialized with a deadline in the past", async () => {
       await expect(
         createCommitment(hub, CommitType.DEADLINE, 
-          { name: "", description: "", deadline: 0, submissionWindow: 0, }
+          { deadline: 0, submissionWindow: 0, name: "", description: "" }
         )
-      ).to.revertedWith("Initialization failed");
+      ).to.revertedWith("DEADLINE_PASSED");
     });
 
     describe("submitConfirmation()", () => {
       it("Cannot submit a confirmation before the submission window", async () => {
         const commit = await createCommitment(hub, CommitType.DEADLINE, {
+          deadline: await fromNow(60),
+          submissionWindow: 1,
           name: "", 
           description: "",
-          deadline: await fromNow(60),
-          submissionWindow: 1
         });
 
         await expect(commit.submitConfirmation()).to.revertedWith(
@@ -96,10 +96,10 @@ describe("Commitment Spec Test", () => {
 
       it("Cannot submit a confirmation after the deadline", async () => {
         const commit = await createCommitment(hub, CommitType.DEADLINE, {
+          deadline: await fromNow(500),
+          submissionWindow: 1,
           name: "", 
           description: "", 
-          deadline: await fromNow(500),
-          submissionWindow: 1
         });
 
         await advanceTime(501);
@@ -110,10 +110,10 @@ describe("Commitment Spec Test", () => {
 
       it("Gets marked as complete if a confirmation is submitted within the window", async () => {
         const commit = await createCommitment(hub, CommitType.DEADLINE, {
+          deadline: await fromNow(60),
+          submissionWindow: 60,
           name: "", 
           description: "", 
-          deadline: await fromNow(60),
-          submissionWindow: 60
         });
 
         await advanceTime(5);
@@ -132,10 +132,10 @@ describe("Commitment Spec Test", () => {
       let submissionWindow = 5 // seconds before deadline
       beforeEach(async () => { 
         commitment = await createCommitment(hub, CommitType.DEADLINE, {
+          deadline: await fromNow(deadline), 
+          submissionWindow,
           name: "", 
           description: "",
-          deadline: await fromNow(deadline), 
-          submissionWindow
         })
       })
 

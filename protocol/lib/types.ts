@@ -35,26 +35,26 @@ export const CommitContractNames = {
 export type InitializationTypes = {
     0: { name: string, description: string}
     1: { 
-        name: string, 
-        description: string, 
         deadline: BigNumberish, 
         submissionWindow: BigNumberish
+        name: string, 
+        description: string, 
     }
 }
 
 export type CommitInitDataTypes = {
     0: [string, string],
-    1: [string, string, BigNumberish, BigNumberish, ]
+    1: [BigNumberish, BigNumberish, string, string]
 }
 
 export const SolidityCommitInitTypes = {
     0: ["string", "string"],
-    1: ["string", "string", "uint256", "uint256"],
+    1: ["uint256", "uint256", "string", "string"],
 }
 
 export enum CommitStatus {
     ACTIVE,
+    PAUSED,
     COMPLETE,
-    TERMINATED,
-    PAUSED
+    CANCELLED,
 }

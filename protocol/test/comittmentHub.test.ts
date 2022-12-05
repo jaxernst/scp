@@ -28,13 +28,8 @@ describe("CommitmentHub", () => {
         .to.revertedWith("Type Not Registered")
       
       const commitment = await deployTyped<BaseCommitment>("BaseCommitment")
-      const initSelector = commitment.interface.getSighash(
-        commitment.interface.functions["__init__BaseCommitment(bytes)"]
-      )
-
       await (await (commitmentHub.registerCommitType(
         CommitType.BASE, 
-        initSelector, 
         commitment.address
       ))).wait()
 

@@ -20,8 +20,8 @@ contract AlarmCommitment is BaseCommitment {
     
     // Init vars
     uint8[] public activeDays;
-    uint alarmTime;
-    int timezoneOffset;
+    uint public alarmTime;
+    int public timezoneOffset;
     
     uint32[7] confirmationCountArr;
     uint256 activationTime;
@@ -30,7 +30,6 @@ contract AlarmCommitment is BaseCommitment {
     function __init__AlarmCommitment(
         bytes memory _data
     ) public initializer returns(bool) {
-        
     }
 
     function submitConfirmation() public virtual override onlyOwner {
