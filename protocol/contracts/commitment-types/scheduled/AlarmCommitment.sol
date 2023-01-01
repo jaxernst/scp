@@ -2,6 +2,7 @@
 pragma solidity ^0.8.9;
 
 import "../../BaseCommitment.sol";
+import "../../ScheduleTypes.sol";
 
 /**
  * An AlarmCommitment is a commitment that expects confirmations to be submitted
@@ -16,20 +17,46 @@ import "../../BaseCommitment.sol";
  * modules to penalize the commitment owner.
  */
 contract AlarmCommitment is BaseCommitment {
-    uint SECONDS_PER_DAY = 1 days;
+    ScheduleType public constant override scheduleType = ScheduleType.ALARM;
+    uint constant SECONDS_PER_DAY = 86400;
     
-    // Init vars
-    uint8[] public activeDays;
-    uint public alarmTime;
-    int public timezoneOffset;
+    // *** Init vars ***
+    uint8[] public daysActive; // (1-7 (Mon-Sun))[]
+    uint public alarmTime; // Defined as seconds after midnight [0-86400)
+    uint public submissionWindow; //  Seconds before alarmTime where confimrations can be submitted
+    int public timezoneOffset; // +/- 43200 seconds (12 hours)
     
     uint32[7] confirmationCountArr;
     uint256 activationTime;
     uint submissionWindowDuration;
 
-    function __init__AlarmCommitment(
-        bytes memory _data
-    ) public initializer returns(bool) {
+    /**
+    * @notice daysActive should not have repeating values, but this is not checked to reduce
+    * gas usage. Using duplicate values in daysActive will results in alarms counting missed
+    * confirmations incorrectly
+    */
+    function init(
+        bytes calldata data
+    ) public virtual override initializer {
+        (
+            alarmTime,
+            submissionWindow,
+            timezoneOffset,
+            daysActive
+        ) = abi.decode(data, (uint, uint, int, uint8[]));
+
+        require(
+            -43200 < timezoneOffset && timezoneOffset < 43200, 
+            "INVALID_TIMEZONE"
+        ); // Timezone offset must be +/- 12 hours
+        require(alarmTime < SECONDS_PER_DAY, "INVALID_ALARM_TIME");
+        require(
+            60 <= submissionWindow && submissionWindow < SECONDS_PER_DAY,
+            "INVALID_WINDOW"
+        );
+        require(_validateDaysArr(daysActive), "INVALID_DAYS");
+ 
+        activationTime = block.timestamp;
     }
 
     function submitConfirmation() public virtual override onlyOwner {
@@ -90,8 +117,8 @@ contract AlarmCommitment is BaseCommitment {
         returns (uint confirmations)
     {
         confirmations = 0;
-        for (uint i; i < activeDays.length; i++) {
-            confirmations += confirmationCountArr[activeDays[i]];
+        for (uint i; i < daysActive.length; i++) {
+            confirmations += confirmationCountArr[daysActive[i]];
         }
     }
 
@@ -105,36 +132,44 @@ contract AlarmCommitment is BaseCommitment {
         public
         view
         override
-        returns (uint numMissedDeadlines)
+        returns (uint)
     {
         uint256 daysPassed = _daysPassed(
             activationTime,
             block.timestamp
         );
 
-        // The current day of week is taken from the last deadline time (timezone adjusted)
-        uint256 lastDeadlineDay = _dayOfWeek(lastDeadlineTimestamp());
-
-        uint8 activationDay = _dayOfWeek(activationTime);
+        uint today = _dayOfWeek(_offsetTimestamp(block.timestamp, timezoneOffset));
+        uint8 activationDay = _dayOfWeek(_offsetTimestamp(activationTime, timezoneOffset));
+        
+        console.log("Days passed", daysPassed);
+        console.log("Current day", _dayOfWeek(_offsetTimestamp(block.timestamp, timezoneOffset)));
+        console.log("activationDay:", activationDay);
+        console.log("today:", today);
+        console.log("deadlinePassedToday():", _deadlinePassedToday());
 
         // The expected amount of confirmations for any given alarm day is at least
         // the amount of weeks elasped.
-        uint minConfirmations = daysPassed / 7;
+        uint expectedCount = (daysPassed / 7) * daysActive.length;
 
-        // If the user confirmations count for an active day is less than the expected
-        // deadline count on that day, missedWakeups is incremented by the difference
-        numMissedDeadlines = 0;
-        for (uint i; i < activeDays.length; i++) {
-            uint8 checkDay = activeDays[i];
-            uint expectedConfirmationsOnThisDay = minConfirmations;
-            if (activationDay <= checkDay && checkDay <= lastDeadlineDay) {
-                expectedConfirmationsOnThisDay++;
-            }
-            numMissedDeadlines +=
-                expectedConfirmationsOnThisDay -
-                uint(confirmationCountArr[checkDay - 1]);
+        if (today == activationDay) {
+            return expectedCount;
         }
-    }
+        
+        for (uint i; i < daysActive.length; i++) {
+            uint8 checkDay = daysActive[i];
+            console.log("checkDay", checkDay);
+            if ((activationDay % 7) < checkDay && checkDay < today) {
+                expectedCount++;
+                console.log("Check day passed this week, expected++");
+            }
+            if (today == checkDay && _deadlinePassedToday()) {
+                expectedCount++;
+                console.log("Expected alarm today, expected++");
+            }
+        }
+        return expectedCount; 
+    }  
 
     function nextDeadlineTimestamp() public view returns (uint256) {
         uint lastMidnight = _lastMidnightTimestamp();
@@ -187,8 +222,8 @@ contract AlarmCommitment is BaseCommitment {
         // If the day of the commitment's next deadline is in the activeOnDays array, 
         // return true
         uint8 nextWakeupDay = _dayOfWeek(nextDeadlineTimestamp());
-        for (uint i; i < activeDays.length; i++) {
-            if (activeDays[i] == nextWakeupDay) {
+        for (uint i; i < daysActive.length; i++) {
+            if (daysActive[i] == nextWakeupDay) {
                 return true;
             }
         }

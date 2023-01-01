@@ -8,7 +8,8 @@ import "hardhat/console.sol";
 
 enum CommitmentType {
     Base,
-    Deadline
+    Deadline,
+    Alarm
 }
 
 /** 

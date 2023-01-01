@@ -5,7 +5,6 @@ import {
   CommitFactoryMapping,
   CommitContractNames,
   CommitContractTypes,
-  CommitInitDataTypes,
   CommitTypeVals,
   SolidityCommitInitTypes,
   CommitType,
