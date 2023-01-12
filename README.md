@@ -9,7 +9,7 @@ At the core of the protocol is the idea of a "Commitment". A user making a commi
 __ToDo or Die__  
 This commitment extension acts as a way to forcefully incentivize yourself to get your goals and ToDo items accomplished. You describe what is is you need to get done, then set a deadline. If you fail to mark it as completed in time, there will be automated penalties. Penalities are customizeable but may include:
 * Timelocking your funds in the smart contract
-* Automically donating your funds to preset addresses
+* Automatically donating your funds to preset addresses
 
 __Alarm Clock Task Pool__ (in development)  
 This commitment extension serves as a way to help individuals force themselves to wake up earlier. When joining the pool, the user selects the following:
