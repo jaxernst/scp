@@ -27,7 +27,7 @@ A commitment bet is made between two users, who must both put up the same amount
 
 This project is setup as a monorepo including the generalized protocol under the "protocol" package, and a web app interface under the "interfaces" package.
 
-This is a very young project, and the protocol + APIs are rapdily evolving. 
+This is a very young project, and the protocol + APIs are rapdily evolving.
 
 ## Build and Test the protocol
 This repo uses yarn package manager, and will not work with yarn v1
