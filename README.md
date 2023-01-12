@@ -1,6 +1,6 @@
 # An Interactive and Social Productivity Protocol
 
-The Social Commitment Protocol is a generalized productivity protocol with an open and extentible architecure allowing for individual goals and 'commitments' to be enforced in a social and game-like manner.
+The Social Commitment Protocol is a generalized productivity protocol with an open and extendible architecture allowing for individual goals and 'commitments' to be enforced in a social and game-like manner.
 
 At the core of the protocol is the idea of a "Commitment". A user making a commitment is signing a transaction as an agreement that they will do whatever the commitment describes. The base form of a commitment only has a few simple attributes, but can be extended and customized to allow for all sorts fun and unique functionality that is only achievable through smart contracts.
 
