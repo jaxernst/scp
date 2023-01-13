@@ -9,10 +9,11 @@ import {
   DeadlineCommitment,
   MissedDeadlineTimelock,
 } from "../typechain-types";
-import { deploy, deployTyped } from "./helpers/deploy";
-import { maxUint } from "./helpers/numbers";
-import { advanceTime, advanceToTimestamp } from "./helpers/providerUtils";
+import { deployTyped } from "./helpers/deploy";
+import { advanceTime } from "./helpers/providerUtils";
 import { currentTimestamp, fromNow } from "./helpers/time";
+
+const abi = ethers.utils.defaultAbiCoder
 
 describe("EnforcementModules", () => {
   let hub: CommitmentHub;
@@ -46,7 +47,7 @@ describe("EnforcementModules", () => {
       joinedTimelock = await deployTyped<MissedDeadlineTimelock>("MissedDeadlineTimelock")
       await (await joinedTimelock.join(
         genericDeadlineCommit.address, 
-        timelockDuration, 
+        abi.encode(['uint'], [timelockDuration]), 
         { value: stakeAmount }
       )).wait()
     });
@@ -55,17 +56,20 @@ describe("EnforcementModules", () => {
       it("Requires users to stake funds when joining", async () => {
         const stakeAmount = parseEther("13")
         await expect(
-          timelock.join(genericDeadlineCommit.address, 1)
+          timelock.join(genericDeadlineCommit.address, abi.encode(['uint'], [1]))
         ).to.revertedWith("STAKE_VALUE_NOT_SENT");
 
-        await (await timelock.join(genericDeadlineCommit.address, 1, { value: stakeAmount })).wait();
+        await (await timelock.join(
+          genericDeadlineCommit.address, 
+          abi.encode(['uint'], [1]), 
+          { value: stakeAmount })
+        ).wait();
 
         expect((await timelock.userEntries(user.address)).stake).to.equal(stakeAmount);
       });
 
       it("Only allows the commitment owner to enter their commitment", async () => {
-        
-        await expect(timelock.connect(rando).join(genericDeadlineCommit.address, 0))
+        await expect(timelock.connect(rando).join(genericDeadlineCommit.address, abi.encode(['uint'], [0])))
           .to.revertedWith("ONLY_OWNER_ACTION")
       });
 
@@ -74,7 +78,7 @@ describe("EnforcementModules", () => {
           name: "", description: ""
         })
 
-        expect(timelock.join(nonDeadlineCommit.address, 0))
+        expect(timelock.join(nonDeadlineCommit.address, abi.encode(['uint'], [0])))
           .to.revertedWith("INCOMPATIBLE_COMMIT_TYPE")
       });
 
