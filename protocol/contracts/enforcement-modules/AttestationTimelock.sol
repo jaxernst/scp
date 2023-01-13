@@ -1,1 +1,6 @@
-// Unlock once the commitment reaches the required attestations
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.9;
+
+/**
+ * Not yet implemented
+ */
