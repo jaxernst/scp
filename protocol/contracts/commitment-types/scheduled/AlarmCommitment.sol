@@ -67,21 +67,9 @@ contract AlarmCommitment is BaseCommitment {
     /**
      * Return the user's staked funds and delete their record from the pool
      */
-    /* function exitPool() public {
-        require(
-            userAlarms[msg.sender].activationTime != 0,
-            "User has not joined the pool"
-        );
-        require(
-            _deactivationAllowed(msg.sender),
-            "Forbidden, user too close to wakeup or has unpenalized missed wakeups"
-        );
-
-        // Delete user record prior to transferring to protect again reentrancy attacks
-        delete userAlarms[msg.sender];
-        payable(msg.sender).transfer(userAlarms[msg.sender].amountStaked);
-        hub.recordUserExit(msg.sender);
-    } */
+    function exitPool() public {    
+        revert("Not implemented yet");
+    }
 
 
     function totalConfirmations()
