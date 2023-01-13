@@ -20,8 +20,10 @@ contract MissedDeadlineTimelock is EnforcementModule {
     }
 
     mapping(address => userEntry) public userEntries;
+    uint entries;
 
-    function join(DeadlineCommitment commitment, uint lockDuration) public payable {
+    function join(DeadlineCommitment commitment, bytes calldata joinData) public override payable {
+        uint lockDuration = abi.decode(joinData, (uint));
         require(
             commitment.scheduleType() == ScheduleType.DEADLINE,
             "INCOMPATIBLE_COMMIT_TYPE"
@@ -43,7 +45,7 @@ contract MissedDeadlineTimelock is EnforcementModule {
         entries++;
     }
 
-    function penalize(address user) public {
+    function penalize(address user) public override {
         require(userEntries[user].stake > 0, "USER_NOT_STAKED");
         require(
             userEntries[user].commitment.missedDeadlines() > 0, 
@@ -55,7 +57,7 @@ contract MissedDeadlineTimelock is EnforcementModule {
         userEntries[user].locked = true;
     }
 
-    function exit() public {
+    function exit() public override {
         require(userEntries[msg.sender].stake > 0, "USER_NOT_STAKED");
 
         // Apply penalty (lock) if there are missed deadlines that haven't been penalized
