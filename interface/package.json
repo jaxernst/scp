@@ -1,5 +1,5 @@
 {
-	"name": "commitment-protocol-interface",
+	"name": "@social-commitment-protocol/interface",
 	"version": "0.0.1",
 	"private": true,
 	"scripts": {

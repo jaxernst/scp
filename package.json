@@ -1,16 +1,16 @@
 {
-  "name": "social-alarm-clock",
+  "name": "social-commitment-protocol",
   "version": "1.0.0",
   "packageManager": "yarn@3.2.4",
   "repository": "https://github.com/jaxernst/the-social-alarm-clock.git",
   "author": "jaxernst <51183683+jaxernst@users.noreply.github.com>",
   "scripts": {
-    "test-protocol": "yarn workspace @social-alarm-clock/protocol test",
-    "start-interface": "yarn workspace @social-alarm-clock/interface dev"
+    "test": "yarn workspace @social-commitment-protocol/protocol test",
+    "interface": "yarn workspace @social-commitment-protocol/interface dev"
   },
   "workspaces": [
     "protocol",
-    "interface/**"
+    "interface"
   ],
   "dependencies": {
     "ts-node": "^10.9.1",
