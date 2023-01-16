@@ -12,6 +12,9 @@ At the core of the protocol is the idea of a "Commitment". A user making a commi
 * Public courts to judge commitment proofs through social consensus
 
 # Architecture
+### Minimal Proxy Commitments
+Commitments are independent, ownable smart contracts. Deploying new bytecode for each commitment is impractical and expensive, so commitments are created as minimal proxies, or clones (see [EIP-1167](https://eips.ethereum.org/EIPS/eip-1167)). Commitments are created through the CommitmentHub from pre-registered contract templates. This drastically reduces the gas cost of deploying a new commitment, and allows new commitment types to be registered through the CommitmentHub. (Registration may eventually be approved through governance).
+
 ## Base Commitment
 ```solidity
 interface IBaseCommitment {
@@ -31,6 +34,8 @@ interface IBaseCommitment {
 }
   ```
 A base commitment acts as a minimal structure for creating and updating the state of your commitments. The BaseCommitment provides functionality to confirm completion of your commitment, and optionally submit an external link as a proof of completion.
+
+
 
 ## Scheduled Commitments
 ```solidity
