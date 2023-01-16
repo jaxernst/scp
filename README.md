@@ -5,11 +5,13 @@ The Social Commitment Protocol is a generalized productivity protocol with an op
 At the core of the protocol is the idea of a "Commitment". A user making a commitment is signing a transaction as an agreement that they will do whatever the commitment describes. The base form of a commitment only has a few simple attributes, but can be extended and customized to allow for all sorts fun and unique functionality that is only achievable through smart contracts.
 
 # What's possible with the protocol?
-* ToDo / goal setting apps that donate or temporarily lock your money if you fail to meet your deadlines / goals
+* Boring ToDo and goal setting apps
+* Exciting ToDo and goal setting apps that donate or temporarily lock your money if you fail to meet your deadlines/goals
 * Social apps with credit systems to reward peers for their achievements
-* Alarm clock 'pool' joinable with friends that force you to wake up on time, else you risk your money being transferred to your friends.
+* Alarm clock 'pools' joinable with friends that force you to wake up on time, else you risk your money being transferred to your friends.
 * Public accountability systems for public-figures to officiate their commitments/promises
-* Public courts to judge commitment proofs through social consensus
+* Public courts to judge commitment 'proof of completions' through social consensus
+
 
 # Architecture
 ### Minimal Proxy Commitments
