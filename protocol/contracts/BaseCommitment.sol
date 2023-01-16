@@ -1,43 +1,22 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "./ScheduleTypes.sol";
+import { IBaseCommitment } from "./interfaces/IBaseCommitment.sol";
+import "./types.sol";
 import "hardhat/console.sol";
 
-contract BaseCommitment {
-    event ConfirmationSubmitted();
-    event ProofSubmitted(string proofURI, uint proofId);
-    event StatusChanged(Status from, Status to);
-    enum Status {
-        Active,
-        Paused,
-        Complete,
-        Cancelled
-    }
 
+contract BaseCommitment is IBaseCommitment {
     Status public status;
-    function scheduleType() external view virtual returns(ScheduleType) {
-        return ScheduleType.NONE;
-    }
-
     string public name;
-    string public commitmentDescription;
     address public owner;
-
     uint nextProofId = 1;
-
-    function init(bytes calldata data) public virtual initializer {
-        (name, commitmentDescription) = abi.decode(
-            data, 
-            (string, string)
-        ); 
-    }
 
     bool initialized = false;
     modifier initializer() {
         require(!initialized, "ALREADY_INITIALIZED");
         owner = tx.origin;
-        status = Status.Active;
+        status = Status.ACTIVE;
         initialized = true;
         _;
     }
@@ -47,20 +26,38 @@ contract BaseCommitment {
         _;
     }
 
-    function submitConfirmationWithProof(string memory proofUri) public virtual onlyOwner {
+    function init(bytes calldata data) public virtual initializer {
+        string memory description;
+        (name, description) = abi.decode(
+            data, 
+            (string, string)
+        ); 
+
+        emit CommitmentCreated(description);
+    }
+
+    function submitConfirmationWithProof(string memory proofUri) public virtual override onlyOwner {
         emit ProofSubmitted(proofUri, ++nextProofId);
     }
 
-    function submitConfirmation() public virtual onlyOwner {
+    function submitConfirmation() public virtual override onlyOwner {
         emit ConfirmationSubmitted();
     }
 
-    function missedDeadlines() public virtual view returns(uint) {
-        revert("NOT_IMPLEMENTED");
+    function pause() public virtual override {
+        require(status == Status.ACTIVE, "NOT_ACTIVE");
+        status = Status.PAUSED;
+        emit StatusChanged(status, Status.PAUSED);
+    }
+
+    function resume() public virtual override {
+        require(status == Status.PAUSED, "NOT_PAUSED");
+        status = Status.ACTIVE;
+        emit StatusChanged(status, Status.ACTIVE);
     }
     
-    function terminate() public virtual onlyOwner {
-        emit StatusChanged(status, Status.Cancelled);
-        status = Status.Cancelled;
+    function terminate() public virtual override onlyOwner {
+        emit StatusChanged(status, Status.CANCELLED);
+        status = Status.CANCELLED;
     }
 }

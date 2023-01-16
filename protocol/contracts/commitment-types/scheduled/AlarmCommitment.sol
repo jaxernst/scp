@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "../../BaseCommitment.sol";
+import { IAlarmSchedule } from "../../interfaces/IScheduledCommitments.sol";
+import { BaseCommitment } from "../../BaseCommitment.sol";
+import "../../types.sol";
 
 /**
  * An AlarmCommitment is a commitment that expects confirmations to be submitted
@@ -15,68 +17,46 @@ import "../../BaseCommitment.sol";
  * The number of missed alarms can always be calulcated and used by enforcement
  * modules to penalize the commitment owner.
  */
-contract AlarmCommitment is BaseCommitment {
+contract AlarmCommitment is IAlarmSchedule, BaseCommitment {
+    ScheduleType public constant scheduleType = ScheduleType.ALARM;
+
     uint SECONDS_PER_DAY = 1 days;
-    
-    // Init vars
+
+    // Public vars
     uint8[] public activeDays;
     uint public alarmTime;
     int public timezoneOffset;
-    
+    uint public submissionWindow;
+
     uint32[7] confirmationCountArr;
     uint256 activationTime;
-    uint submissionWindowDuration;
 
-    function __init__AlarmCommitment(
-        bytes memory _data
-    ) public initializer returns(bool) {
+    function __init__AlarmCommitment(bytes memory _data)
+        public
+        initializer
+        returns (bool)
+    {}
+
+    function submitConfirmation() public override onlyOwner {
+        require(inSubmissionWindow(), "NOT_IN_SUBMISSION_WINDOW");
+        BaseCommitment.submitConfirmation();
     }
 
-    function submitConfirmation() public virtual override onlyOwner {
-
-    }
-
-    /*
-     * Temporarily disable alarm clock. Users cannot be penalized for missed wakeups
-     * when their alarm is not on.
-     */
-    function pause() public onlyOwner {
-        require(status == Status.Active, "Alarm not active");
-        require(
-            _deactivationAllowed(),
-            "Forbidden, user too close to wakeup or has unpenalized missed wakeups"
-        );
-        status = Status.Paused;
-        emit StatusChanged(Status.Active, Status.Paused);
-    }
-
-    /**
-     * Continue enforcing wakeups on the days orignally set by the user
-     * @notice resuming alarm sets a new activation time as the previous wakeup,
-     * so the next wakeup will be enforceable
-     */
-    function resumeAlarm() public {
-        require(status == Status.Paused, "Alarm already active");
-
-        // Reset alarm vars used to track missed wakeups/penalties
-        //userAlarms[msg.sender].wakeCountArr = new uint32[](7);
-        //userAlarms[msg.sender].activationTime = lastWakeupTimestamp(msg.sender);
-        //userAlarms[msg.sender].on = true;
-    }
-
-    /**
-     * Return the user's staked funds and delete their record from the pool
-     */
-    function exitPool() public {    
-        revert("Not implemented yet");
-    }
-
-
-    function totalConfirmations()
-        external
-        view
-        returns (uint confirmations)
+    function submitConfirmationWithProof(string memory proofUri)
+        public
+        override
+        onlyOwner
     {
+        require(inSubmissionWindow(), "NOT_IN_SUBMISSION_WINDOW");
+        BaseCommitment.submitConfirmationWithProof(proofUri);
+    }
+
+    function inSubmissionWindow() public view returns (bool) {
+        if (_deadlinePassedToday()) return false;
+        return (nextDeadline() - block.timestamp) < submissionWindow;
+    }
+
+    function totalConfirmations() external view returns (uint confirmations) {
         confirmations = 0;
         for (uint i; i < activeDays.length; i++) {
             confirmations += confirmationCountArr[activeDays[i]];
@@ -95,13 +75,10 @@ contract AlarmCommitment is BaseCommitment {
         override
         returns (uint numMissedDeadlines)
     {
-        uint256 daysPassed = _daysPassed(
-            activationTime,
-            block.timestamp
-        );
+        uint256 daysPassed = _daysPassed(activationTime, block.timestamp);
 
         // The current day of week is taken from the last deadline time (timezone adjusted)
-        uint256 lastDeadlineDay = _dayOfWeek(lastDeadlineTimestamp());
+        uint256 lastDeadlineDay = _dayOfWeek(lastDeadline());
 
         uint8 activationDay = _dayOfWeek(activationTime);
 
@@ -123,8 +100,8 @@ contract AlarmCommitment is BaseCommitment {
                 uint(confirmationCountArr[checkDay - 1]);
         }
     }
-
-    function nextDeadlineTimestamp() public view returns (uint256) {
+    
+    function nextDeadline() public view override returns (uint256) {
         uint lastMidnight = _lastMidnightTimestamp();
         if (_deadlinePassedToday()) {
             return lastMidnight + 1 days + alarmTime;
@@ -133,7 +110,7 @@ contract AlarmCommitment is BaseCommitment {
         }
     }
 
-    function lastDeadlineTimestamp() public view returns (uint256) {
+    function lastDeadline() public view returns (uint256) {
         uint lastMidnight = _lastMidnightTimestamp();
         if (_deadlinePassedToday()) {
             return lastMidnight + alarmTime;
@@ -145,18 +122,8 @@ contract AlarmCommitment is BaseCommitment {
     /*** Private/Internal Functions ***/
 
     function _deadlinePassedToday() private view returns (bool) {
-        uint _now = _offsetTimestamp(
-            block.timestamp,
-            timezoneOffset
-        );
+        uint _now = _offsetTimestamp(block.timestamp, timezoneOffset);
         return (_now % SECONDS_PER_DAY) > alarmTime;
-    }
-
-    function _inSubmissionWindow() private view returns (bool) {
-        if (_deadlinePassedToday()) return false;
-        return
-            (nextDeadlineTimestamp() - block.timestamp) <
-            submissionWindowDuration;
     }
 
     /**
@@ -168,13 +135,13 @@ contract AlarmCommitment is BaseCommitment {
         return
             this.missedDeadlines() == 0 &&
             _enforceNextWakeup() &&
-            !_inSubmissionWindow();
+            !inSubmissionWindow();
     }
 
     function _enforceNextWakeup() internal view returns (bool) {
-        // If the day of the commitment's next deadline is in the activeOnDays array, 
+        // If the day of the commitment's next deadline is in the activeOnDays array,
         // return true
-        uint8 nextWakeupDay = _dayOfWeek(nextDeadlineTimestamp());
+        uint8 nextWakeupDay = _dayOfWeek(nextDeadline());
         for (uint i; i < activeDays.length; i++) {
             if (activeDays[i] == nextWakeupDay) {
                 return true;
@@ -206,10 +173,7 @@ contract AlarmCommitment is BaseCommitment {
      * @notice 'midnight' is timezone specific so we must offset the timestamp
      */
     function _lastMidnightTimestamp() private view returns (uint) {
-        uint _now = _offsetTimestamp(
-            block.timestamp,
-            timezoneOffset
-        );
+        uint _now = _offsetTimestamp(block.timestamp, timezoneOffset);
         return _now - (_now % SECONDS_PER_DAY);
     }
 

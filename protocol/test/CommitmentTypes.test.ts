@@ -31,7 +31,8 @@ describe("Commitment Spec Test", () => {
         hub, CommitType.BASE, { name: "TestName", description: "TestDescription" }
       );
       expect(await commit.name()).to.equal("TestName");
-      expect(await commit.commitmentDescription()).to.equal("TestDescription");
+      // ToDo: read event history for this check
+      // expect(await commit.commitmentDescription()).to.equal("TestDescription");
     });
 
     it("Sets the base commitment's owner as the user who sent the commitment creation transaction", async () => {
@@ -69,7 +70,8 @@ describe("Commitment Spec Test", () => {
       });
 
       expect(await commitment.name()).to.equal("Name");
-      expect(await commitment.commitmentDescription()).to.equal("Description");
+      // ToDo: Read event history for this check
+      // expect(await commitment.commitmentDescription()).to.equal("Description");
     });
 
     it("Cannot be initialized with a deadline in the past", async () => {

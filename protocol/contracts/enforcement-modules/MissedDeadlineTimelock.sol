@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "../EnforcementModule.sol";
+import "../interfaces/IEnforcementModule.sol";
+import "../interfaces/IScheduledCommitments.sol";
 import "../commitment-types/scheduled/DeadlineCommitment.sol";
 import "hardhat/console.sol";
 
@@ -11,18 +12,18 @@ import "hardhat/console.sol";
  * lock the users funds for a certain amount of time if the user is not able to submit
  * their confirmation before the deadlie.
  */
-contract MissedDeadlineTimelock is EnforcementModule {
+contract MissedDeadlineTimelock is IEnforcementModule {
     struct userEntry {
         uint256 stake;
         uint256 unlockTime;
-        DeadlineCommitment commitment;
+        IScheduledCommitment commitment;
         bool locked;
     }
 
     mapping(address => userEntry) public userEntries;
     uint entries;
 
-    function join(DeadlineCommitment commitment, bytes calldata joinData) public override payable {
+    function join(IScheduledCommitment commitment, bytes calldata joinData) public override payable {
         uint lockDuration = abi.decode(joinData, (uint));
         require(
             commitment.scheduleType() == ScheduleType.DEADLINE,
@@ -38,7 +39,7 @@ contract MissedDeadlineTimelock is EnforcementModule {
         userEntries[commitment.owner()] = userEntry({
             stake: msg.value,
             unlockTime: commitDeadline + lockDuration,
-            commitment: commitment,
+            commitment: IScheduledCommitment(commitment),
             locked: false
         });
 
