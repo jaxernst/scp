@@ -37,12 +37,12 @@
         display: flex;
         justify-content: right;
         align-items: center;
-        color: var(--theme-color1);
         padding: .5em 1em;
     }
 
     .text {
         font-size: var(--font-small);
+        color: var(--theme-color2);
     }
 
     .indicator {
@@ -54,7 +54,7 @@
     }
 
     .separator {
-        border-left: 1px solid white;
+        border-left: 1px solid var(--theme-color2);
         height: 10px;
         margin-left: 5px;
         margin-right: 5px

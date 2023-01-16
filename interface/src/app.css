@@ -1,0 +1,62 @@
+@font-face {
+    font-family: 'Orbitron';
+    src: url('fonts/Orbitron-Regular.ttf');
+}
+
+@font-face {
+    font-family: 'Karla';
+    src: url('fonts/Karla-Regular.ttf');
+}
+
+:root {
+    --background-gradient: linear-gradient(0deg, rgb(115, 203, 203) 0%, rgb(139, 113, 158) 100%);
+    --background-gradient2: linear-gradient(0deg, rgb(0, 0, 0) 0%, rgba(17, 67, 87, 1) 100%);
+    --background-gradient1: linear-gradient(0deg, rgba(242, 148, 146, 1) 0%, rgba(17, 67, 87, 1) 100%);
+    --theme-container1: rgba(255, 255, 255, 0.817);
+    --theme-container2: rgba(195, 195, 195, 0.81);
+
+    --theme-color1: rgba(239, 239, 239, 0.777);
+    --theme-color2: rgb(46, 46, 46);
+    --theme-color3: rgb(106, 235, 106);
+    --theme-color3-dark: rgb(66, 144, 66);
+    --theme-color4: rgb(16, 42, 56);
+    
+    --alert-color: rgba(255, 0, 0);
+    --alert-color-dark: rgba(255, 0, 0);
+
+    --font-xsmall: 10px;
+    --font-small: 11px;
+    --font-medium: 14px;
+    --font-large: 18px;
+    --font-xlarge: 28px;
+
+    --border-radius-small: 18px;
+    --border-radius-medium: 25px;
+}
+
+html {
+    background-image: url("/bg-image.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+    height: 100vh;
+    width: 100vw;
+}
+
+body {
+    font-family: 'Karla';
+    color: var(--theme-color2);
+    margin: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    
+}
+
+h1 {
+    font-family: 'Orbitron';
+    letter-spacing: .15em;
+    color: var(--theme-color1);
+    font-size: 20px;
+}
+
+

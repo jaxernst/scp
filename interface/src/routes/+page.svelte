@@ -1,49 +1,86 @@
 <script lang="ts">
-	import ClockDisplay from 'src/components/alarm-display/ClockDisplay.svelte';
-	import LabeledLine from 'src/components/LabeledLine.svelte';
-	import AlarmActiveDays from 'src/components/alarm-display/AlarmActiveDays.svelte';
-	import { bodyContainerWidthPx } from 'src/theme';
-	import WakeupButton from 'src/components/WakeupButton.svelte';
-	import type { PromiseOrValue } from '@social-alarm-clock/protocol/typechain-types/common';
-	import type { Contract } from "ethers"
-	import { connected, signerAddress } from "svelte-ethers-store"
+	import '../app.css';
+	import ConnectionStatus from 'src/components/ConnectionStatus.svelte';
+	import ConnectWalletPopup from 'src/components/ConnectWalletPopup.svelte';
 
-	let userAlarms: undefined | PromiseOrValue<Contract[]>
-	$: if (connected && signerAddress) {
-		//userAlarms = getUserPools($signerAddress)
-	}
+	import { connected, defaultEvmStores } from "svelte-ethers-store"
+	import { modal } from "$lib/stores/stores"
+	import { onMount } from 'svelte';
+	import Modal from 'svelte-simple-modal';
+	import Hud from 'src/components/Hud.svelte';
 
-	let clockFontSize: string = '90px';
-	let pageWidth: any = 600;
-	$: if (pageWidth > bodyContainerWidthPx + 50) {
-		clockFontSize = '100px';
-	} else {
-		clockFontSize = '18.1vw';
-	}
+	/* defaultEvmStores.attachContract(
+		cph.contractName,
+		CommitmentProtocolHubAddr,
+		JSON.stringify(cph.abi)
+	); */
+
+	onMount(() => {
+		if (!$connected) {
+			modal.set(ConnectWalletPopup);
+		}
+	});
 </script>
 
-<svelte:window bind:innerWidth={pageWidth} />
-
-
-<ClockDisplay --font-size={clockFontSize} />
-{#await userAlarms}
-	<div>Checking for user AlarmStats...</div>
-{:then}
-	{#if userAlarms}
-		<LabeledLine label="Active Alarm" />
-		<AlarmActiveDays daysActive={[1, 3, 4, 5, 7]} />
-		<!-- svelte-ignore a11y-click-events-have-key-events -->
-		<div>
-			<WakeupButton/>
+<div class=app>	
+	<div class=grid-container>
+		<div class="grid-item commitment-area">
+			
 		</div>
+		<div class="grid-item action-area">
+			<Hud/>
+		</div>
+		<div class="grid-item feed">Feed</div>
+	</div>
+</div>
+	
+	
+<Modal 
+	on:close={() => modal.set(null)} 
+	show={$modal}
+	styleWindow={{ backgroundColor: 'var(--dark-gray)'}}
+/>
 
-	{:else}
-		<AlarmActiveDays/>	
-		<div> No Alarm active</div>
-	{/if}
-{:catch err}
-	<div>Error: Alarms could not be retrieved</div>
-	<div>{err}</div>
-{/await}
 
+
+
+<style>
+	.app {
+		display: flex;
+		box-sizing: border-box;
+		justify-content: center;
+		margin: auto 0 auto 0;
+		flex: 1;
+		margin: 1.5em;
+	}
+
+	.grid-container {
+		flex: 1;
+    display: grid;
+    grid-template-rows: repeat(2, 1fr);
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 1.5em;
+		height: 100%;
+		max-width: 1000px;
+  }
+
+  .grid-container > div {
+    background-color: var(--theme-container1);
+		border-radius: 20px;
+    padding: 20px;
+    text-align: center;
+		box-shadow: 4px 8px 3px rgba(0, 0, 0, 0.509);
+  }
+
+	.action-area {
+		display: flex;
+		flex-direction: row;
+	}
+
+	.grid-item:nth-child(3) {
+    grid-row: 2/3;
+    grid-column: 1/3;
+  }
+
+</style>
 

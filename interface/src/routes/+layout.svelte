@@ -1,83 +1,27 @@
 <script lang="ts">
-	import '../theme.css';
-	import Navigation from 'src/components/navigation/Navigation.svelte';
+	import '../app.css';
 	import ConnectionStatus from 'src/components/ConnectionStatus.svelte';
-	import ConnectWalletPopup from 'src/components/ConnectWalletPopup.svelte';
-
-	import cph from "@social-alarm-clock/protocol/artifacts/contracts/CommitmentProtocolHub.sol/CommitmentProtocolHub.json"
-	import { connected, defaultEvmStores } from "svelte-ethers-store"
-	import { bodyContainerWidthPx } from "src/theme"
-	import { modal } from "$lib/stores/stores"
-	import { onMount } from 'svelte';
-	import Modal from 'svelte-simple-modal';
-	import { CommitmentProtocolHubAddr } from 'src/addresses';
-
-	defaultEvmStores.attachContract(
-		cph.contractName,
-		CommitmentProtocolHubAddr,
-		JSON.stringify(cph.abi)
-	);
-
-	onMount(() => {
-		if (!$connected) {
-			modal.set(ConnectWalletPopup);
-		}
-	});
 </script>
 
-<body>
-	<ConnectionStatus/>
-	<Modal 
-		on:close={() => modal.set(null)} 
-		show={$modal}
-		styleWindow={{ backgroundColor: 'var(--dark-gray)'}}
-	/>
-	<div class="page-container" style="--content-width:{bodyContainerWidthPx}px">
-		<slot/>
+<div class="header">
+	<h1>The Social Commitment Protocol</h1>
+	<div class=account-area>
+		<ConnectionStatus/>
 	</div>
-	
-	<div class="lower-nav">
-		<Navigation />
-	</div>
-</body>
+</div>
+
+<slot/>
 
 <style>
-	body {
-		height: 100%;
-		margin: 0;
-		background: rgb(242, 148, 146);
-		background: var(--background-gradient);
-		background-repeat: no-repeat;
-		background-attachment: fixed;
+	.header {
+		display: flex;
+		justify-items: space-between;
+		align-items: center;
+		padding: 1em 2em 0 2em;
 	}
 
-	:global(*) {
-		font-family: Verdana;
-	}
-
-	:global(h3) {
-		color: var(--theme-color1);
-		font-size: medium;
-		font-weight: 100;
-		text-align: center;
-	}
-
-	.lower-nav {
-		position: fixed;
-		bottom: 0%;
-		width: 100%;
-	}
-
-	.page-container {
-		position: relative;
-		margin-top: 8vh;
-		margin-right: auto;
-		margin-left: auto;
-		max-width: var(--content-width);
-		overflow: hidden;
-		
-		padding: 1rem 4%;
-		background-color: var(--black-trans-50);
-		border-radius: var(--border-radius-medium);
+	.account-area {
+		flex-grow: 1;
+		align-items: right;
 	}
 </style>
