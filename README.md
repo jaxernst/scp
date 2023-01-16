@@ -23,13 +23,13 @@ interface IBaseCommitment {
     event ProofSubmitted(string uri, uint proofId);
     event StatusChanged(Status from, Status to);
     
-    Status public status
-    string public name;
-    address public owner;
-
+    function status() external view returns(Status);
+    function name() external view returns(string memory);
+    function owner() external view returns(address);
     function submitConfirmationWithProof(string memory) external;
     function submitConfirmation() external;
     function pause() external;
+    function resume() external;
     function terminate() external;
 }
   ```
@@ -39,36 +39,39 @@ A base commitment acts as a minimal structure for creating and updating the stat
 
 ## Scheduled Commitments
 ```solidity
-enum ScheduleType {
-    NONE,
-    DEADLINE,
-    ALARM,
-    INTERVAL
-}
-
-interface IScheduledCommitment is IBaseCommitment {
+interface ISchedule {
     event DeadlineMissed();
-    ScheduleType public scheduleType;
-    uint submissionWindow;
-
-    function missedDeadlines() external view;
-    function inSubmissionWindow() external view;
+    function scheduleType() external view returns(ScheduleType);
+    function submissionWindow() external view returns(uint);
+    function inSubmissionWindow() external view returns(bool);
+    function missedDeadlines() external view returns(uint);
+    function nextDeadline() external view returns(uint);
 }
+
+interface IDeadlineSchedule is ISchedule {
+    function deadline() external view returns(uint);
+}
+
+interface IAlarmSchedule is ISchedule {
+    function activeDays() external view returns(uint8[] memory);
+    function alarmTime() external view returns(uint);
+}
+
+interface IScheduledCommitment is ISchedule, IBaseCommitment {}
+interface IDeadlineCommitment is IDeadlineSchedule, IBaseCommitment {}
+interface IAlarmCommitment is IAlarmSchedule, IBaseCommitment {}
 ```
 Commitments can be extended with scheduling logic that only allows submissions to occur within 'submission windows'. Schedule modules also track 'missedDeadlines' which can be read by enforcement modules to penalize and/or reward commitments.
 
 ## Enforcement Modules
 ```solidity
-interface EnforcementModule {
+interface IEnforcementModule {
     event UserJoined(uint id);
     event UserExit(uint id);
     
-    mapping (uint => ScheduledCommitment) commitments;
-    mapping (address => uint) userEntries;
-
-    function join(DeadlineCommitment commitment, bytes calldata joinData) public payable virtual;
-    function penalize(address user) public virtual;
-    function exit() public virtual;
+    function join(IScheduledCommitment commitment, bytes calldata joinData) external payable;
+    function penalize(address user) external;
+    function exit() external;
 }
 ```
 Enforcement modules are a core component to the protocol that facilitate commitment interactivity. Custom enforcement modules can be created to facilitate pooled commitments with reward structures and penalization logic. This may include logic for pool members to vote on each other's 'proof of completion', logic to time-lock funds if deadlines are missed, and can if implement achievement 'credit' systems where users get more reputation for posting commitments and successfully completing them. The possibilities here are endless.
