@@ -25,7 +25,7 @@ interface IBaseCommitment {
     address public owner;
 
     function submitConfirmationWithProof(string memory) external;
-    function submitCofirmation() external;
+    function submitConfirmation() external;
     function pause() external;
     function terminate() external;
 }
