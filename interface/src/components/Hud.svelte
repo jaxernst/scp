@@ -28,14 +28,14 @@
   }
 
   .grid-item {
-    padding: 10px;
+    padding: 0 5px 0 5px;
     display: flex;
     justify-content: center;
     align-items: center;
   } 
 
   .label {
-    font-size: 12px;
+    font-size: 10px;
   }
   
   .values {
