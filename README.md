@@ -4,6 +4,9 @@ The Social Commitment Protocol is a generalized productivity protocol with an op
 
 At the core of the protocol is the idea of a "Commitment". A user making a commitment is signing a transaction as an agreement that they will do whatever the commitment describes. The base form of a commitment only has a few simple attributes, but can be extended and customized to allow for all sorts fun and unique functionality that is only achievable through smart contracts.
 
+## Commitment Confirmation
+Commitments expose 'confirmation' functions for users to complete their commitments. The most basic form of a confirmation simply uses the commitment owners signature to transition the commitment into a "COMPLETED" state. For higher stakes commitments (possibly with money on the line), commitments may require a 'proof of completion' to be submitted, which is a URI to an externaly hosted image, screenshot, etc. This external proof should be sufficient to convince others that the commitment was completed. Commitment proofs can require attestations before they become valid, or may be optimistically assumed valid with voting mechanics in place to 'challenge' a proof.
+
 # What's possible with the protocol?
 * Boring ToDo and goal setting apps
 * Exciting ToDo and goal setting apps that donate or temporarily lock your money if you fail to meet your deadlines/goals
