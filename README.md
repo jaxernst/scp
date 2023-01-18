@@ -4,7 +4,10 @@
 ![](https://img.shields.io/badge/License-Apache--2.0-orange.svg?style=for-the-badge&labelColor=EF9421&logoColor=white&logo=CreativeCommons)
 ![](https://img.shields.io/github/stars/jaxernst/the-social-commitment-protocol?style=for-the-badge&labelColor=d0ab23&color=b0901e&logoColor=white&logo=Trustpilot)
 
-![image](frontend-preview.png)
+![](frontend-preview.png)
+(*example interface design*)
+
+<br>
 
 The Social Commitment Protocol is a generalized productivity protocol with an open and extendible architecture allowing for individual goals and 'commitments' to be enforced in a social and game-like manner.
 
