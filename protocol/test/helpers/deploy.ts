@@ -1,16 +1,23 @@
-import { BigNumberish, Contract } from "ethers"
+import { Contract } from "ethers";
 import { ethers } from "hardhat";
 
 export async function deploy(name: string): Promise<Contract> {
-  const contract = await (await ethers.getContractFactory(name)).deploy()
-  await contract.deployed()
-  return contract
+  const contract = await (await ethers.getContractFactory(name)).deploy();
+  await contract.deployed();
+  return contract;
 }
 
-export async function deployTyped<T extends Contract>(name: string): Promise<T> {
-  return await deploy(name) as T
+export async function deployTyped<T extends Contract>(
+  name: string
+): Promise<T> {
+  return (await deploy(name)) as T;
 }
 
+export function makeDeploymentFixture<T extends Contract>(
+  name: string
+): () => Promise<T> {
+  return async () => await deployTyped<T>(name);
+}
 
 /*
 export async function deployAlarmPool(
