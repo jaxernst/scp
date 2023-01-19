@@ -7,6 +7,7 @@ interface IBaseCommitment {
     event CommitmentCreated(string description);
     event ConfirmationSubmitted();
     event ProofSubmitted(string uri, uint proofId);
+    event ConfirmationRevoked(string uri, uint proofId);
     event StatusChanged(Status from, Status to);
     
     function status() external view returns(Status);
