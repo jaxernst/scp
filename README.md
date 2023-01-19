@@ -1,15 +1,29 @@
 # An Interactive and Social Productivity Protocol
 
+[![](https://dcbadge.vercel.app/api/server/MJHxzqDGuv)](https://discord.gg/MJHxzqDGuv)
+![](https://img.shields.io/badge/License-Apache--2.0-orange.svg?style=for-the-badge&labelColor=EF9421&logoColor=white&logo=CreativeCommons)
+![](https://img.shields.io/github/stars/jaxernst/the-social-commitment-protocol?style=for-the-badge&labelColor=d0ab23&color=b0901e&logoColor=white&logo=Trustpilot)
+
+![](frontend-preview.png)
+(*example interface design*)
+
+<br>
+
 The Social Commitment Protocol is a generalized productivity protocol with an open and extendible architecture allowing for individual goals and 'commitments' to be enforced in a social and game-like manner.
 
 At the core of the protocol is the idea of a "Commitment". A user making a commitment is signing a transaction as an agreement that they will do whatever the commitment describes. The base form of a commitment only has a few simple attributes, but can be extended and customized to allow for all sorts fun and unique functionality that is only achievable through smart contracts.
 
+## Commitment Confirmation
+Commitments expose 'confirmation' functions for users to complete their commitments. The most basic form of a confirmation simply uses the commitment owners signature to mark the commitment as complete. For higher stakes commitments (possibly with money on the line), commitments may require a 'proof of completion' to be submitted, which is a URI to an externaly hosted image, screenshot, etc. This external proof should be sufficient to convince others that the commitment was completed. Commitment proofs can require attestations before they become valid, or may be optimistically assumed valid with voting mechanics in place to 'challenge' a proof.
+
 # What's possible with the protocol?
-* ToDo / goal setting apps that donate or temporarily lock your money if you fail to meet your deadlines / goals
+* Boring ToDo and goal setting apps
+* Exciting ToDo and goal setting apps that donate or temporarily lock your money if you fail to meet your deadlines/goals
 * Social apps with credit systems to reward peers for their achievements
-* Alarm clock 'pool' joinable with friends that force you to wake up on time, else you risk your money being transferred to your friends.
+* Alarm clock 'pools' joinable with friends that force you to wake up on time, else you risk your money being transferred to your friends.
 * Public accountability systems for public-figures to officiate their commitments/promises
-* Public courts to judge commitment proofs through social consensus
+* Public courts to judge commitment 'proof of completions' through social consensus
+
 
 # Architecture
 ### Minimal Proxy Commitments
