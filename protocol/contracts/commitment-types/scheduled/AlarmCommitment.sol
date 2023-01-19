@@ -2,7 +2,7 @@
 pragma solidity ^0.8.9;
 
 import { IAlarmSchedule } from "../../interfaces/IScheduledCommitments.sol";
-import { BaseCommitment } from "../../BaseCommitment.sol";
+import { Commitment } from "../../Commitment.sol";
 import "../../types.sol";
 
 /**
@@ -17,7 +17,7 @@ import "../../types.sol";
  * The number of missed alarms can always be calulcated and used by enforcement
  * modules to penalize the commitment owner.
  */
-contract AlarmCommitment is IAlarmSchedule, BaseCommitment {
+contract AlarmCommitment is IAlarmSchedule, Commitment {
     ScheduleType public constant scheduleType = ScheduleType.ALARM;
 
     uint SECONDS_PER_DAY = 1 days;
@@ -39,7 +39,7 @@ contract AlarmCommitment is IAlarmSchedule, BaseCommitment {
 
     function submitConfirmation() public override onlyOwner {
         require(inSubmissionWindow(), "NOT_IN_SUBMISSION_WINDOW");
-        BaseCommitment.submitConfirmation();
+        Commitment.submitConfirmation();
     }
 
     function submitConfirmationWithProof(string memory proofUri)
@@ -48,7 +48,7 @@ contract AlarmCommitment is IAlarmSchedule, BaseCommitment {
         onlyOwner
     {
         require(inSubmissionWindow(), "NOT_IN_SUBMISSION_WINDOW");
-        BaseCommitment.submitConfirmationWithProof(proofUri);
+        Commitment.submitConfirmationWithProof(proofUri);
     }
 
     function inSubmissionWindow() public view returns (bool) {

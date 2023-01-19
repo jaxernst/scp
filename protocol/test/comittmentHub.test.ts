@@ -3,7 +3,7 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import { encodeCreationParams, registerNewType } from "../lib/commitmentCreation";
 import { CommitType } from "../lib/types";
-import { BaseCommitment, CommitmentHub } from "../typechain-types";
+import { Commitment, CommitmentHub } from "../typechain-types";
 import { encodedString, ZERO_ADDRESS } from "./helpers/constants";
 import { deploy, deployTyped } from "./helpers/deploy";
 
@@ -27,7 +27,7 @@ describe("CommitmentHub", () => {
       await expect(commitmentHub.createCommitment(CommitType.BASE, initData))
         .to.revertedWith("Type Not Registered")
       
-      const commitment = await deployTyped<BaseCommitment>("BaseCommitment")
+      const commitment = await deployTyped<Commitment>("Commitment")
       await (await (commitmentHub.registerCommitType(
         CommitType.BASE, 
         commitment.address
@@ -54,8 +54,8 @@ describe("CommitmentHub", () => {
 
     // Register commitment types to be tested
     beforeEach(async () => {
-      const commitment = await deploy("BaseCommitment")
-      await registerNewType(commitmentHub, "BaseCommitment", CommitType.BASE)
+      const commitment = await deploy("Commitment")
+      await registerNewType(commitmentHub, "Commitment", CommitType.BASE)
     })
     
     it("Creates commitments from registered template contracts", async () => {

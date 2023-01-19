@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import { IBaseCommitment } from "./interfaces/IBaseCommitment.sol";
+import { ICommitment } from "./interfaces/ICommitment.sol";
 import "./types.sol";
 import "hardhat/console.sol";
 
 
-contract BaseCommitment is IBaseCommitment {
+contract Commitment is ICommitment {
     Status public status;
     string public name;
     address public owner;

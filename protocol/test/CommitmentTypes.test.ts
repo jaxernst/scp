@@ -4,7 +4,7 @@ import { ethers } from "hardhat";
 import { isExportDeclaration } from "typescript";
 import { createCommitment } from "../lib/commitmentCreation";
 import { CommitStatus, CommitType, CommitTypeVals, InitializationTypes, ScheduleType } from "../lib/types";
-import { BaseCommitment, CommitmentHub, DeadlineCommitment } from "../typechain-types";
+import { Commitment, CommitmentHub, DeadlineCommitment } from "../typechain-types";
 import { maxUint } from "./helpers/numbers";
 import { advanceTime } from "./helpers/providerUtils";
 import { currentTimestamp, fromNow } from "./helpers/time";
@@ -12,7 +12,7 @@ import { currentTimestamp, fromNow } from "./helpers/time";
 describe("Commitment Spec Test", () => {
   let hub: CommitmentHub;
   let user: SignerWithAddress;
-  let genericCommit: BaseCommitment;
+  let genericCommit: Commitment;
 
   before(async () => {
     const deployer = await ethers.getContractFactory("CommitmentHub");

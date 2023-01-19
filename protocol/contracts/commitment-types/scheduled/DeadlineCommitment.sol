@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import { BaseCommitment } from "../../BaseCommitment.sol";
+import { Commitment } from "../../Commitment.sol";
 import { IDeadlineSchedule } from "../../interfaces/IScheduledCommitments.sol";
 import "../../types.sol";
 
 import "hardhat/console.sol";
 
-contract DeadlineCommitment is IDeadlineSchedule, BaseCommitment {
+contract DeadlineCommitment is IDeadlineSchedule, Commitment {
     ScheduleType public constant scheduleType = ScheduleType.DEADLINE;
 
     uint256 public deadline;

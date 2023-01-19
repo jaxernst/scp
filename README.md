@@ -31,7 +31,7 @@ Commitments are independent, ownable smart contracts. Deploying new bytecode for
 
 ## Base Commitment
 ```solidity
-interface IBaseCommitment {
+interface ICommitment {
     event CommitmentCreated(string description);
     event ConfirmationSubmitted();
     event ProofSubmitted(string uri, uint proofId);
@@ -47,7 +47,7 @@ interface IBaseCommitment {
     function terminate() external;
 }
   ```
-A base commitment acts as a minimal structure for creating and updating the state of your commitments. The BaseCommitment provides functionality to confirm completion of your commitment, and optionally submit an external link as a proof of completion.
+A base commitment acts as a minimal structure for creating and updating the state of your commitments. The Commitment provides functionality to confirm completion of your commitment, and optionally submit an external link as a proof of completion.
 
 
 
@@ -71,9 +71,9 @@ interface IAlarmSchedule is ISchedule {
     function alarmTime() external view returns(uint);
 }
 
-interface IScheduledCommitment is ISchedule, IBaseCommitment {}
-interface IDeadlineCommitment is IDeadlineSchedule, IBaseCommitment {}
-interface IAlarmCommitment is IAlarmSchedule, IBaseCommitment {}
+interface IScheduledCommitment is ISchedule, ICommitment {}
+interface IDeadlineCommitment is IDeadlineSchedule, ICommitment {}
+interface IAlarmCommitment is IAlarmSchedule, ICommitment {}
 ```
 Commitments can be extended with scheduling logic that only allows submissions to occur within 'submission windows'. Schedule modules also track 'missedDeadlines' which can be read by enforcement modules to penalize and/or reward commitments.
 

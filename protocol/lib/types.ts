@@ -1,6 +1,6 @@
 import { BigNumberish } from "ethers";
 import { string } from "hardhat/internal/core/params/argumentTypes";
-import { BaseCommitment, BaseCommitment__factory, DeadlineCommitment, DeadlineCommitment__factory } from "../typechain-types";
+import { Commitment, Commitment__factory, DeadlineCommitment, DeadlineCommitment__factory } from "../typechain-types";
 
 export type DayOfWeek = 1 | 2 | 3 | 4 | 5 | 6 | 7
 
@@ -18,17 +18,17 @@ export enum ScheduleType {
 }
 
 export type CommitContractTypes = {
-    0: BaseCommitment,
+    0: Commitment,
     1: DeadlineCommitment
 }
 
 export const CommitFactoryMapping = {
-    0: BaseCommitment__factory,
+    0: Commitment__factory,
     1: DeadlineCommitment__factory
 }
 
 export const CommitContractNames = {
-    0: "BaseCommitment",
+    0: "Commitment",
     1: "DeadlineCommitment"
 }
 

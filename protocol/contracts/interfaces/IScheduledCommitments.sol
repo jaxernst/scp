@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "./IBaseCommitment.sol";
+import "./ICommitment.sol";
 import "../types.sol";
 
 
@@ -23,6 +23,6 @@ interface IAlarmSchedule is ISchedule {
     function alarmTime() external view returns(uint);
 }
 
-interface IScheduledCommitment is ISchedule, IBaseCommitment {}
-interface IDeadlineCommitment is IDeadlineSchedule, IBaseCommitment {}
-interface IAlarmCommitment is IAlarmSchedule, IBaseCommitment {}
+interface IScheduledCommitment is ISchedule, ICommitment {}
+interface IDeadlineCommitment is IDeadlineSchedule, ICommitment {}
+interface IAlarmCommitment is IAlarmSchedule, ICommitment {}

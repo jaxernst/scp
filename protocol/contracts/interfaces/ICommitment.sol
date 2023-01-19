@@ -3,7 +3,7 @@ pragma solidity ^0.8.9;
 
 import "../types.sol";
 
-interface IBaseCommitment {
+interface ICommitment {
     event CommitmentCreated(string description);
     event ConfirmationSubmitted();
     event ProofSubmitted(string uri, uint proofId);
