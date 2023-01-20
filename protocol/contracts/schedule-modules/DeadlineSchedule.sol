@@ -2,6 +2,7 @@
 pragma solidity ^0.8.9;
 
 library DeadlineSchedule {
+    event DeadlineScheduleInitialized(uint deadline, uint submissionWindow);
     struct Schedule {
         // Init vars
         uint deadline;
@@ -14,6 +15,8 @@ library DeadlineSchedule {
         require(block.timestamp < deadline, "INVALID_DEADLINE");
         self.deadline = deadline;
         self.submissionWindow = submissionWindow;
+
+        emit DeadlineScheduleInitialized(deadline, submissionWindow);
     }
 
     function entries(Schedule storage self) internal view returns (uint) {

@@ -65,7 +65,8 @@ contract CommitmentHub is CommitmentFactory {
     ) public {
         Commitment commitment = _createCommitment(_type);
         commitment.init(_initData);
-        commitments[++nextCommitmentId] = Commitment(commitment);
+        commitments[++nextCommitmentId] = commitment;
+        
         emit CommitmentCreation(msg.sender, _type, address(commitment));
     }
 }

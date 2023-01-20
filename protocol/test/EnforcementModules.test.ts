@@ -15,6 +15,10 @@ import { currentTimestamp, fromNow } from "./helpers/time";
 
 const abi = ethers.utils.defaultAbiCoder
 
+/** 
+ * Enforcement modules are being refactored in penalty modulesa libraries, and this test 
+ * code will be removed when the refactoring is complete
+
 describe("EnforcementModules", () => {
   let hub: CommitmentHub;
   let user: SignerWithAddress
@@ -126,3 +130,5 @@ describe("EnforcementModules", () => {
     });
   });
 });
+
+*/

@@ -3,7 +3,6 @@ pragma solidity ^0.8.9;
 
 import "../interfaces/IEnforcementModule.sol";
 import "../interfaces/IScheduledCommitments.sol";
-import "../commitment-types/scheduled/DeadlineCommitment.sol";
 import "hardhat/console.sol";
 
 /**
@@ -35,7 +34,7 @@ contract MissedDeadlineTimelock is IEnforcementModule {
         );
         require(msg.value > 0, "STAKE_VALUE_NOT_SENT");
 
-        uint256 commitDeadline = DeadlineCommitment(address(commitment)).deadline();
+        uint256 commitDeadline = IDeadlineCommitment(address(commitment)).deadline();
         userEntries[commitment.owner()] = userEntry({
             stake: msg.value,
             unlockTime: commitDeadline + lockDuration,

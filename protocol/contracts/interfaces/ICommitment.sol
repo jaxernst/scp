@@ -8,16 +8,13 @@ interface ICommitment {
     event ConfirmationSubmitted();
     event ProofSubmitted(string uri, uint proofId);
     event ConfirmationRevoked(string uri, uint proofId);
-    event StatusChanged(Status from, Status to);
+    event StatusChanged(CommitmentStatus from, CommitmentStatus to);
     
-    function status() external view returns(Status);
+    function status() external view returns(CommitmentStatus);
     function name() external view returns(string memory);
     function owner() external view returns(address);
     function submitConfirmationWithProof(string memory) external;
     function submitConfirmation() external;
-    function pause() external;
-    function resume() external;
-    function terminate() external;
 }
 
 

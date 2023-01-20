@@ -5,10 +5,16 @@ import { ICommitment } from "./interfaces/ICommitment.sol";
 import "./types.sol";
 import "hardhat/console.sol";
 
-
+/**
+ * The base commitment defines the most primitive commitment implementation, where
+ * the only functionality includes confirming (with or without proof) that the commitment
+ * was completed, and emitting events to log commitment submissions.
+ * 
+ * @dev Customized commitments inhereit from this contract, and can override functions as needed.
+ */
 contract Commitment is ICommitment {
-    Status public status;
     string public name;
+    CommitmentStatus public status;
     address public owner;
     uint nextProofId = 1;
 
@@ -16,7 +22,7 @@ contract Commitment is ICommitment {
     modifier initializer() {
         require(!initialized, "ALREADY_INITIALIZED");
         owner = tx.origin;
-        status = Status.ACTIVE;
+        status = CommitmentStatus.ACTIVE;
         initialized = true;
         _;
     }
@@ -26,7 +32,7 @@ contract Commitment is ICommitment {
         _;
     }
 
-    function init(bytes calldata data) public virtual initializer {
+    function init(bytes calldata data) public payable virtual initializer {
         string memory description;
         (name, description) = abi.decode(
             data, 
@@ -38,26 +44,16 @@ contract Commitment is ICommitment {
 
     function submitConfirmationWithProof(string memory proofUri) public virtual override onlyOwner {
         emit ProofSubmitted(proofUri, ++nextProofId);
+        submitConfirmation();
     }
 
+    /**
+     * @notice The base commitment will change its status to complete upon confirmation
+     * but derived commitments to not have to abide by this state change
+     */
     function submitConfirmation() public virtual override onlyOwner {
         emit ConfirmationSubmitted();
-    }
-
-    function pause() public virtual override {
-        require(status == Status.ACTIVE, "NOT_ACTIVE");
-        status = Status.PAUSED;
-        emit StatusChanged(status, Status.PAUSED);
-    }
-
-    function resume() public virtual override {
-        require(status == Status.PAUSED, "NOT_PAUSED");
-        status = Status.ACTIVE;
-        emit StatusChanged(status, Status.ACTIVE);
-    }
-    
-    function terminate() public virtual override onlyOwner {
-        emit StatusChanged(status, Status.CANCELLED);
-        status = Status.CANCELLED;
+        emit StatusChanged(status, CommitmentStatus.COMPLETE);
+        status = CommitmentStatus.COMPLETE;
     }
 }

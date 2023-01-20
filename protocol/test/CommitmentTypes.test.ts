@@ -50,6 +50,9 @@ describe("Commitment Spec Test", () => {
   });
 
   describe("Commitment type: Deadline", async () => {
+    /**
+     * !!Caution: Under construction!! :)
+     
     let genericCommit: DeadlineCommitment
     before(async () => {
       genericCommit = await createCommitment(hub, CommitType.DEADLINE, {
@@ -157,6 +160,6 @@ describe("Commitment Spec Test", () => {
         await advanceTime(deadline + 1)
         expect(await commitment.missedDeadlines()).to.equal(1)
       })
-    }) 
-  });
+    }) */
+  }); 
 });

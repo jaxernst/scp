@@ -22,10 +22,15 @@ enum ScheduleType {
 /**
  * Status represents all the states that commitments can be in
  */
-enum Status {
+enum CommitmentStatus {
     ACTIVE,
     PAUSED,
     COMPLETE,
-    CONTESTED,
     CANCELLED
+}
+
+enum ConfirmationStatus {
+    APPROVED,
+    CONTESTED,
+    AWAITING_ATTESTATION
 }

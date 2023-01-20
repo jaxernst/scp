@@ -3,7 +3,7 @@ pragma solidity ^0.8.9;
 
 import "../interfaces/IEnforcementModule.sol";
 import "../interfaces/IScheduledCommitments.sol";
-import "../commitment-types/scheduled/DeadlineCommitment.sol";
+
 import "hardhat/console.sol";
 
 /**
@@ -22,7 +22,6 @@ library TimelockPenalty {
         uint unlockTime;
     }
 
-    
     function init(Timelock storage self, uint depositValue, uint lockDuration) internal {
         require(msg.value >= depositValue, "INSUFFICIENT_VALUE_SENT");
         self.depositValue = depositValue;
@@ -40,11 +39,12 @@ library TimelockPenalty {
     }
 
     function withdraw(Timelock storage self, address payable to) internal {
-        // Block timestmap will always be greeater than unlockTime unless 
+        // Block timestamp will always be greater than unlockTime unless 
         // the penalize function was called and the lock duration has not elasped
         require(block.timestamp > self.unlockTime, "FUNDS_LOCKED");
+        
         uint transferVal = self.depositValue;
-        self.depositValue = 0;
+        self.depositValue = 0; // Set to zero before transfer for reentrancy protection
         to.transfer(transferVal);
     }
 }
