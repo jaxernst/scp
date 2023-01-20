@@ -1,4 +1,4 @@
-# An Interactive and Social Productivity Protocol
+# A Generalized Protocol for Facilitating Interactive, Public Commitments
 
 [![](https://dcbadge.vercel.app/api/server/MJHxzqDGuv)](https://discord.gg/MJHxzqDGuv)
 ![](https://img.shields.io/badge/License-Apache--2.0-orange.svg?style=for-the-badge&labelColor=EF9421&logoColor=white&logo=CreativeCommons)
