@@ -9,9 +9,11 @@ import "./types.sol";
 import "hardhat/console.sol";
 
 /**
- * @dev This contract should eventually implement functionality to add more commitment
- * types. As new commitment types are added, they can be deployed externally, and their
- * address can be registered here
+ * @notice The commitment factory contains a registry of Commitment implementations,
+ * or commitment templates. When creating new commitment implementations, they must be
+ * audited and approved, so the registration process is currently permissioned.
+ * 
+ * ToDo: Manage commitment registration through governance
  */
 contract CommitmentFactory is Ownable {
     mapping(RegisteredCommitmentType => address) public commitTemplateRegistry;
@@ -36,6 +38,14 @@ contract CommitmentFactory is Ownable {
     }
 }
 
+/**
+ * @notice Manage the process of creating new commitmenets and tracking currently deployed commitments.
+ * The stores deployed commitments and contains events for frontends to index and track
+ * user's commitments
+ * 
+ * Commitments and Commitment pools deployed from the hub are deployed as Minimal Proxies (clones), to reduce gas
+ * costs.
+ */
 contract CommitmentHub is CommitmentFactory {
     uint public nextCommitmentId = 1;
     mapping(uint => Commitment) public commitments;
