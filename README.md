@@ -9,7 +9,7 @@
 
 <br>
 
-The Social Commitment Protocol (SCP) is a smart contract protocol build to facilitate and enforce commitments made by individuals and organizations. A commitment, as defined, is an agreement to pledge or do something in the future. The Social Commitment Protocol allows for programmatic creation, enforcement, and customization of any form that a 'commitment' may take.
+The Social Commitment Protocol (SCP) is a smart contract protocol build to facilitate and enforce commitments made by individuals and organizations. A commitment, as defined, is an agreement or pledge to do something in the future. The Social Commitment Protocol allows for programmatic creation, enforcement, and customization of any form that a 'commitment' may take.
 
 At the core of the protocol is the Commitment primitive. Commitments are standalone smart contracts that host both the information pertaining to the commitment and the functionality to interact with the commitment. In the most basic form, a commitment might be implemented as ToDo item. A user creating this type of commitment is signing a transaction saying ‘I will do x’. From here we can start adding on logic, such as a scheduling and penalization logic. With this logic applied, our commitment could read as ‘I will do x by time t, else my funds will get locked up for duration d’.
 
