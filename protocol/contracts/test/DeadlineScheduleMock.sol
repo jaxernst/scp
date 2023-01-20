@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "../schedules/DeadlineSchedule.sol";
+import "../schedule-modules/DeadlineSchedule.sol";
 
 contract DeadlineScheduleMock {
     using DeadlineSchedule for DeadlineSchedule.Schedule;
