@@ -1,28 +1,27 @@
-# An Interactive and Social Productivity Protocol
+# A Generalized Protocol for Facilitating Interactive, Public Commitments
 
 [![](https://dcbadge.vercel.app/api/server/MJHxzqDGuv)](https://discord.gg/MJHxzqDGuv)
 ![](https://img.shields.io/badge/License-Apache--2.0-orange.svg?style=for-the-badge&labelColor=EF9421&logoColor=white&logo=CreativeCommons)
 ![](https://img.shields.io/github/stars/jaxernst/the-social-commitment-protocol?style=for-the-badge&labelColor=d0ab23&color=b0901e&logoColor=white&logo=Trustpilot)
 
 ![](frontend-preview.png)
-(*example interface design*)
+(*prototype protocol interface*)
 
 <br>
 
-The Social Commitment Protocol is a generalized productivity protocol with an open and extendible architecture allowing for individual goals and 'commitments' to be enforced in a social and game-like manner.
+The Social Commitment Protocol (SCP) is a smart contract protocol build to facilitate and enforce commitments made by individuals and organizations. A commitment, as defined, is an agreement or pledge to do something in the future. The Social Commitment Protocol allows for programmatic creation, enforcement, and customization of any form that a 'commitment' may take.
 
-At the core of the protocol is the idea of a "Commitment". A user making a commitment is signing a transaction as an agreement that they will do whatever the commitment describes. The base form of a commitment only has a few simple attributes, but can be extended and customized to allow for all sorts fun and unique functionality that is only achievable through smart contracts.
+At the core of the protocol is the Commitment primitive. Commitments are standalone smart contracts that host both the information pertaining to the commitment and the functionality to interact with the commitment. In the most basic form, a commitment might be implemented as ToDo item. A user creating this type of commitment is signing a transaction saying ‘I will do x’. From here we can start adding on logic, such as a scheduling and penalization logic. With this logic applied, our commitment could read as ‘I will do x by time t, else my funds will get locked up for duration d’.
 
 ## Commitment Confirmation
-Commitments expose 'confirmation' functions for users to complete their commitments. The most basic form of a confirmation simply uses the commitment owners signature to mark the commitment as complete. For higher stakes commitments (possibly with money on the line), commitments may require a 'proof of completion' to be submitted, which is a URI to an externaly hosted image, screenshot, etc. This external proof should be sufficient to convince others that the commitment was completed. Commitment proofs can require attestations before they become valid, or may be optimistically assumed valid with voting mechanics in place to 'challenge' a proof.
+Commitments expose 'confirmation' functions for users to complete their commitments. The most basic form of a confirmation simply uses the commitment owners signature to mark the commitment as complete. For higher stakes commitments (possibly with money on the line), commitments may require a 'proof of completion' to be submitted, which is a URI to an externaly hosted image, screenshot, etc. This external proof should be sufficient to convince others that the commitment was completed. Commitment proofs can require attestations before they become valid, or may be optimistically assumed valid with voting mechanics in place to 'challenge' a proof. Confirmations can also require an external contract for validation this may be useful for DAOs enforcing participation in governance, (ie. when voting on a proposal, a DAO’s contract calls the commitment to confirm participation)
 
 # What's possible with the protocol?
-* Boring ToDo and goal setting apps
-* Exciting ToDo and goal setting apps that donate or temporarily lock your money if you fail to meet your deadlines/goals
-* Social apps with credit systems to reward peers for their achievements
-* Alarm clock 'pools' joinable with friends that force you to wake up on time, else you risk your money being transferred to your friends.
-* Public accountability systems for public-figures to officiate their commitments/promises
-* Public courts to judge commitment 'proof of completions' through social consensus
+There are many ways to implement commitments and build apps on of the protocol, but I have compiled some of my favorites:
+
+- Task and Todo tracking apps that allow users to put down ‘collateral’ on their commitments and incentivize themselves to be more productive.
+- Social apps that allow goals and commitments to be shared with friends, with credit systems in place to reward users for high achievement and proving to the protocol that commitments have been completed
+- Public accountability systems for public-figures or organizations to officiate their commitments/promises
 
 
 # Architecture
