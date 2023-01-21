@@ -36,16 +36,19 @@
 
   .label {
     font-size: 10px;
+    padding-bottom: .5em;
   }
   
   .values {
     display: contents;
     font-family: 'Orbitron';
+    
   }
   
   .values > .grid-item {
     background-color: var(--theme-container2);
     padding: .8em 0 .8em 0;
+    height: 40px;
   }
 
   .values > :first-child {

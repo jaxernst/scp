@@ -36,6 +36,11 @@
 		color: var(--alert-color);
 	}
 
+	h2 {
+		color: white;
+		font-weight: 200;
+	}
+
 	.flex-centered {
 		display: flex;
 		padding: 1em;
@@ -43,4 +48,5 @@
 		justify-content: center;
 		align-items: center;
 	}
+
 </style>

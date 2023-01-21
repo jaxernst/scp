@@ -13,12 +13,13 @@
     --background-gradient2: linear-gradient(0deg, rgb(0, 0, 0) 0%, rgba(17, 67, 87, 1) 100%);
     --background-gradient1: linear-gradient(0deg, rgba(242, 148, 146, 1) 0%, rgba(17, 67, 87, 1) 100%);
     --theme-container1: rgba(255, 255, 255, 0.817);
-    --theme-container2: rgba(195, 195, 195, 0.81);
-
+    --theme-container2: rgba(206, 206, 206, 0.848);
+    --theme-container3: rgb(124, 124, 124);
+    
     --theme-color1: rgba(239, 239, 239, 0.777);
     --theme-color2: rgb(46, 46, 46);
-    --theme-color3: rgb(106, 235, 106);
-    --theme-color3-dark: rgb(66, 144, 66);
+    --theme-color3: rgb(183, 243, 239);
+    --theme-color3-dark: rgb(102, 150, 147);
     --theme-color4: rgb(16, 42, 56);
     
     --alert-color: rgba(255, 0, 0);
@@ -59,4 +60,19 @@ h1 {
     font-size: 20px;
 }
 
+.button-primary {
+    font-family: 'Orbitron';
+    padding: .5em;
+    background: none;
+    border: none;
+    outline: 1px solid white;
+    border-radius: 5px;
+    color: var(--theme-color1);
+    transition: 0.2s ease-in-out;
+}
 
+.button-primary:hover {
+  background-color: black;
+  color: white;
+  border-color: black;
+}

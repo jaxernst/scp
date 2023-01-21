@@ -8,6 +8,7 @@
 	import { onMount } from 'svelte';
 	import Modal from 'svelte-simple-modal';
 	import Hud from 'src/components/Hud.svelte';
+	import WakeupButton from 'src/components/WakeupButton.svelte';
 
 	/* defaultEvmStores.attachContract(
 		cph.contractName,
@@ -25,10 +26,18 @@
 <div class=app>	
 	<div class=grid-container>
 		<div class="grid-item commitment-area">
+			<div>
+				<WakeupButton/>
 			
+			</div>
 		</div>
 		<div class="grid-item action-area">
 			<Hud/>
+			<div class="card-area">
+				<div class="card card-layout">
+					<span>ToDo</span>
+				</div>
+			</div>
 		</div>
 		<div class="grid-item feed">Feed</div>
 	</div>
@@ -38,7 +47,7 @@
 <Modal 
 	on:close={() => modal.set(null)} 
 	show={$modal}
-	styleWindow={{ backgroundColor: 'var(--dark-gray)'}}
+	styleWindow={{ backgroundColor: 'var(--theme-container3)'}}
 />
 
 
@@ -74,7 +83,7 @@
 
 	.action-area {
 		display: flex;
-		flex-direction: row;
+		flex-direction: column;
 	}
 
 	.grid-item:nth-child(3) {
@@ -82,5 +91,37 @@
     grid-column: 1/3;
   }
 
+	.card-area {
+		margin: .5em 0 .5em 0;
+	}
+
+	.card {
+		font-family: 'Orbitron';
+		color: var(--theme-color3-dark);
+		outline: 3px solid var(--theme-color3);
+		border-radius: 10px;
+		background-color: var(--theme-container1);
+		width: 60px;
+		height: 60px;
+		box-shadow: 2px 2px 8px rgba(91, 91, 91, 0.509);
+		
+	}
+
+	.card-layout {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		text-align: center;
+	}
+	
+	.card:hover span {
+  	display: none;
+		
+	}
+
+	.card:hover:before {
+  	content: "+";
+	
+	}
 </style>
 
