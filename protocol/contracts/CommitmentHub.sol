@@ -3,7 +3,7 @@ pragma solidity ^0.8.9;
 
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {Commitment} from "./Commitment.sol";
+import {BaseCommitment} from "./BaseCommitment.sol";
 import "./types.sol";
 
 import "hardhat/console.sol";
@@ -20,13 +20,13 @@ contract CommitmentFactory is Ownable {
 
     function _createCommitment(RegisteredCommitmentType _type)
         internal
-        returns (Commitment)
+        returns (BaseCommitment)
     {
         require(
             commitTemplateRegistry[_type] != address(0),
             "Type Not Registered"
         );
-        return Commitment(Clones.clone(commitTemplateRegistry[_type]));
+        return BaseCommitment(Clones.clone(commitTemplateRegistry[_type]));
     }
 
     function registerCommitType(
@@ -48,7 +48,7 @@ contract CommitmentFactory is Ownable {
  */
 contract CommitmentHub is CommitmentFactory {
     uint public nextCommitmentId = 1;
-    mapping(uint => Commitment) public commitments;
+    mapping(uint => BaseCommitment) public commitments;
 
     event CommitmentCreation(
         address indexed user,
@@ -62,11 +62,11 @@ contract CommitmentHub is CommitmentFactory {
     function createCommitment(
         RegisteredCommitmentType _type,
         bytes memory _initData
-    ) public {
-        Commitment commitment = _createCommitment(_type);
-        commitment.init(_initData);
+    ) public payable {
+        BaseCommitment commitment = _createCommitment(_type);
+        commitment.init{ value: msg.value }(_initData);
         commitments[++nextCommitmentId] = commitment;
-        
+
         emit CommitmentCreation(msg.sender, _type, address(commitment));
     }
 }

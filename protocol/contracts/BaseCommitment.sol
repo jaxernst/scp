@@ -12,7 +12,7 @@ import "hardhat/console.sol";
  * 
  * @dev Customized commitments inhereit from this contract, and can override functions as needed.
  */
-contract Commitment is ICommitment {
+contract BaseCommitment is ICommitment {
     string public name;
     CommitmentStatus public status;
     address public owner;

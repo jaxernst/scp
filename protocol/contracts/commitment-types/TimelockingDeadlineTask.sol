@@ -1,11 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "../Commitment.sol";
+import "../BaseCommitment.sol";
 import "../penalty-modules/TimelockPenalty.sol";
 import "../schedule-modules/DeadlineSchedule.sol";
 
-contract TimelockingDeadlineTask is Commitment {
+/**
+ * This contract represents a commitment made by a user to do whatever the taskDescription 
+ * describes by the deadline timestamp specified in the initializer. If the user fails
+ * to confirm that the task has been done by the deadline, funds will be locked 
+ * for a specified duration
+ */
+contract TimelockingDeadlineTask is BaseCommitment {
     string constant IMPLEMENTATION_NAME = "Timelocking Deadline Task";
     ScheduleType public constant scheduleType = ScheduleType.DEADLINE;
 
@@ -55,7 +61,7 @@ contract TimelockingDeadlineTask is Commitment {
         // Will revert if not yet in submission window
         schedule.recordEntry();
         _markComplete();
-        withdraw();
+        _withdraw();
     }
 
     function submitConfirmationWithProof(string memory proofUri)
@@ -81,6 +87,10 @@ contract TimelockingDeadlineTask is Commitment {
 
     function withdraw() public onlyOwner {
         require(!schedule.inSubmissionWindow(), "CANT_WITHDRAW_IN_SUBMISSION_WINDOW");
+        _withdraw();
+    }
+
+    function _withdraw() private {
         _penalizeIfApplicable();
         penalizer.withdraw(payable(owner));
     }
