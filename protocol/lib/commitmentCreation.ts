@@ -1,36 +1,37 @@
-import { Contract, ethers } from "ethers";
+import { BigNumberish, Contract, ethers } from "ethers";
 import { deploy } from "../test/helpers/deploy";
-import { CommitmentHub } from "../typechain-types";
-import {
-  CommitFactoryMapping,
-  CommitContractNames,
-  CommitContractTypes,
-  CommitInitDataTypes,
-  CommitTypeVals,
-  SolidityCommitInitTypes,
-  CommitType,
-  InitializationTypes,
+import { Commitment, CommitmentHub } from "../typechain-types";
+import { 
+  CommitmentContractName, 
+  CommitmentContractTypes, 
+  commitmentTypeVals,  
+  InitializationTypes, 
+  commitmentFactories,
+  solidityInitializationTypes
 } from "./types";
 
 
+
 export async function createCommitment<
-  Hub extends CommitmentHub,
-  T extends CommitTypeVals
+  T extends CommitmentContractName
 >(
-  hub: Hub,
-  type: T,
-  initData: InitializationTypes[T]
-): Promise<CommitContractTypes[T]> {
+  hub: CommitmentHub,
+  name: T,
+  initData: InitializationTypes[T],
+  value?: BigNumberish
+): Promise<CommitmentContractTypes[T]> {
 
   if (
-    (await hub.commitTemplateRegistry(type)) === ethers.constants.AddressZero
+    (await hub.commitTemplateRegistry(commitmentTypeVals[name])) === ethers.constants.AddressZero
   ) {
-    await registerNewType(hub, CommitContractNames[type], type)
+    await registerNewType(hub, name)
   }
 
-  const byteData = encodeCreationParams(type, initData)
+  const byteData = encodeCreationParams(name, initData)
   const rc = await (
-    await hub.createCommitment(type, byteData)
+    await hub.createCommitment(commitmentTypeVals[name], byteData, {
+      value: value ? value : 0
+    })
   ).wait();
   
   if (!rc.events) throw Error("No events found in tx");
@@ -42,24 +43,27 @@ export async function createCommitment<
     }
   }
 
-  return (CommitFactoryMapping[type] as any).connect(commitAddr!, hub.signer);
+  return (commitmentFactories[name] as any).connect(commitAddr!, hub.signer);
 }
 
-export function encodeCreationParams<T extends CommitTypeVals>(
-  type: T, 
+
+export function encodeCreationParams<T extends CommitmentContractName>(
+  name: T, 
   initData: InitializationTypes[T]
 ): string {
   return ethers.utils.defaultAbiCoder.encode(
-    SolidityCommitInitTypes[type],
+    solidityInitializationTypes[name],
     Object.values(initData)
   );
 }
 
-export async function registerNewType(
-  hub: CommitmentHub, 
-  contractName: string, 
-  type: CommitType
+export async function registerNewType<Hub extends CommitmentHub, Name extends CommitmentContractName>(
+  hub: Hub, 
+  contractName: Name
 ) {
   const commit = await deploy(contractName)
-  await (await hub.registerCommitType(type, commit.address)).wait();
+  await (await hub.registerCommitType(
+    commitmentTypeVals[contractName], 
+    commit.address
+  )).wait();
 }

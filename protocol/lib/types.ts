@@ -1,55 +1,41 @@
-import { BigNumberish } from "ethers";
+import { BigNumberish, ContractFactory } from "ethers";
 import { string } from "hardhat/internal/core/params/argumentTypes";
-import { Commitment, Commitment__factory, DeadlineCommitment, DeadlineCommitment__factory } from "../typechain-types";
+import { BaseCommitment, Commitment__factory, TimelockingDeadlineTask, TimelockingDeadlineTask__factory} from "../typechain-types";
 
 export type DayOfWeek = 1 | 2 | 3 | 4 | 5 | 6 | 7
 
-export type CommitTypeVals = 0 | 1
-
-export enum CommitType {
-    BASE,
-    DEADLINE
+export const commitmentTypeVals: Record<CommitmentContractName, number> = {
+    BaseCommitment: 0,
+    TimelockingDeadlineTask: 1
 }
 
-export enum ScheduleType {
-    NONE,
-    DEADLINE,
-    DAY_OF_WEEK
+export type CommitmentContractName = 
+    "BaseCommitment" | 
+    "TimelockingDeadlineTask" 
+
+export type CommitmentContractTypes = {
+    "BaseCommitment": BaseCommitment,
+    "TimelockingDeadlineTask": TimelockingDeadlineTask
 }
 
-export type CommitContractTypes = {
-    0: Commitment,
-    1: DeadlineCommitment
-}
-
-export const CommitFactoryMapping = {
-    0: Commitment__factory,
-    1: DeadlineCommitment__factory
-}
-
-export const CommitContractNames = {
-    0: "Commitment",
-    1: "DeadlineCommitment"
+export const commitmentFactories = {
+    "BaseCommitment": Commitment__factory,
+    "TimelockingDeadlineTask": TimelockingDeadlineTask__factory
 }
 
 export type InitializationTypes = {
-    0: { name: string, description: string}
-    1: { 
+    "BaseCommitment": { name: string, description: string}
+    "TimelockingDeadlineTask": { 
         deadline: BigNumberish, 
-        submissionWindow: BigNumberish
-        name: string, 
-        description: string, 
+        submissionWindow: BigNumberish,
+        timelockDuration: BigNumberish,
+        taskDescription: BigNumberish
     }
 }
 
-export type CommitInitDataTypes = {
-    0: [string, string],
-    1: [BigNumberish, BigNumberish, string, string]
-}
-
-export const SolidityCommitInitTypes = {
-    0: ["string", "string"],
-    1: ["uint256", "uint256", "string", "string"],
+export const solidityInitializationTypes = {
+    "BaseCommitment": ["string", "string"],
+    "TimelockingDeadlineTask": ["uint256", "uint256", "string", "string"],
 }
 
 export enum CommitStatus {
@@ -58,3 +44,17 @@ export enum CommitStatus {
     COMPLETE,
     CANCELLED,
 }
+
+export enum ScheduleModules {
+    NONE,
+    DEADLINE,
+    ALARM,
+    INTERVAL
+}
+
+export enum PenaltyModules {
+    TIMELOCK,
+    DONATION
+}
+
+
