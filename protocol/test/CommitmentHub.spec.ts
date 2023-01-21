@@ -3,31 +3,34 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import { encodeCreationParams, registerNewType } from "../lib/commitmentCreation";
 import { commitmentTypeVals } from "../lib/types";
-import { Commitment, CommitmentHub } from "../typechain-types";
+import { BaseCommitment, CommitmentHub } from "../typechain-types";
 import { ZERO_ADDRESS } from "./helpers/constants";
 import { deploy, deployTyped } from "./helpers/deploy";
 import { waitAll, repeat } from "./helpers/util"
+import { Signer } from "ethers";
 
 
 describe("CommitmentHub", () => {
   let commitmentHub: CommitmentHub;
-  let user: SignerWithAddress;
+  let commitment: BaseCommitment
+  let owner: SignerWithAddress;
+  let rando: SignerWithAddress
 
   before(async () => {
-    [user] = await ethers.getSigners();
+    [owner, rando] = await ethers.getSigners();
   });
 
   beforeEach(async () => {
     commitmentHub = await (await ethers.getContractFactory("CommitmentHub")).deploy()
+    commitment = await deployTyped<BaseCommitment>("BaseCommitment")
   });
 
   describe("Commitment Type Registration", () => {
     it("Cannot create a commitment without a registered template contract", async () => {
       const initData = encodeCreationParams("BaseCommitment", { name: "", description: ""})
       await expect(commitmentHub.createCommitment(commitmentTypeVals["BaseCommitment"], initData))
-        .to.revertedWith("Type Not Registered")
+        .to.revertedWith("TYPE_NOT_REGISTERED")
       
-      const commitment = await deployTyped<Commitment>("BaseCommitment")
       await (await (commitmentHub.registerCommitType(
         commitmentTypeVals["BaseCommitment"], 
         commitment.address
@@ -37,12 +40,28 @@ describe("CommitmentHub", () => {
         .to.not.reverted
     })
 
-    it("Only allows templates to be registered by the owner")
+    it("Only allows templates to be registered by the owner", async () => {
+      await expect(commitmentHub.connect(rando).registerCommitType(
+        commitmentTypeVals["BaseCommitment"],
+        commitment.address
+      )).to.be.reverted
+      await expect(commitmentHub.registerCommitType(
+        commitmentTypeVals["BaseCommitment"],
+        commitment.address
+      )).to.not.be.reverted
+    })
 
-    it("Prevents re-registration of the same commit type")
-
-    it("Emits an event with the uri to the proof upon confimation")
-
+    it("Prevents overriding commitment type registration", async () => {
+      await commitmentHub.registerCommitType(
+        commitmentTypeVals["BaseCommitment"],
+        commitment.address
+      )
+      const commitment2 = await deploy("BaseCommitment")
+      await expect(commitmentHub.registerCommitType(
+        commitmentTypeVals["BaseCommitment"],
+        commitment2.address
+      )).to.be.revertedWith("TYPE_REGISTERED")
+    })
   })
 
 
@@ -77,7 +96,7 @@ describe("CommitmentHub", () => {
       const txs = await repeat(commitmentHub.createCommitment, [commitmentTypeVals["BaseCommitment"], baseInitData], 5)
       await waitAll(txs)
       const events = await commitmentHub.queryFilter(
-        commitmentHub.filters.CommitmentCreation(user.address as any)
+        commitmentHub.filters.CommitmentCreation(owner.address as any)
       )
       expect(events.length).to.equal(5)
     })

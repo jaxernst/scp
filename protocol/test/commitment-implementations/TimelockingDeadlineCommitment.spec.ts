@@ -9,7 +9,7 @@ import { advanceTime } from "../helpers/providerUtils"
 import { currentTimestamp } from "../helpers/time"
 
 
-describe("TimelockDeadlineTask Commitment", () => {
+describe("Commitment Implementation #1: TimelockDeadlineTask", () => {
     let hub: CommitmentHub
     let commitment: TimelockingDeadlineTask | BaseCommitment
     let blockTime: BigNumber

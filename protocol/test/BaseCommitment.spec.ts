@@ -3,12 +3,13 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import { createCommitment } from "../lib/commitmentCreation";
 import { CommitStatus } from "../lib/types";
-import { Commitment, CommitmentHub } from "../typechain-types";
+import { BaseCommitment, CommitmentHub } from "../typechain-types";
+import { Contract } from "ethers";
 
 describe("Commitment Spec Test", () => {
   let hub: CommitmentHub;
   let user: SignerWithAddress;
-  let genericCommit: Commitment;
+  let genericCommit: BaseCommitment;
 
   before(async () => {
     const deployer = await ethers.getContractFactory("CommitmentHub");
@@ -43,5 +44,18 @@ describe("Commitment Spec Test", () => {
     it("Sets the base commitment's status to active when initialized", async () => {
       expect(await genericCommit.status()).to.equal(CommitStatus.ACTIVE);
     });
+
+    const expectCompleted = async (commit: Contract, func: any) => {
+      await expect(func())
+        .to.emit(commit, "StatusChanged").withArgs(CommitStatus.ACTIVE, CommitStatus.COMPLETE)
+        expect(await commit.status()).to.equal(CommitStatus.COMPLETE)
+    }
+
+    it("Sets the commitment status to complete after submitting a confirmation", async () => {
+      const commit1 = await createCommitment(hub, "BaseCommitment", { name: "", description: ""})
+      await expectCompleted(commit1, commit1.submitConfirmation)
+      const commit2 = await createCommitment(hub, "BaseCommitment", { name: "", description: ""})
+      await expectCompleted(commit2, () => commit2.submitConfirmationWithProof(''))
+    })
   });
 });
