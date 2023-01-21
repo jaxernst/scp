@@ -1,6 +1,6 @@
 import { BigNumberish, ContractFactory } from "ethers";
 import { string } from "hardhat/internal/core/params/argumentTypes";
-import { BaseCommitment, Commitment__factory, TimelockingDeadlineTask, TimelockingDeadlineTask__factory} from "../typechain-types";
+import { BaseCommitment, BaseCommitment__factory, TimelockingDeadlineTask, TimelockingDeadlineTask__factory} from "../typechain-types";
 
 export type DayOfWeek = 1 | 2 | 3 | 4 | 5 | 6 | 7
 
@@ -19,7 +19,7 @@ export type CommitmentContractTypes = {
 }
 
 export const commitmentFactories = {
-    "BaseCommitment": Commitment__factory,
+    "BaseCommitment": BaseCommitment__factory,
     "TimelockingDeadlineTask": TimelockingDeadlineTask__factory
 }
 

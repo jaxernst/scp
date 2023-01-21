@@ -10,10 +10,8 @@ describe("Schedule Modules Tests", () => {
     let schedule: DeadlineScheduleMock
     let blockTime: BigNumber
 
-    const deploymentFixture = makeDeploymentFixture<DeadlineScheduleMock>("DeadlineScheduleMock")
-
     beforeEach(async () => {
-        schedule = await waffle.loadFixture(deploymentFixture)
+        schedule = await deployTyped<DeadlineScheduleMock>("DeadlineScheduleMock")
         blockTime = await currentTimestamp()
     })
 

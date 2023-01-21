@@ -3,7 +3,7 @@ import { expect } from "chai";
 import { parseEther } from "ethers/lib/utils";
 import { ethers } from "hardhat";
 import { TimelockPenaltyMock } from "../../typechain-types";
-import { makeDeploymentFixture } from "../helpers/deploy";
+import { deployTyped, makeDeploymentFixture } from "../helpers/deploy";
 import { advanceTime } from "../helpers/providerUtils";
 
 describe("Penalty Modules", () => {
@@ -20,8 +20,8 @@ describe("Penalty Modules", () => {
 
     beforeEach(async () => {
       user = (await ethers.getSigners())[0];
-      timelockPenalty = await deployTarget();
-      initializedTimelock = await deployTarget();
+      timelockPenalty = await deployTyped<TimelockPenaltyMock>("TimelockPenaltyMock")
+      initializedTimelock = await deployTyped<TimelockPenaltyMock>("TimelockPenaltyMock")
       await initializedTimelock.init(depositVal, timelockDur, {
         value: depositVal,
       });
