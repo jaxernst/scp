@@ -2,11 +2,11 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import { encodeCreationParams, registerNewType } from "../lib/commitmentCreation";
-import { CommitType } from "../lib/types";
+import { commitmentTypeVals } from "../lib/types";
 import { Commitment, CommitmentHub } from "../typechain-types";
-import { encodedString, ZERO_ADDRESS } from "./helpers/constants";
+import { ZERO_ADDRESS } from "./helpers/constants";
 import { deploy, deployTyped } from "./helpers/deploy";
-
+import { waitAll, repeat } from "./helpers/util"
 
 
 describe("CommitmentHub", () => {
@@ -21,19 +21,19 @@ describe("CommitmentHub", () => {
     commitmentHub = await (await ethers.getContractFactory("CommitmentHub")).deploy()
   });
 
-  describe("Commitment Type registration", () => {
+  describe("Commitment Type Registration", () => {
     it("Cannot create a commitment without a registered template contract", async () => {
-      const initData = encodeCreationParams(CommitType.BASE, { name: "", description: ""})
-      await expect(commitmentHub.createCommitment(CommitType.BASE, initData))
+      const initData = encodeCreationParams("BaseCommitment", { name: "", description: ""})
+      await expect(commitmentHub.createCommitment(commitmentTypeVals["BaseCommitment"], initData))
         .to.revertedWith("Type Not Registered")
       
-      const commitment = await deployTyped<Commitment>("Commitment")
+      const commitment = await deployTyped<Commitment>("BaseCommitment")
       await (await (commitmentHub.registerCommitType(
-        CommitType.BASE, 
+        commitmentTypeVals["BaseCommitment"], 
         commitment.address
       ))).wait()
 
-      await expect(commitmentHub.createCommitment(CommitType.BASE, initData))
+      await expect(commitmentHub.createCommitment(commitmentTypeVals["BaseCommitment"], initData))
         .to.not.reverted
     })
 
@@ -48,33 +48,33 @@ describe("CommitmentHub", () => {
 
   describe("Commitment Creation (minimal proxy cloning)", () => {
     const baseInitData = encodeCreationParams(
-      CommitType.BASE, 
+      "BaseCommitment", 
       { name: "", description: ""}
     )
 
     // Register commitment types to be tested
     beforeEach(async () => {
-      const commitment = await deploy("Commitment")
-      await registerNewType(commitmentHub, "Commitment", CommitType.BASE)
+      const commitment = await deploy("BaseCommitment")
+      await registerNewType(commitmentHub, "BaseCommitment")
     })
     
     it("Creates commitments from registered template contracts", async () => {
       // Type 0 commitment (standard commitment) 
       expect(
-        await commitmentHub.commitTemplateRegistry(CommitType.BASE)
+        await commitmentHub.commitTemplateRegistry(commitmentTypeVals["BaseCommitment"])
       ).to.not.equal(ZERO_ADDRESS)
 
-      const tx = commitmentHub.createCommitment(CommitType.BASE, baseInitData)
+      const tx = commitmentHub.createCommitment(commitmentTypeVals["BaseCommitment"], baseInitData)
       await expect(tx).to.not.reverted
     })
 
     it("Emits CommitmentCreation events", async () => {
-      const tx = commitmentHub.createCommitment(CommitType.BASE, baseInitData)
+      const tx = commitmentHub.createCommitment(commitmentTypeVals["BaseCommitment"], baseInitData)
       await expect(tx).to.emit(commitmentHub, "CommitmentCreation")
     })
 
     it("Allows all user commitments to be retrieved by querying events", async () => {
-      const txs = await repeat(commitmentHub.createCommitment, [CommitType.BASE, baseInitData], 5)
+      const txs = await repeat(commitmentHub.createCommitment, [commitmentTypeVals["BaseCommitment"], baseInitData], 5)
       await waitAll(txs)
       const events = await commitmentHub.queryFilter(
         commitmentHub.filters.CommitmentCreation(user.address as any)
@@ -84,29 +84,16 @@ describe("CommitmentHub", () => {
 
     it("Records commitment addresses indexed by an incrementing id", async () => {
       const startingId = await commitmentHub.nextCommitmentId()
-      const tx = commitmentHub.createCommitment(CommitType.BASE, baseInitData)
+      const tx = commitmentHub.createCommitment(commitmentTypeVals["BaseCommitment"], baseInitData)
       
       await expect(tx).to.not.be.reverted
       expect(await commitmentHub.commitments(startingId)).to.be.properAddress
       expect(await commitmentHub.nextCommitmentId()).to.eq(startingId.add(1))
     });
   })
-
 });
 
 
 
-async function repeat(func: CallableFunction, args: any[], times: number): Promise<any[]> {
-  const out = [];
-  for (let i = 0; i < times; i++) {
-    out.push(await (func as any)(...args));
-  }
-  return out;
-}
 
-const waitAll = async (txs: any[]) => {
-  for (const tx of txs) {
-    await tx.wait();
-  }
-};
 

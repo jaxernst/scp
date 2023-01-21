@@ -1,55 +1,69 @@
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { expect } from "chai";
-import { ethers } from "hardhat";
-import { isExportDeclaration } from "typescript";
-import { createCommitment } from "../lib/commitmentCreation";
-import { CommitStatus, CommitType, CommitTypeVals, InitializationTypes, ScheduleType } from "../lib/types";
-import { Commitment, CommitmentHub, DeadlineCommitment } from "../typechain-types";
-import { maxUint } from "./helpers/numbers";
-import { advanceTime } from "./helpers/providerUtils";
-import { currentTimestamp, fromNow } from "./helpers/time";
+import { expect } from "chai"
+import { BigNumber, Signer } from "ethers"
+import { parseEther } from "ethers/lib/utils"
+import { createCommitment } from "../../lib/commitmentCreation"
+import { CommitStatus } from "../../lib/types"
+import { BaseCommitment, CommitmentHub, TimelockingDeadlineTask } from "../../typechain-types"
+import { deployTyped } from "../helpers/deploy"
+import { advanceTime } from "../helpers/providerUtils"
+import { currentTimestamp } from "../helpers/time"
 
-describe("Commitment Spec Test", () => {
-  let hub: CommitmentHub;
-  let user: SignerWithAddress;
-  let genericCommit: Commitment;
 
-  before(async () => {
-    const deployer = await ethers.getContractFactory("CommitmentHub");
-    hub = await deployer.deploy();
-    [user] = await ethers.getSigners();
-    genericCommit = await createCommitment(
-      hub, 
-      CommitType.BASE, 
-      { name: "Name", description: "Description" }
-    );
-  });
-  
-  describe("Commitment Type: Base Commitment", () => {
-    it("Sets the commitment name and description as specified by the user when creating commitment", async () => {
-      const commit = await createCommitment(
-        hub, CommitType.BASE, { name: "TestName", description: "TestDescription" }
-      );
-      expect(await commit.name()).to.equal("TestName");
-      // ToDo: read event history for this check
-      // expect(await commit.commitmentDescription()).to.equal("TestDescription");
-    });
+describe("TimelockDeadlineTask Commitment", () => {
+    let hub: CommitmentHub
+    let commitment: TimelockingDeadlineTask | BaseCommitment
+    let blockTime: BigNumber
+    let user: Signer
 
-    it("Sets the base commitment's owner as the user who sent the commitment creation transaction", async () => {
-      expect(await genericCommit.owner()).to.equal(user.address);
-    });
+    const collateralVal = parseEther("1")
+    const deadline = 60 // seconds in the future
+    const submissionWindow = 30 // seconds
+    const timelockDuration = 100 // seconds
+    const taskDescription = "Test task description"
 
-    it("Cannot be re-initialized after being created through the hub", async () => {
-      expect(genericCommit.init("0x234"))
-        .to.revertedWith("ALREADY_INITIALIZED");
-    });
+    before(async () => {
+        hub = await deployTyped<CommitmentHub>("CommitmentHub")
+    })
 
-    it("Sets the base commitment's status to active when initialized", async () => {
-      expect(await genericCommit.status()).to.equal(CommitStatus.ACTIVE);
-    });
-  });
+    beforeEach(async () => {
+        blockTime = await currentTimestamp()
+        commitment = await createCommitment(hub, "TimelockingDeadlineTask", {
+            deadline: blockTime.add(deadline),
+            submissionWindow: submissionWindow,
+            timelockDuration: timelockDuration,
+            taskDescription
+        }, collateralVal)
+        user = commitment.signer
+    })
+    it("Does not allow confirmations to be submitted before the submission window", async () => {
+        await expect(commitment.submitConfirmation()).to.be.revertedWith("NOT_IN_SUBMISSION_WINDOW")
+        await expect(commitment.submitConfirmationWithProof("")).to.be.revertedWith("NOT_IN_SUBMISSION_WINDOW")
+    })
+    
+    const expectSuccess = async (func: any) => {
+        await expect(func)
+            .to.changeEtherBalance(user, collateralVal)
+            .to.emit(commitment, "StatusChanged")
+            .withArgs(CommitStatus.ACTIVE, CommitStatus.COMPLETE)
 
-  describe("Commitment type: Deadline", async () => {
+        expect(await commitment.provider.getBalance(commitment.address)).to.equal(0)
+        expect(await commitment.status()).to.equal(CommitStatus.COMPLETE)
+    }
+
+    it("Marks the commitment as complete and withdraws the deposit upon confirmation (within submission window)", async () => {
+        await advanceTime(35)
+        await expectSuccess(commitment.submitConfirmation())
+    })
+    it("Allows proof URIs to be submitted along with the confirmation", async () => {
+        await advanceTime(50)
+        await expectSuccess(commitment.submitConfirmationWithProof(""))
+    })
+
+    it("Locks funds for the specified duration if the confirmation deadline is missed")
+    it("Allows canceling and withdrawing before the submission window")
+})
+
+describe("Commitment type: Deadline", async () => {
     /**
      * !!Caution: Under construction!! :)
      
@@ -162,4 +176,3 @@ describe("Commitment Spec Test", () => {
       })
     }) */
   }); 
-});
