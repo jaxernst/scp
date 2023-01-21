@@ -24,7 +24,7 @@ contract CommitmentFactory is Ownable {
     {
         require(
             commitTemplateRegistry[_type] != address(0),
-            "Type Not Registered"
+            "TYPE_NOT_REGISTERED"
         );
         return BaseCommitment(Clones.clone(commitTemplateRegistry[_type]));
     }
@@ -33,7 +33,7 @@ contract CommitmentFactory is Ownable {
         RegisteredCommitmentType _type,
         address deployedAt
     ) public onlyOwner {
-        require(commitTemplateRegistry[_type] == address(0), "Type registered");
+        require(commitTemplateRegistry[_type] == address(0), "TYPE_REGISTERED");
         commitTemplateRegistry[_type] = deployedAt;
     }
 }

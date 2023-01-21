@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.9;
+
 /**
  * A contestable commitment extension can be applied to scheduled commitments 
  * that only accepted confirmations with proof URIs. 
