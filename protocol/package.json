@@ -1,5 +1,5 @@
 {
-    "name": "@social-alarm-clock/protocol",
+    "name": "@scp/protocol",
     "dependencies": {
         "@nomiclabs/hardhat-ethers": "^2.1.1",
         "@openzeppelin/contracts": "^4.7.3",

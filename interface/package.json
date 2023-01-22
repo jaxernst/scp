@@ -1,5 +1,5 @@
 {
-	"name": "@social-alarm-clock/interface",
+	"name": "@scp/interface",
 	"version": "0.0.1",
 	"private": true,
 	"scripts": {
@@ -33,6 +33,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@scp/protocol": "workspace:^",
 		"ethers": "^5.7.2",
 		"svelte-ethers-store": "^2.5.8",
 		"svelte-icons": "^2.1.0",
