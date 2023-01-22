@@ -22,9 +22,7 @@
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     grid-auto-rows: min-content;
-    
     width: 100%;
-    height: 100px;
   }
 
   .grid-item {
@@ -36,29 +34,28 @@
 
   .label {
     font-size: 10px;
-    padding-bottom: .5em;
+    margin-bottom: 5px;
   }
   
   .values {
     display: contents;
     font-family: 'Orbitron';
-    
   }
   
   .values > .grid-item {
     background-color: var(--theme-container2);
     padding: .8em 0 .8em 0;
-    height: 40px;
+    height: 35px;
   }
 
   .values > :first-child {
-    border-top-left-radius: 10px;
-    border-bottom-left-radius: 10px;
+    border-top-left-radius: 18px;
+    border-bottom-left-radius: 18px;
   }
 
   .values > :last-child {
-    border-top-right-radius: 10px;
-    border-bottom-right-radius: 10px;
+    border-top-right-radius: 18px;
+    border-bottom-right-radius: 18px;
   }
 </style>
 

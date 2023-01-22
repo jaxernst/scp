@@ -13,8 +13,9 @@
     --background-gradient2: linear-gradient(0deg, rgb(0, 0, 0) 0%, rgba(17, 67, 87, 1) 100%);
     --background-gradient1: linear-gradient(0deg, rgba(242, 148, 146, 1) 0%, rgba(17, 67, 87, 1) 100%);
     --theme-container1: rgba(255, 255, 255, 0.817);
-    --theme-container2: rgba(206, 206, 206, 0.848);
+    --theme-container2: rgba(230, 230, 230, 0.848);
     --theme-container3: rgb(124, 124, 124);
+    --theme-container4: rgba(27, 27, 27, 0.853);
     
     --theme-color1: rgba(239, 239, 239, 0.777);
     --theme-color2: rgb(46, 46, 46);
@@ -58,6 +59,11 @@ h1 {
     letter-spacing: .15em;
     color: var(--theme-color1);
     font-size: 20px;
+}
+
+button {
+    background: none;
+    border: none;
 }
 
 .button-primary {
