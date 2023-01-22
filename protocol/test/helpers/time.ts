@@ -1,4 +1,4 @@
-import { BigNumber, BigNumberish } from 'ethers';
+import { BigNumber } from 'ethers';
 import { ethers, network } from 'hardhat';
 
 import { bn } from './numbers';
