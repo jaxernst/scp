@@ -16,7 +16,7 @@
     },
     "scripts": {
         "test": "yarn hardhat test",
-        "deploy-local": "hardhat node & (sleep 3 && hardhat run scripts/deploy.ts --network localhost && yarn fund-wallet-local)",
+        "deploy-local": "hardhat node & (sleep 1.5 && hardhat run scripts/deploy.ts --network localhost && yarn fund-wallet-local)",
         "fund-wallet-local": "hardhat run scripts/fund-wallet-local.ts --network localhost"
     },
     "devDependencies": {
