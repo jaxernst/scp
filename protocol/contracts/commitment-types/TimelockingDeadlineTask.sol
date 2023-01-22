@@ -9,7 +9,10 @@ import "../schedule-modules/DeadlineSchedule.sol";
  * This contract represents a commitment made by a user to do whatever the taskDescription 
  * describes by the deadline timestamp specified in the initializer. If the user fails
  * to confirm that the task has been done by the deadline, funds will be locked 
- * for a specified duration
+ * for a specified duration. 
+ *
+ * @notice This implementation has no validation logic, so commitment 
+ * confirmations are assumed to be valid.
  */
 contract TimelockingDeadlineTask is BaseCommitment {
     string constant IMPLEMENTATION_NAME = "Timelocking Deadline Task";
@@ -85,14 +88,29 @@ contract TimelockingDeadlineTask is BaseCommitment {
         withdraw();
     }
 
-    function withdraw() public onlyOwner {
+    function withdraw() public onlyOwner returns (bool) {
         require(!schedule.inSubmissionWindow(), "CANT_WITHDRAW_IN_SUBMISSION_WINDOW");
-        _withdraw();
+        return _withdraw();
     }
 
-    function _withdraw() private {
+    /**
+     * @return unlockTime Timestamp where the timelock expires and funds will be
+     * withdrawlable. If no penalty is applied, return 0
+     */
+    function unlockTime() public view returns (uint) {
+        return penalizer.unlockTime;
+    }
+
+    function _withdraw() private returns (bool success) {
         _penalizeIfApplicable();
-        penalizer.withdraw(payable(owner));
+        
+        success = false;
+        // penalizer.withdraw() will revert if locked, so we protect it
+        // with an if statement so any applied penalty isn't reverted
+        if (block.timestamp >= penalizer.unlockTime && penalizer.depositValue > 0) {
+            penalizer.withdraw(payable(owner));
+            success = true;
+        }
     }
 
     function _markComplete() private {
@@ -100,10 +118,15 @@ contract TimelockingDeadlineTask is BaseCommitment {
         status = CommitmentStatus.COMPLETE;
     }
 
+    /**
+     * @notice penalties cnanot be re-applied (unlockTime must be 0) 
+     */
     function _penalizeIfApplicable() private {
-        if (schedule.missedDeadlines() > 0) {
+        if (schedule.missedDeadlines() > 0 && penalizer.unlockTime == 0) {
             penalizer.penalize();
         }
     }
+
+    receive() external payable {}
 
 }

@@ -11,7 +11,7 @@ import { currentTimestamp } from "../helpers/time"
 
 describe("Commitment Implementation #1: TimelockDeadlineTask", () => {
     let hub: CommitmentHub
-    let commitment: TimelockingDeadlineTask | BaseCommitment
+    let commitment: TimelockingDeadlineTask
     let blockTime: BigNumber
     let user: Signer
 
@@ -21,18 +21,22 @@ describe("Commitment Implementation #1: TimelockDeadlineTask", () => {
     const timelockDuration = 100 // seconds
     const taskDescription = "Test task description"
 
+    const initCommitment = async () => {
+      return await createCommitment(hub, "TimelockingDeadlineTask", {
+        deadline: blockTime.add(deadline),
+        submissionWindow: submissionWindow,
+        timelockDuration: timelockDuration,
+        taskDescription
+    }, collateralVal)
+    }
+
     before(async () => {
         hub = await deployTyped<CommitmentHub>("CommitmentHub")
     })
 
     beforeEach(async () => {
         blockTime = await currentTimestamp()
-        commitment = await createCommitment(hub, "TimelockingDeadlineTask", {
-            deadline: blockTime.add(deadline),
-            submissionWindow: submissionWindow,
-            timelockDuration: timelockDuration,
-            taskDescription
-        }, collateralVal)
+        commitment = await initCommitment()
         user = commitment.signer
     })
     it("Does not allow confirmations to be submitted before the submission window", async () => {
@@ -54,125 +58,55 @@ describe("Commitment Implementation #1: TimelockDeadlineTask", () => {
         await advanceTime(35)
         await expectSuccess(commitment.submitConfirmation())
     })
+
     it("Allows proof URIs to be submitted along with the confirmation", async () => {
         await advanceTime(50)
         await expectSuccess(commitment.submitConfirmationWithProof(""))
     })
 
-    it("Locks funds for the specified duration if the confirmation deadline is missed")
-    it("Allows canceling and withdrawing before the submission window")
-})
-
-describe("Commitment type: Deadline", async () => {
-    /**
-     * !!Caution: Under construction!! :)
-     
-    let genericCommit: DeadlineCommitment
-    before(async () => {
-      genericCommit = await createCommitment(hub, CommitType.DEADLINE, {
-        deadline: maxUint(256), submissionWindow: 60, name: "", description: "", 
-      })
+    it("Marks the commitment as complete and applies penalty when submitting after the deadline", async () => {
+      await advanceTime(100)
+      const time = await currentTimestamp()
+      await expect(commitment.submitConfirmation()).to.changeEtherBalance(commitment, 0)
+        .to.emit(commitment, "StatusChanged")
+        .withArgs(CommitStatus.ACTIVE, CommitStatus.COMPLETE)
+      expect(await commitment.unlockTime()).greaterThan(time.add(timelockDuration))
     })
 
-    it("Sets the schedule type as the 'DEADLINE' schedule type", async () => {
-      expect(await genericCommit.scheduleType()).to.equal(ScheduleType.DEADLINE)
+    it("Applies penalty when withdraw() is called with a missed deadline", async () => {
+      await advanceTime(100)
+      const time = await currentTimestamp()
+      await expect(commitment.withdraw()) 
+        .to.changeEtherBalance(commitment, 0)
+        .to.not.reverted
+      expect(await commitment.unlockTime()).greaterThan(time.add(timelockDuration))
     })
     
-    it("Sets the commitment name and description as specified by the user", async () => {
-      const commitment = await createCommitment(hub, CommitType.DEADLINE, {
-        deadline: maxUint(256),
-        submissionWindow: 1,
-        name: "Name", 
-        description: "Description", 
-      });
+    it("Prevents a penalty from being applied more than once (prevents extending timelock duraiton)", async () => {
+      await advanceTime(100)
+      const blockTime = await currentTimestamp()
+      await commitment.withdraw()
+      const unlockTime = await commitment.unlockTime()
+      expect(unlockTime).greaterThanOrEqual(blockTime)
+      await commitment.submitConfirmation()
+      await commitment.withdraw()
+      expect(await commitment.unlockTime()).to.be.equal(unlockTime)
+    })
 
-      expect(await commitment.name()).to.equal("Name");
-      // ToDo: Read event history for this check
-      // expect(await commitment.commitmentDescription()).to.equal("Description");
-    });
+    it("Allows cancelling and withdrawing before the submission window", async () => {
+      // Provide extra funds to the contract befoer attemping a double withdraw
+      await user.sendTransaction({ to: commitment.address, value: parseEther('10')})
+      
+      // #1 withdraw then attempt to cancel
+      expect(await commitment.callStatic.withdraw()).to.equal(true) // success: true
+      await expect(commitment.withdraw()).to.changeEtherBalance(user, collateralVal)
+      // Cancelling should not change ether balance because balance was already withdrawn
+      await expect(commitment.cancel()).to.changeEtherBalance(user, 0)
 
-    it("Cannot be initialized with a deadline in the past", async () => {
-      await expect(
-        createCommitment(hub, CommitType.DEADLINE, 
-          { deadline: 0, submissionWindow: 0, name: "", description: "" }
-        )
-      ).to.revertedWith("DEADLINE_PASSED");
-    });
-
-    describe("submitConfirmation()", () => {
-      it("Cannot submit a confirmation before the submission window", async () => {
-        const commit = await createCommitment(hub, CommitType.DEADLINE, {
-          deadline: await fromNow(60),
-          submissionWindow: 1,
-          name: "", 
-          description: "",
-        });
-
-        await expect(commit.submitConfirmation()).to.revertedWith(
-          "NOT_IN_SUBMISSION_WINDOW"
-        );
-      });
-
-      it("Cannot submit a confirmation after the deadline", async () => {
-        const commit = await createCommitment(hub, CommitType.DEADLINE, {
-          deadline: await fromNow(500),
-          submissionWindow: 1,
-          name: "", 
-          description: "", 
-        });
-
-        await advanceTime(501);
-        await expect(commit.submitConfirmation()).to.revertedWith(
-          "NOT_IN_SUBMISSION_WINDOW"
-        );
-      });
-
-      it("Gets marked as complete if a confirmation is submitted within the window", async () => {
-        const commit = await createCommitment(hub, CommitType.DEADLINE, {
-          deadline: await fromNow(60),
-          submissionWindow: 60,
-          name: "", 
-          description: "", 
-        });
-
-        await advanceTime(5);
-        await expect(commit.submitConfirmation()).to.emit(
-          commit,
-          "ConfirmationSubmitted"
-        );
-
-        expect(await commit.status()).to.equal(CommitStatus.COMPLETE);
-      });
-    });
-
-    describe("missedDeadlines()", () => {
-      let commitment: DeadlineCommitment
-      let deadline = 10 // seconds from now
-      let submissionWindow = 5 // seconds before deadline
-      beforeEach(async () => { 
-        commitment = await createCommitment(hub, CommitType.DEADLINE, {
-          deadline: await fromNow(deadline), 
-          submissionWindow,
-          name: "", 
-          description: "",
-        })
-      })
-
-      it("Returns 0 before deadline", async () => {
-        expect(await commitment.deadline()).gt(await currentTimestamp())
-        expect(await commitment.missedDeadlines()).to.equal(0)
-      })
-
-      it("(after deadline) Returns 0 if a confirmation was submitted within the window", async () => {
-        await advanceTime(deadline - submissionWindow + 1)
-        await (await commitment.submitConfirmation()).wait()
-        await advanceTime(500)
-        expect(await commitment.missedDeadlines()).to.equal(0)
-      })
-
-      it("(after deadline) Returns 1 if no confirmation was submitted within the window", async () => {
-        await advanceTime(deadline + 1)
-        expect(await commitment.missedDeadlines()).to.equal(1)
-      })
-    }) */
-  }); 
+      // #2 cancel then attempt to withdraw
+      const commitment2 = await initCommitment()
+      await expect(commitment2.cancel()).to.changeEtherBalance(user, collateralVal)
+      expect(await commitment2.callStatic.withdraw()).to.equal(false)
+      await expect(commitment2.withdraw()).to.changeEtherBalance(user, 0)
+    })
+})
