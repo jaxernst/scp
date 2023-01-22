@@ -6,7 +6,7 @@
   "author": "jaxernst <51183683+jaxernst@users.noreply.github.com>",
   "scripts": {
     "test-protocol": "yarn workspace @social-alarm-clock/protocol test",
-    "start-interface": "yarn workspace @social-alarm-clock/interface dev"
+    "start-local-interface": "yarn workspace @social-alarm-clock/protocol deploy-local && yarn workspace @social-alarm-clock/interface dev"
   },
   "workspaces": [
     "protocol",
