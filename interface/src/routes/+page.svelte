@@ -1,14 +1,14 @@
 <script lang="ts">
 	import '../app.css';
-	import ConnectionStatus from 'src/components/ConnectionStatus.svelte';
-	import ConnectWalletPopup from 'src/components/ConnectWalletPopup.svelte';
 
+	import ConnectWalletPopup from 'src/components/ConnectWalletPopup.svelte';
 	import { connected, defaultEvmStores } from "svelte-ethers-store"
 	import { modal } from "$lib/stores/stores"
 	import { onMount } from 'svelte';
 	import Modal from 'svelte-simple-modal';
 	import Hud from 'src/components/Hud.svelte';
-	import WakeupButton from 'src/components/WakeupButton.svelte';
+	import TransitionButton from 'src/components/TransitionButton.svelte';
+	import PlusIcon from 'src/PlusIcon.svelte';
 
 	/* defaultEvmStores.attachContract(
 		cph.contractName,
@@ -27,14 +27,12 @@
 	<div class=grid-container>
 		<div class="grid-item commitment-area">
 			<div>
-				<WakeupButton/>
-			
 			</div>
 		</div>
 		<div class="grid-item action-area">
 			<Hud/>
 			<div class="card-area">
-				<div class="card card-layout">
+				<div class="card-decor card-layout">
 					<span>ToDo</span>
 				</div>
 			</div>
@@ -49,8 +47,6 @@
 	show={$modal}
 	styleWindow={{ backgroundColor: 'var(--theme-container3)'}}
 />
-
-
 
 
 <style>
@@ -95,7 +91,7 @@
 		margin: .5em 0 .5em 0;
 	}
 
-	.card {
+	.card-decor {
 		font-family: 'Orbitron';
 		color: var(--theme-color3-dark);
 		outline: 3px solid var(--theme-color3);
@@ -112,16 +108,6 @@
 		justify-content: center;
 		align-items: center;
 		text-align: center;
-	}
-	
-	.card:hover span {
-  	display: none;
-		
-	}
-
-	.card:hover:before {
-  	content: "+";
-	
 	}
 </style>
 
