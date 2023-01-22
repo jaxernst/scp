@@ -1,5 +1,5 @@
 import { BigNumber } from 'ethers';
-import { ethers, network } from 'hardhat';
+import { network } from 'hardhat';
 
 import { bn } from './numbers';
 
