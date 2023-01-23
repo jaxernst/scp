@@ -16,7 +16,6 @@
         width: 100%;
         height: 100%;
         box-sizing: border-box;
-        place-items: center;
         color: var(--theme-color3-dark);
 		border: 3px solid var(--theme-color3);
 		border-radius: 10px;

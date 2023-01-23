@@ -23,10 +23,6 @@
 		}
 	});
 
-	const openNewCommitmentModal = (type: CommitmentContractName) => {
-		modal.set(bind(NewCommitmentModal, { type }))
-	}
-
 </script>
 
 <div class=app>	
@@ -74,7 +70,6 @@
     	background-color: var(--theme-container1);
 		border-radius: 20px;
 		padding: 1em;
-		text-align: center;
 		box-shadow: 4px 8px 3px rgba(0, 0, 0, 0.509);
   }
 

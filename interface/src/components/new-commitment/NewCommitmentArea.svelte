@@ -1,20 +1,29 @@
 <script lang=ts>
-	import { expoInOut } from "svelte/easing";
+	import type { SvelteComponent } from "svelte";
+    import { expoInOut } from "svelte/easing";
 	import { crossfade, fade } from "svelte/transition";
 	import NewCommitmentContainer from "./NewCommitmentContainer.svelte";
+    import NewTimelockingDeadlineTask from "./NewTimelockingDeadlineTask.svelte";
 
     enum Display {
         CARDS,
         NEW_COMMITMENT
     }
 
-    type CommitmentOption = {id: number, name: string, commitmentContract: string}
-    
+    type CommitmentOption = {
+        id: number, 
+        name: string, 
+        commitmentContract: string,
+        formComponent: any
+    }
+
+
+
     const commitmentOptions: CommitmentOption[] = [
-        { id: 0, name: "Todo", commitmentContract: "BaseCommitment"},
-        { id: 1, name: "Timelock  Deadline", commitmentContract: "TimelockingDeadlineTask"},
-        { id: 2, name: "Goal", commitmentContract: "BaseCommitment"},
-        { id: 3, name: "Alarm", commitmentContract: "BaseCommitment"}
+        { id: 0, name: "Todo", commitmentContract: "BaseCommitment", formComponent: NewTimelockingDeadlineTask},
+        { id: 1, name: "Timelock  Deadline", commitmentContract: "TimelockingDeadlineTask", formComponent: NewTimelockingDeadlineTask},
+        { id: 2, name: "Goal", commitmentContract: "BaseCommitment", formComponent: NewTimelockingDeadlineTask},
+        { id: 3, name: "Alarm", commitmentContract: "BaseCommitment", formComponent: NewTimelockingDeadlineTask}
     ]
 
     let activeDisplay = Display.CARDS
@@ -52,19 +61,18 @@
                     in:receive="{{key:option.id}}"
                     out:send="{{key:option.id}}"
                 >
-                <span class="uppercase">{option.name}</span>
+                <span>{option.name}</span>
             </button>
             {/each}
         </div>
     </div>
     {:else if activeDisplay === Display.NEW_COMMITMENT && activeOption}
         <div 
-            class="transition-replace"
             in:receive="{{key:activeOption.id}}"
             out:send="{{key:activeOption.id}}"
         >
             <NewCommitmentContainer name={activeOption.name} onExit={onExit}>
-                
+                <svelte:component this={activeOption.formComponent}/>
             </NewCommitmentContainer>
         </div>
     {/if}
