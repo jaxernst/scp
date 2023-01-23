@@ -9,7 +9,6 @@
 	import { modal } from "$lib/stores/stores";
 	import { onMount } from 'svelte';
 	import type { commitmentTypeVals, CommitmentContractName } from "@scp/protocol/lib/types";
-	import NewCommitmentModal from 'src/components/new-commitment/NewCommitmentLayout.svelte';
 	import NewCommitmentArea from 'src/components/new-commitment/NewCommitmentArea.svelte';
 
 	/* defaultEvmStores.attachContract(

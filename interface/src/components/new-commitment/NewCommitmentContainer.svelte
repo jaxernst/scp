@@ -6,7 +6,7 @@
 <div class=container>
     <div class=header>
         <div class=title>Create New {name}</div>
-        <button class=exit on:click={onExit}>x</button>
+        <button class=exit on:click={onExit}>X</button>
     </div>
     <slot/>
 </div>
@@ -31,9 +31,14 @@
     }
 
     .exit {
-        font-size: medium;
+        font-size: small;
         color: var(--theme-color3-dark);
+        display: flex;
+        justify-content: center;
+        align-items: center;
         border-radius: 100%;
+        height: 18px;
+        width: 18px;
         transition: background-color .4s;
     }
 

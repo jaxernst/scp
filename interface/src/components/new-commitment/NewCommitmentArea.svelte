@@ -1,10 +1,7 @@
 <script lang=ts>
-	import type { CommitmentContractName } from "@scp/protocol/lib/types";
-	import { toUtf8CodePoints } from "ethers/lib/utils";
-	import { backIn, backInOut, backOut, cubicIn, cubicInOut, elasticInOut, expoInOut, quintInOut } from "svelte/easing";
+	import { expoInOut } from "svelte/easing";
 	import { crossfade, fade } from "svelte/transition";
-	import NewCommitmentLayout from "./NewCommitmentLayout.svelte";
-	import NewTimelockingDeadlineTask from "./NewTimelockingDeadlineTask.svelte";
+	import NewCommitmentContainer from "./NewCommitmentContainer.svelte";
 
     enum Display {
         CARDS,
@@ -43,10 +40,10 @@
 <div class=transition-wrapper>
     {#if activeDisplay === Display.CARDS}
         <div 
-            style="display: flex; flex-direction:column; gap:1em" 
+            style="display: flex; flex-direction:column; gap:.5em" 
             transition:fade="{{duration}}"
         >
-            <div>New</div>
+            <div class=label style="display: flex;">New Commitment</div>
             <div class="card-area transition-replace">
             {#each commitmentOptions as option}
                 <button 
@@ -55,7 +52,7 @@
                     in:receive="{{key:option.id}}"
                     out:send="{{key:option.id}}"
                 >
-                <span>{option.name}</span>
+                <span class="uppercase">{option.name}</span>
             </button>
             {/each}
         </div>
@@ -66,11 +63,9 @@
             in:receive="{{key:activeOption.id}}"
             out:send="{{key:activeOption.id}}"
         >
-            <NewCommitmentLayout 
-                name={activeOption.name} 
-                onExit={onExit}
-            >
-            </NewCommitmentLayout>
+            <NewCommitmentContainer name={activeOption.name} onExit={onExit}>
+                
+            </NewCommitmentContainer>
         </div>
     {/if}
 </div>
@@ -79,7 +74,7 @@
 		margin: 0;
         flex-grow: 1;
         display: flex;
-        gap: 1em;
+        gap: .5em;
 	}
 
     .transition-wrapper {

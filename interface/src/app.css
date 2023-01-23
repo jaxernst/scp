@@ -1,6 +1,7 @@
 @font-face {
     font-family: 'Orbitron';
     src: url('fonts/Orbitron-Regular.ttf');
+    
 }
 
 @font-face {
@@ -81,4 +82,9 @@ button {
   background-color: black;
   color: white;
   border-color: black;
+}
+
+.label {
+    color: var(--theme-color2);
+    font-size: small;
 }

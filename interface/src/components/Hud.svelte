@@ -13,7 +13,7 @@
     <div class=grid-item>1</div>
     <div class=grid-item>0</div>
     <div class=grid-item>13</div>
-    <div class=grid-item>.003</div>
+    <div class=grid-item><span style="font-family:Arial">Ξ</span>0.013</div>
   </div>
 </div>
 
@@ -33,7 +33,7 @@
   } 
 
   .label {
-    font-size: 10px;
+    font-size: x-small;
     margin-bottom: 5px;
   }
   
