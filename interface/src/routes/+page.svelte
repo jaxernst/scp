@@ -1,21 +1,21 @@
 <script lang="ts">
 	import '../app.css';
-	import TransitionButton from 'src/components/TransitionButton.svelte';
-	import ConnectWalletPopup from 'src/components/ConnectWalletPopup.svelte';
-	import Hud from 'src/components/Hud.svelte';
-	
-	import Modal, { bind } from 'svelte-simple-modal';
-	import { connected, defaultEvmStores } from "svelte-ethers-store";
-	import { modal } from "$lib/stores/stores";
-	import { onMount } from 'svelte';
-	import type { commitmentTypeVals, CommitmentContractName } from "@scp/protocol/lib/types";
-	import NewCommitmentArea from 'src/components/new-commitment/NewCommitmentArea.svelte';
 
-	/* defaultEvmStores.attachContract(
-		cph.contractName,
-		CommitmentProtocolHubAddr,
-		JSON.stringify(cph.abi)
-	); */
+	import ConnectWalletPopup from 'src/components/ConnectWalletPopup.svelte';
+	import NewCommitmentArea from 'src/components/new-commitment/NewCommitmentArea.svelte';
+	import Hud from 'src/components/Hud.svelte';
+	import Modal from 'svelte-simple-modal';
+	import { modal } from "$lib/stores/stores";
+	import { connected, defaultEvmStores } from "svelte-ethers-store";
+	import { onMount } from 'svelte';
+	import hubAbi from "src/abi/CommitmentHub.json"
+	
+
+	defaultEvmStores.attachContract(
+		"CommitmentProtocolHub",
+		"0x5fbdb2315678afecb367f032d93f642f64180aa3",
+		JSON.stringify(hubAbi)
+	);
 
 	onMount(() => {
 		if (!$connected) {
