@@ -3,6 +3,8 @@
     "dependencies": {
         "@nomiclabs/hardhat-ethers": "^2.1.1",
         "@openzeppelin/contracts": "^4.7.3",
+        "@scp": "workspace:^",
+        "@scp/interface": "workspace:^",
         "@typechain/ethers-v5": "^10.1.0",
         "@typechain/hardhat": "^6.1.2",
         "@types/mocha": "^9.1.1",
@@ -20,6 +22,7 @@
         "fund-wallet-local": "hardhat run scripts/fund-wallet-local.ts --network localhost"
     },
     "devDependencies": {
-        "@nomicfoundation/hardhat-chai-matchers": "^1.0.5"
+        "@nomicfoundation/hardhat-chai-matchers": "^1.0.5",
+        "hardhat-abi-exporter": "^2.10.1"
     }
 }
