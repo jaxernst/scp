@@ -9,11 +9,14 @@
 	import { connected, defaultEvmStores } from "svelte-ethers-store";
 	import { onMount } from 'svelte';
 	import hubAbi from "src/abi/CommitmentHub.json"
+	import { CommitmentProtocolHubAddr } from '$lib/constants';
 	
-
+	/**
+	 * Add an instance of the protocol hub contract to stores 
+	 */
 	defaultEvmStores.attachContract(
 		"CommitmentProtocolHub",
-		"0x5fbdb2315678afecb367f032d93f642f64180aa3",
+		CommitmentProtocolHubAddr,
 		JSON.stringify(hubAbi)
 	);
 
@@ -22,7 +25,6 @@
 			modal.set(ConnectWalletPopup);
 		}
 	});
-
 </script>
 
 <div class=app>	
