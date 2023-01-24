@@ -1,31 +1,15 @@
 <script lang=ts>
-	import type { SvelteComponent } from "svelte";
     import { expoInOut } from "svelte/easing";
 	import { crossfade, fade } from "svelte/transition";
-	import NewCommitmentContainer from "./NewCommitmentContainer.svelte";
-    import NewTimelockingDeadlineTask from "./NewTimelockingDeadlineTask.svelte";
+	
+    import NewCommitment from "./NewCommitment.svelte";
+    import { commitmentOptions, type CommitmentOption } from "./commitmentOptions"
 
     enum Display {
         CARDS,
         NEW_COMMITMENT
     }
-
-    type CommitmentOption = {
-        id: number, 
-        name: string, 
-        commitmentContract: string,
-        formComponent: any
-    }
-
-
-
-    const commitmentOptions: CommitmentOption[] = [
-        { id: 0, name: "Todo", commitmentContract: "BaseCommitment", formComponent: NewTimelockingDeadlineTask},
-        { id: 1, name: "Timelock  Deadline", commitmentContract: "TimelockingDeadlineTask", formComponent: NewTimelockingDeadlineTask},
-        { id: 2, name: "Goal", commitmentContract: "BaseCommitment", formComponent: NewTimelockingDeadlineTask},
-        { id: 3, name: "Alarm", commitmentContract: "BaseCommitment", formComponent: NewTimelockingDeadlineTask}
-    ]
-
+    
     let activeDisplay = Display.CARDS
     let activeOption: null | CommitmentOption = null
     
@@ -71,9 +55,14 @@
             in:receive="{{key:activeOption.id}}"
             out:send="{{key:activeOption.id}}"
         >
-            <NewCommitmentContainer name={activeOption.name} onExit={onExit}>
+            <NewCommitment
+                displayName={activeOption.name} 
+                commitmentType={activeOption.commitmentType}
+                formComponent={activeOption.formComponent}
+                onExit={onExit}
+            >
                 <svelte:component this={activeOption.formComponent}/>
-            </NewCommitmentContainer>
+            </NewCommitment>
         </div>
     {/if}
 </div>
