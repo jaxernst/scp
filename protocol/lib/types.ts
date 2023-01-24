@@ -4,12 +4,12 @@ import { BaseCommitment, BaseCommitment__factory, TimelockingDeadlineTask, Timel
 
 export type DayOfWeek = 1 | 2 | 3 | 4 | 5 | 6 | 7
 
-export const commitmentTypeVals: Record<CommitmentContractName, number> = {
+export const commitmentTypeVals: Record<CommitmentType, number> = {
     BaseCommitment: 0,
     TimelockingDeadlineTask: 1
 }
 
-export type CommitmentContractName = 
+export type CommitmentType = 
     "BaseCommitment" | 
     "TimelockingDeadlineTask" 
 

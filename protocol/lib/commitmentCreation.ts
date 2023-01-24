@@ -2,7 +2,7 @@ import { BigNumberish, Contract, ethers } from "ethers";
 import { deploy } from "../test/helpers/deploy";
 import { Commitment, CommitmentHub } from "../typechain-types";
 import { 
-  CommitmentContractName, 
+  CommitmentType, 
   CommitmentContractTypes, 
   commitmentTypeVals,  
   InitializationTypes, 
@@ -13,7 +13,7 @@ import {
 
 
 export async function createCommitment<
-  T extends CommitmentContractName
+  T extends CommitmentType
 >(
   hub: CommitmentHub,
   name: T,
@@ -47,7 +47,7 @@ export async function createCommitment<
 }
 
 
-export function encodeCreationParams<T extends CommitmentContractName>(
+export function encodeCreationParams<T extends CommitmentType>(
   name: T, 
   initData: InitializationTypes[T]
 ): string {
@@ -57,7 +57,7 @@ export function encodeCreationParams<T extends CommitmentContractName>(
   );
 }
 
-export async function registerNewType<Hub extends CommitmentHub, Name extends CommitmentContractName>(
+export async function registerNewType<Hub extends CommitmentHub, Name extends CommitmentType>(
   hub: Hub, 
   contractName: Name
 ) {
