@@ -4,7 +4,7 @@ import { contracts } from "svelte-ethers-store"
 import { get } from "svelte/store";
 
 
-export function getComittmentHub(): CommitmentHub | undefined {
+export function getCommitmentHub(): CommitmentHub | undefined {
     const contract = get(contracts)["CommitmentProtocolHub"]
     if (!contract) return
     return contract as unknown as CommitmentHub
