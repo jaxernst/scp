@@ -1,9 +1,10 @@
 <script lang='ts'>
+	import { connectionError, dAppReady } from "$lib/stores/dAppReady";
 	import { modal } from "$lib/stores/stores";
     import { connected, chainId, signerAddress } from "svelte-ethers-store"
 	import ConnectWalletPopup from "./ConnectWalletPopup.svelte";
  
-    $: indicatorColor = $connected && $signerAddress ? "lime" : "red"
+    $: indicatorColor = $dAppReady ? "lime" : "red"
     
     let connectedWalletText: string | null = null
     $: {
@@ -29,7 +30,12 @@
             <div class="separator"/>
             <div class="text">Chain ID: {$chainId}</div>
         {/if}
+        {#if $connectionError}
+        <div class="separator"/>
+            <div class="text error">{$connectionError}</div>
+        {/if}
     </div>
+    
 </div>
 
 <style>
@@ -58,5 +64,9 @@
         height: 10px;
         margin-left: 5px;
         margin-right: 5px
+    }
+
+    .error {
+        color: var(--indicator-color);
     }
 </style>
