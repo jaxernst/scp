@@ -22,7 +22,7 @@ export async function createCommitment<
 ): Promise<CommitmentContractTypes[T]> {
 
   if (
-    (await hub.commitTemplateRegistry(commitmentTypeVals[name])) === ethers.constants.AddressZero
+    (await hub.commitmentRegistry(commitmentTypeVals[name])) === ethers.constants.AddressZero
   ) {
     await registerNewType(hub, name)
   }

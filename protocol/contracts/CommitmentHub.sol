@@ -16,25 +16,25 @@ import "hardhat/console.sol";
  * ToDo: Manage commitment registration through governance
  */
 contract CommitmentFactory is Ownable {
-    mapping(RegisteredCommitmentType => address) public commitTemplateRegistry;
+    mapping(RegisteredCommitmentType => address) public commitmentRegistry;
 
     function _createCommitment(RegisteredCommitmentType _type)
         internal
         returns (BaseCommitment)
     {
         require(
-            commitTemplateRegistry[_type] != address(0),
+            commitmentRegistry[_type] != address(0),
             "TYPE_NOT_REGISTERED"
         );
-        return BaseCommitment(Clones.clone(commitTemplateRegistry[_type]));
+        return BaseCommitment(Clones.clone(commitmentRegistry[_type]));
     }
 
     function registerCommitType(
         RegisteredCommitmentType _type,
         address deployedAt
     ) public onlyOwner {
-        require(commitTemplateRegistry[_type] == address(0), "TYPE_REGISTERED");
-        commitTemplateRegistry[_type] = deployedAt;
+        require(commitmentRegistry[_type] == address(0), "TYPE_REGISTERED");
+        commitmentRegistry[_type] = deployedAt;
     }
 }
 

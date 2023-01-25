@@ -80,7 +80,7 @@ describe("CommitmentHub", () => {
     it("Creates commitments from registered template contracts", async () => {
       // Type 0 commitment (standard commitment) 
       expect(
-        await commitmentHub.commitTemplateRegistry(commitmentTypeVals["BaseCommitment"])
+        await commitmentHub.commitmentRegistry(commitmentTypeVals["BaseCommitment"])
       ).to.not.equal(ZERO_ADDRESS)
 
       const tx = commitmentHub.createCommitment(commitmentTypeVals["BaseCommitment"], baseInitData)
