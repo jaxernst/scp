@@ -26,7 +26,7 @@
         "type": "uint8"
       }
     ],
-    "name": "commitTemplateRegistry",
+    "name": "commitmentRegistry",
     "outputs": [
       {
         "internalType": "address",
