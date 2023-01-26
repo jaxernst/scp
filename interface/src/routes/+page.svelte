@@ -10,6 +10,7 @@
 	import { onMount } from 'svelte';
 	import hubAbi from "src/abi/CommitmentHub.json"
 	import { CommitmentProtocolHubAddr } from '$lib/constants';
+	import CommitmentCardArea from 'src/components/commitments-display/CommitmentCardArea.svelte';
 	
 	/**
 	 * Add an instance of the protocol hub contract to stores 
@@ -30,8 +31,7 @@
 <div class=app>	
 	<div class=grid-container>
 		<div class="grid-item commitment-area">
-			<div>
-			</div>
+			<CommitmentCardArea/>
 		</div>
 		<div class="grid-item action-area">
 			<Hud/>
