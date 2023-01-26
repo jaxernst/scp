@@ -3,7 +3,7 @@
 	import { crossfade, fade } from "svelte/transition";
 	
     import NewCommitment from "./NewCommitment.svelte";
-    import { commitmentOptions, type CommitmentOption } from "./commitmentOptions"
+    import { commitmentOptions, type CommitmentOption } from "../../commitmentOptions"
 
     enum Display {
         CARDS,

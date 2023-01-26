@@ -3,14 +3,16 @@
     import { formData } from "./formData";
     import { createCommitment } from "$lib/createCommitment";
     import type { CommitmentType } from "@scp/protocol/lib/types";
-	import type { ComponentType } from "svelte";
+	import { createEventDispatcher, type ComponentType } from "svelte";
 	import { connectionError } from "$lib/stores/dAppReady";
+	import { txs } from "$lib/stores/stores";
 
     export let displayName: string
     export let commitmentType: CommitmentType
     export let formComponent: ComponentType
     export let onExit: () => void
 
+    const dispatch = createEventDispatcher()
 
     const onSubmit = async () => {
         console.log($formData)
@@ -18,7 +20,13 @@
         const hub = getCommitmentHub()
         if (!hub) throw Error("No Hub contract")
         console.log(hub)
-        await createCommitment(hub, commitmentType, $formData as any)
+        const res = createCommitment(hub, commitmentType, $formData as any)
+        
+        res.then(tx => {
+            tx.wait().then(rc => {
+                txs.update((txs) => [...txs, rc])
+            })
+        })
     }
 
 </script>

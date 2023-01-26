@@ -20,9 +20,9 @@ import { SupportedChainId } from 'src/SupportedChainId';
 type ConnectionError =
 	| 'Not Connected'
 	| 'Wrong Chain'
-	| 'No Signer'
 	| 'No Commitment Hub Found'
-	| 'Commitment Types Not Registered';
+	| 'Commitment Types Not Registered'
+	| 'No Signer'
 
 export const connectionError = writable<ConnectionError | null>(null);
 

@@ -1,6 +1,6 @@
 import type { BigNumberish } from "ethers";
 import { ethers } from "ethers"
-import type { CommitmentHub } from "@scp/protocol/typechain-types";
+import type { CommitmentHub } from "@scp/protocol/typechain-types"
 import type { 
   CommitmentType, 
   CommitmentContractTypes, 
@@ -21,26 +21,12 @@ export async function createCommitment<
   type: T,
   initData: InitializationTypes[T],
   value?: BigNumberish
-): Promise<CommitmentContractTypes[T]> {
+) {
  
-
   const byteData = encodeCreationParams(type, initData)
-  const rc = await (
-    await hub.createCommitment(commitmentTypeVals[type], byteData, {
+  return hub.createCommitment(commitmentTypeVals[type], byteData, {
       value: value ? value : 0
-    })
-  ).wait();
-  
-  if (!rc.events) throw Error("No events found in tx");
-
-  let commitAddr: string;
-  for (const event of rc.events) {
-    if (event.event && event.event == "CommitmentCreation") {
-      commitAddr = event.args!.commitmentAddr;
-    }
-  }
-
-  return (commitmentFactories[type] as any).connect(commitAddr!, hub.signer);
+  })
 }
 
 
