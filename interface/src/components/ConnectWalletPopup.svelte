@@ -5,9 +5,8 @@
 	let warning: string | null = null;
 	const onConnectClick = () => {
 		defaultEvmStores.setProvider().then(() => {
-			console.log($connected, $signerAddress);
 			if ($connected && $signerAddress) {
-				console.log('Connection Successful');
+				console.log($connected, $signerAddress);
 				modal.set(null); // Close modal on success
 				return;
 			}
