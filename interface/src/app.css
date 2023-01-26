@@ -33,8 +33,10 @@
     --font-large: 18px;
     --font-xlarge: 28px;
 
-    --border-radius-small: 18px;
-    --border-radius-medium: 25px;
+    --border-radius4: 20px;
+    --border-radius3: 16px;
+    --border-radius2: 12px;
+    --border-radius1: 8px;
 }
 
 html {
