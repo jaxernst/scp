@@ -4,6 +4,7 @@
     import { createCommitment } from "$lib/createCommitment";
     import type { CommitmentType } from "@scp/protocol/lib/types";
 	import type { ComponentType } from "svelte";
+	import { connectionError } from "$lib/stores/dAppReady";
 
     export let displayName: string
     export let commitmentType: CommitmentType
@@ -31,7 +32,12 @@
         <form class=body on:submit|preventDefault={onSubmit}>
             <svelte:component this={formComponent}/>
             <div class=submit-button-container>
-                <button class=button-primary>Submit</button>
+                <button 
+                    disabled={!!$connectionError} 
+                    class={"button-submit" + ($connectionError ? "disabled" : "")}
+                >
+                    {$connectionError ?? "Submit ->"}
+                </button>
             </div>
         </form>
     </div>
@@ -42,7 +48,6 @@
         display: flex;
         flex-direction: column;
         width: 100%;
-        height: 100%;
         padding: 1rem;
         box-sizing: border-box;
         color: var(--theme-color3-dark);
@@ -75,8 +80,6 @@
     }
 
     .body {
-        flex-grow: 1;
-        display: flex;
         flex-direction: column;
         justify-content: space-between;
     }
@@ -84,5 +87,23 @@
     .submit-button-container {
         display: flex;
         justify-content: flex-end;
+    }
+
+    .button-submit {
+        font-family: 'Orbitron';
+        padding: .5em 1em .5em 1em;
+        color: var(--theme-color3-dark);
+        border-radius: 3px;
+        transition: background-color .2s, color .4s, box-shadow .8s
+    }
+
+    .button-submit:hover {
+        background-color: var(--theme-color2);
+        color: var(--theme-color1);
+        box-shadow: 2px 2px 8px rgba(91, 91, 91, 0.509);
+    }
+
+    .disbaled {
+        color: grey;
     }
 </style>

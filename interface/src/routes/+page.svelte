@@ -61,11 +61,13 @@
 	.grid-container {
 		flex: 1;
 		display: grid;
-		grid-template-rows: repeat(2, 1fr);
-		grid-template-columns: repeat(2, 1fr);
+		grid-template-rows: repeat(2, minmax(0, 1fr));
+		grid-template-columns: repeat(2, minmax(0, 1fr));
 		grid-gap: 1.5em;
 		height: 100%;
 		max-width: 1000px;
+		height: 800px;
+
   }
 
   .grid-container > div {
