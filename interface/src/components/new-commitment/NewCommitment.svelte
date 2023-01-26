@@ -28,39 +28,47 @@
         <div class=title>Create New {displayName}</div>
         <button class=exit on:click={onExit}>X</button>
     </div>
-    <div class=body>
-        <form class=body on:submit|preventDefault={onSubmit}>
+    <form on:submit|preventDefault={onSubmit}>
+        <div class=body>
             <svelte:component this={formComponent}/>
-            <div class=submit-button-container>
-                <button 
-                    disabled={!!$connectionError} 
-                    class={"button-submit" + ($connectionError ? "disabled" : "")}
-                >
-                    {$connectionError ?? "Submit ->"}
-                </button>
-            </div>
-        </form>
-    </div>
+        </div>
+        <div class=submit-button-container>
+            <button 
+                disabled={!!$connectionError} 
+                class={"button-submit" + ($connectionError ? "disabled" : "")}
+            >
+                {$connectionError ?? "Submit ->"}
+            </button>
+        </div>
+    </form>
+    
 </div>
 
 <style>
     .container {
         display: flex;
         flex-direction: column;
-        width: 100%;
         padding: 1rem;
-        box-sizing: border-box;
         color: var(--theme-color3-dark);
 		border: 3px solid var(--theme-color3);
 		border-radius: 10px;
 		background-color: var(--theme-container1);
+        
+        height: 100%;
+        box-sizing: border-box;
+    }
+
+    form {
+        height: 100%;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
     }
 
     .header {
         display: flex;
         justify-content: space-between;
-        align-items: center;
-        
+        align-items: center;        
     }
 
     .exit {
@@ -80,8 +88,7 @@
     }
 
     .body {
-        flex-direction: column;
-        justify-content: space-between;
+        flex-grow: 1;
     }
 
     .submit-button-container {

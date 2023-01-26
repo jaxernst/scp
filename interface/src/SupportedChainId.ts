@@ -4,5 +4,5 @@ export function chainSupported(chainId: number | string) {
 }
 
 export enum  SupportedChainId {
-    LOCALHOST = 1337     
+    LOCALHOST = 31337     
 }

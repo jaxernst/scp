@@ -67,7 +67,6 @@
 		height: 100%;
 		max-width: 1000px;
 		height: 800px;
-
   }
 
   .grid-container > div {
@@ -78,8 +77,8 @@
   }
 
 	.action-area {
-		display: flex;
-		flex-direction: column;
+		display: grid;
+		grid-template-rows: minMax(0, min-content) minmax(0, 1fr);
 		gap: 1em;
 	}
 

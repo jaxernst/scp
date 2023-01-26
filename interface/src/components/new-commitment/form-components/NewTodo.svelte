@@ -12,10 +12,13 @@
     $: formData.update((data) => ({...data, name, description}))
 </script>
 
+<div class=container>
+
 <p>
     A ToDo commitment is a personal agreement and pledge to complete the task as described below
 </p>
 
+<div>
 <label for="name">Name:</label>
 <input 
     id="name" 
@@ -23,7 +26,9 @@
     bind:value={name}
     placeholder={defaultName}
 />
-<br/>
+</div>
+
+<div>
 <label for="description">Description:</label>
 <input 
     id="description" 
@@ -31,15 +36,21 @@
     bind:value={description}
     placeholder={defaultDescription}
 />
-<br/>
+</div>
+</div>
 
 <style>
     input {
-        margin: 1em;
-        padding: .5em;
         background: none;
         border: none;
         border-bottom: 1px solid var(--theme-color3-dark);
         color: var(--theme-color2);
     }
+
+    .container {
+        display: flex;
+        flex-direction: column;
+        gap: .5em;
+    }
+
 </style>
