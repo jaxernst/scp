@@ -44,18 +44,20 @@
   
   .values > .grid-item {
     background-color: var(--theme-container2);
-    padding: .8em 0 .8em 0;
+    padding: .8em .4em .8em .4em;
     height: 35px;
+    font-size: max(1.4vw, 16px);
+    white-space: nowrap;
   }
 
   .values > :first-child {
-    border-top-left-radius: 18px;
-    border-bottom-left-radius: 18px;
+    border-top-left-radius: var(--border-radius3);
+    border-bottom-left-radius: var(--border-radius3);
   }
 
   .values > :last-child {
-    border-top-right-radius: 18px;
-    border-bottom-right-radius: 18px;
+    border-top-right-radius: var(--border-radius3);
+    border-bottom-right-radius: var(--border-radius3);
   }
 </style>
 
