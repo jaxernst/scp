@@ -1,10 +1,7 @@
 <script lang="ts">
 	import { getUserCommitments, type UserCommitments } from '$lib/commitments';
-	import { getCommitment, getCommitmentHub } from '$lib/getContract';
+	import { getCommitmentHub } from '$lib/commitments';
 	import { sessionTransactionReceipts } from '$lib/stores/stores';
-	import { CommitStatus, type CommitmentContractTypes, type CommitmentType } from '@scp/protocol/lib/types';
-	import { commitmentValToType } from '@scp/protocol/lib/types';
-	import type { PromiseOrValue } from '@scp/protocol/typechain-types/common';
   import type {
 		CommitmentCreationEvent,
 		CommitmentHub

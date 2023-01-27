@@ -1,7 +1,6 @@
 <script lang=ts>
-	import { getCommitmentHub } from "$lib/getContract";
     import { formData } from "./formData";
-    import { createCommitment } from "$lib/createCommitment";
+    import { createCommitment, getCommitmentHub } from "$lib/commitments";
     import type { CommitmentType } from "@scp/protocol/lib/types";
 	import { createEventDispatcher, type ComponentType } from "svelte";
 	import { connectionError } from "$lib/stores/dAppReady";

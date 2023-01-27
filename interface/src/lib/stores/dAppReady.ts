@@ -1,6 +1,6 @@
 import { derived, writable } from 'svelte/store';
 import { connected, chainId, signer } from 'svelte-ethers-store';
-import { getCommitmentHub } from '$lib/getContract';
+import { getCommitmentHub } from '$lib/commitments';
 import { supportedCommitmentTypes, ZERO_ADDRESS } from '$lib/constants';
 import type { CommitmentHub } from '@scp/protocol/typechain-types';
 import { commitmentTypeVals } from '@scp/protocol/lib/types';
