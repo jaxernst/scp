@@ -22,7 +22,7 @@
     let poolIds: PromiseOrValue<number[]> = []
     let pools: PromiseOrValue<AlarmPool>[] = []
     const fetchPools = (hub: CommitmentProtocolHub) => {
-        console.log("Fetching pools")
+
         poolIds = getPoolIdsArr(hub)
         poolIds.then((poolIds) => {
             for (const id of poolIds) {

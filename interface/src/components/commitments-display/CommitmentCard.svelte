@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { BaseCommitment, TimelockingDeadlineTask } from "@scp/protocol/typechain-types";
-  import FaArrowCircleRight from 'svelte-icons/fa/FaArrowCircleRight.svelte'
   import MdExpandMore from 'svelte-icons/md/MdExpandMore.svelte'
   export let commitment: BaseCommitment | TimelockingDeadlineTask
   let name = commitment.name()

@@ -10,7 +10,7 @@
 	import { onMount } from 'svelte';
 	import hubAbi from "src/abi/CommitmentHub.json"
 	import { CommitmentProtocolHubAddr } from '$lib/constants';
-	import CommitmentCardArea from 'src/components/commitments-display/CommitmentCardArea.svelte';
+	import UserCommitmentsArea from 'src/components/commitments-display/UserCommitmentsArea.svelte';
 	
 	/**
 	 * Add an instance of the protocol hub contract to stores 
@@ -30,12 +30,12 @@
 
 <div class=app>	
 	<div class=grid-container>
-		<div class="grid-item commitment-area">
-			<CommitmentCardArea/>
-		</div>
 		<div class="grid-item action-area">
 			<Hud/>
 			<NewCommitmentArea/>
+		</div>
+		<div class="grid-item commitment-area">
+			<UserCommitmentsArea/>
 		</div>
 		<div class="grid-item feed">Feed</div>
 	</div>
@@ -71,20 +71,44 @@
 
   .grid-container > div {
     	background-color: var(--theme-container1);
-		border-radius: 20px;
+		border-radius: var(--border-radius4);
 		padding: 1em;
 		box-shadow: 4px 8px 3px rgba(0, 0, 0, 0.509);
-  }
+  	}
 
 	.action-area {
+		grid-row: 1;
+		grid-column: 2;
 		display: grid;
 		grid-template-rows: minMax(0, min-content) minmax(0, 1fr);
 		gap: 1em;
 	}
 
+	.commitment-area {
+		grid-row: 1;
+		grid-column: 1;
+	}
+
 	.grid-item:nth-child(3) {
 		grid-row: 2/3;
 		grid-column: 1/3;
+  }
+
+  @media only screen and (max-width: 1000px) {
+	.grid-container {
+		display: flex;
+		flex-direction: column;
+		place-items: center;
+	}
+	.grid-item {
+		width: 540px;
+	}
+  }
+
+  @media only screen and (max-width: 600px) {
+	.grid-item {
+		width: 80vw;
+	}
   }
 </style>
 
