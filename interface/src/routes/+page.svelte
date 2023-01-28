@@ -6,17 +6,19 @@
 	import Hud from 'src/components/Hud.svelte';
 	import Modal from 'svelte-simple-modal';
 	import { modal } from "$lib/stores/stores";
-	import { connected, defaultEvmStores } from "svelte-ethers-store";
+	import { connected, defaultEvmStores, signer, signerAddress } from "svelte-ethers-store";
 	import { onMount } from 'svelte';
 	import hubAbi from "src/abi/CommitmentHub.json"
 	import { CommitmentProtocolHubAddr } from '$lib/constants';
 	import UserCommitmentsArea from 'src/components/commitments-display/UserCommitmentsArea.svelte';
+	import { getCommitmentHub } from '$lib/commitments';
+	import Hud2 from 'src/components/Hud2.svelte';
 	
 	/**
 	 * Add an instance of the protocol hub contract to stores 
 	 */
 	defaultEvmStores.attachContract(
-		"CommitmentProtocolHub",
+		"ProtocolHub",
 		CommitmentProtocolHubAddr,
 		JSON.stringify(hubAbi)
 	);
@@ -34,7 +36,7 @@
 			<Hud/>
 			<NewCommitmentArea/>
 		</div>
-		<div class="grid-item commitment-area">
+		<div class="grid-item commitment-area" style="padding: 0">
 			<UserCommitmentsArea/>
 		</div>
 		<div class="grid-item feed">Feed</div>
@@ -69,7 +71,7 @@
 		height: 800px;
   }
 
-  .grid-container > div {
+   .grid-container > div {
     	background-color: var(--theme-container1);
 		border-radius: var(--border-radius4);
 		padding: 1em;
