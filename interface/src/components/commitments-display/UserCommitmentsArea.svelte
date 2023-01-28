@@ -1,40 +1,27 @@
 <script lang="ts">
-	import { getUserCommitments, type UserCommitments } from '$lib/commitments';
-	import { getCommitmentHub } from '$lib/commitments';
-	import { sessionTransactionReceipts } from '$lib/stores/stores';
-  import type {
-		CommitmentCreationEvent,
+	import type { UserCommitment } from '$lib/commitments';
+	import { scpUser } from '$lib/stores/commitmentsStore';
+	import { cph } from '$lib/stores/stores';
+	import { CommitStatus } from '@scp/protocol/lib/types';
+  	import type {
 		CommitmentHub
 	} from '@scp/protocol/typechain-types/contracts/CommitmentHub.sol/CommitmentHub';
-	import { contracts, signer, signerAddress } from 'svelte-ethers-store';
+	import { signer } from 'svelte-ethers-store';
 	import CommitmentCard from './CommitmentCard.svelte';
-
-	const queryCommitmentEvents = async (hub: CommitmentHub) => {
-		return await hub?.queryFilter(hub.filters.CommitmentCreation($signerAddress));
-	};
 
 	enum Display {
 		ACTIVE,
 		PAST
 	}
 
-	let show: Display = Display.ACTIVE;
-	let hub: CommitmentHub | undefined;
-	let events: Promise<CommitmentCreationEvent[]> | undefined;
-  let userCommitments: Promise<UserCommitments> = new Promise(r => r)
-
-	$: {
-		$sessionTransactionReceipts; // Re-query for events when tx receipts store is updated
-		if ($contracts) hub = getCommitmentHub();
-		if (hub) {
-      events = queryCommitmentEvents(hub);
-      userCommitments = getUserCommitments(events, $signer)
-    }
-	}
+	let show: Display = Display.ACTIVE
+	let commitmentQuery: Promise<UserCommitment[]> = new Promise(() => {})
+	$: if ($cph && $signer) commitmentQuery = scpUser.fetchCommitments($cph, $signer)
 
 	$: activePageOn = (display: Display) => {
 		return show === display ? 'active-page' : '';
 	};
+
 </script>
 
 <div class="container">
@@ -53,17 +40,23 @@
 		</button>
 	</div>
 	<div class="body">
-			{#await userCommitments}
-				<h1>loading user commitments...</h1>
-			{:then commitments}
-        {#if show === Display.ACTIVE}
-          {#each commitments.active as commitment}
-            <CommitmentCard {commitment}/>
-          {/each}
-        {:else}
-          <h1> Inactive commitments here</h1>
-        {/if}
-			{/await}
+		{#await commitmentQuery}
+			<p>Loading...</p>
+		{:then commitments} 
+			{#if show === Display.ACTIVE}
+				{#each $scpUser.commitments.filter(
+					commit => commit.status === CommitStatus.ACTIVE
+				) as commitment}
+					<CommitmentCard { commitment }/>
+				{/each}
+			{:else}
+				{#each $scpUser.commitments.filter(
+					commit => commit.status !== CommitStatus.ACTIVE
+				) as commitment}
+					<CommitmentCard { commitment }/>
+				{/each}
+			{/if}
+		{/await}
 	</div>
 </div>
 
@@ -71,23 +64,28 @@
 	.container {
 		display: flex;
 		flex-direction: column;
-    height: 100%;
-    box-sizing: border-box;
-		gap: 1em;
+    	height: 100%;
+    	box-sizing: border-box;
 	}
+
+	.header {
+		padding: 1em 1em 0 1em;
+	}
+
 	.page-button {
 		padding: 0.5em 1em 0.5em 1em;
 		border-radius: var(--border-radius4);
 	}
 	.active-page {
 		background-color: var(--theme-container2);
-    transition: background-color .2s;
+    	transition: background-color .2s;
 	}
 
-  .body {
-    display: flex;
-    flex-direction: column;
-    gap: .5em;
-    overflow-y: auto;
-  }
+	.body {
+		display: flex;
+		flex-direction: column;
+		gap: .5em;
+		overflow-y: auto;
+		padding: 1em;
+	}
 </style>

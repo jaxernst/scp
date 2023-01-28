@@ -5,24 +5,17 @@
 	import { createEventDispatcher, type ComponentType } from "svelte";
 	import { connectionError } from "$lib/stores/dAppReady";
 	import { sessionTransactionReceipts } from "$lib/stores/stores";
+	import { scpUser } from "$lib/stores/commitmentsStore";
 
     export let displayName: string
     export let commitmentType: CommitmentType
     export let formComponent: ComponentType
     export let onExit: () => void
 
-    const dispatch = createEventDispatcher()
-
     const onSubmit = async () => {
         const hub = getCommitmentHub()
         if (!hub) throw Error("No Hub contract")
-        const res = createCommitment(hub, commitmentType, $formData as any)
-        
-        res.then(tx => {
-            tx.wait().then(rc => {
-                sessionTransactionReceipts.update((rcs) => [...rcs, rc])
-            })
-        })
+        scpUser.addTx(createCommitment(hub, commitmentType, $formData as any))
     }
 
 </script>

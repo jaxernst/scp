@@ -1,8 +1,10 @@
 <script lang="ts">
+	import type { UserCommitment } from "$lib/commitments";
+	import { scpUser } from "$lib/stores/commitmentsStore";
 	import type { BaseCommitment, TimelockingDeadlineTask } from "@scp/protocol/typechain-types";
   import MdExpandMore from 'svelte-icons/md/MdExpandMore.svelte'
-  export let commitment: BaseCommitment | TimelockingDeadlineTask
-  let name = commitment.name()
+  export let commitment: UserCommitment
+  let name = commitment.contract.name()
   
 </script>
 
@@ -13,6 +15,7 @@
     {name}
   {/await}
   <div style="display:flex">
+    <button on:click={() => scpUser.addTx(commitment.contract.submitConfirmation())}>x</button>
     <div class=icon><MdExpandMore/></div>
   </div>
 </div>
@@ -31,7 +34,7 @@
   }
 
   .commitment-card:hover {
-    box-shadow: 1px 1px 4px rgba(91, 91, 91, 0.509);
+    box-shadow: 2px 2px 8px rgba(91, 91, 91, 0.509);
   }
 
   .icon {
