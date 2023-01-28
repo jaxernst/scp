@@ -14,7 +14,6 @@ import { ethers, Signer, type BigNumberish } from 'ethers';
 import { contracts } from 'svelte-ethers-store';
 import { get } from 'svelte/store';
 
-
 export async function createCommitment<T extends CommitmentType>(
 	hub: CommitmentHub,
 	type: T,
@@ -38,7 +37,7 @@ export function encodeCreationParams<T extends CommitmentType>(
 }
 
 export function getCommitmentHub(): CommitmentHub | undefined {
-	const contract = get(contracts)['CommitmentProtocolHub'];
+	const contract = get(contracts)['ProtocolHub'];
 	if (!contract) return;
 	return contract as unknown as CommitmentHub;
 }
@@ -52,33 +51,55 @@ export function getCommitment<T extends keyof CommitmentContractTypes>(
 	return factory.connect(address, signer) as CommitmentContractTypes[T];
 }
 
-export interface UserCommitments {
-	active: CommitmentContractTypes[CommitmentType][];
-	past: CommitmentContractTypes[CommitmentType][];
+export interface UserCommitment {
+	contract: CommitmentContractTypes[CommitmentType];
+	creationBlock: number
+	status: CommitStatus;
 }
 
 export async function getUserCommitments(
-	creationEvents: CommitmentCreationEvent[] | Promise<CommitmentCreationEvent[]>,
-	signer: Signer
-): Promise<UserCommitments> {
-	creationEvents = await creationEvents;
-	const out: UserCommitments = { active: [], past: [] };
-	const statusQueries: Promise<any>[] = [];
-	for (const { args } of creationEvents) {
-		const commitment = getCommitment(commitmentValToType[args._type], args.commitmentAddr, signer);
+	hub?: CommitmentHub,
+	user?: Signer
+): Promise<UserCommitment[] | undefined> {
+	if (!hub || !user) return
+	console.log("Getting commitments")
+	const creationEvents = await queryCommitmentCreationEvents(
+		hub, 
+		await user.getAddress()
+	);
 
-		const status = commitment.status().then((result: CommitStatus) => {
-			if (result === CommitStatus.ACTIVE) return out.active.push(commitment);
-			return out.past.push(commitment);
-		});
+	if (!creationEvents) return
 
-		statusQueries.push(status);
+	const out: UserCommitment[] = []
+	const queryResults = []
+	for (const { args, blockNumber } of creationEvents) {
+		const contract = getCommitment(
+			commitmentValToType[args._type], 
+			args.commitmentAddr, 
+			user
+		);
+
+		const queryResult = contract.status()
+			.then((status: CommitStatus) => {
+				out.push({
+					contract,
+					creationBlock: blockNumber,
+					status
+				})
+			})
+			.catch((err) => console.warn("Error getting commitment status"))
+
+		queryResults.push(queryResult)
 	}
 
-	await Promise.allSettled(statusQueries);
-	if (out.active.length + out.past.length !== creationEvents.length) {
+	await Promise.allSettled(queryResults);
+	if (out.length !== creationEvents.length) {
 		throw Error('getUserCommitments: Invariant error');
 	}
 
 	return out;
+}
+
+export async function queryCommitmentCreationEvents(hub: CommitmentHub, address: string) {
+	return await hub?.queryFilter(hub.filters.CommitmentCreation(address));
 }
