@@ -1,27 +1,26 @@
 # A Generalized Protocol for Facilitating Interactive, Public Commitments
 
+![](https://img.shields.io/github/stars/jaxernst/the-social-commitment-protocol?style=for-the-badge&labelColor=d0ab23&color=b0901e&logoColor=white&logo=Trustpilot)
 [![](https://dcbadge.vercel.app/api/server/MJHxzqDGuv)](https://discord.gg/MJHxzqDGuv)
 ![](https://img.shields.io/badge/License-Apache--2.0-orange.svg?style=for-the-badge&labelColor=EF9421&logoColor=white&logo=CreativeCommons)
-![](https://img.shields.io/github/stars/jaxernst/the-social-commitment-protocol?style=for-the-badge&labelColor=d0ab23&color=b0901e&logoColor=white&logo=Trustpilot)
 
 <br>
 
-The Social Commitment Protocol (SCP) is a smart contract protocol build to facilitate and enforce commitments made by individuals and organizations. A commitment, as defined, is an agreement or pledge to do something in the future. The Social Commitment Protocol allows for programmatic creation, enforcement, and customization of any form that a 'commitment' may take.
+The Social Commitment Protocol (SCP) is a smart contract protocol built to facilitate and enforce commitments made by individuals and organizations. A commitment, as defined, is an agreement or pledge to do something in the future. The Social Commitment Protocol allows for programmatic creation, enforcement, and customization of any and all forms of commitments.
 
-At the core of the protocol is the Commitment primitive. Commitments are standalone smart contracts that host both the information pertaining to the commitment and the functionality to interact with the commitment. In the most basic form, a commitment might be implemented as a ToDo item. A user creating this type of commitment is signing a transaction saying ‘I will do x’. From here we can start adding on logic, such as a scheduling and penalization logic. With this logic applied, our commitment could read as ‘I will do x by time t, else my funds will get locked up for duration d’.
-
-## Commitment Confirmation
-Commitments expose 'confirmation' functions for users to complete their commitments. The most basic form of a confirmation simply uses the commitment owners signature to mark the commitment as complete. For higher stakes commitments (possibly with money on the line), commitments may require a 'proof of completion' to be submitted, which is a URI to an externaly hosted image, screenshot, etc. This external proof should be sufficient to convince others that the commitment was completed. Commitment proofs can require attestations before they become valid, or may be optimistically assumed valid with voting mechanics in place to 'challenge' a proof. Confirmations can also require an external contract for validation this may be useful for DAOs enforcing participation in governance, (ie. when voting on a proposal, a DAO’s contract calls the commitment to confirm participation)
+At the core of the protocol is the Commitment primitive. Commitments are standalone smart contracts (ownable by one or many accounts) that host both the information pertaining to the commitment and the functionality to interact with the commitment. Commitments come with configurable modules for scheduling, penalizing, rewarding, and determining the validity of commitment 'confirmations'. Confirmations can be simple calls from external contracts to validate on-chain actions, or can be user submitted URIs to external proofs (receipts, screenshots, photos, etc.). Modules are designed to compose together, so new forms of commitments can be created with trustless accountability.
 
 # What's possible with the protocol?
 There are many ways to implement commitments and build apps on of the protocol, but I have compiled some of my favorites:
 
 - Task and Todo tracking apps that allow users to put down ‘collateral’ on their commitments and incentivize themselves to be more productive.
 - Social apps that allow goals and commitments to be shared with friends, with credit systems in place to reward users for high achievement and proving to the protocol that commitments have been completed
+- DAO governce participation enforcement systems
 - Public accountability systems for public-figures or organizations to officiate their commitments/promises
 
+
 # The SCP Monorepo
-This repo contains the protocol source code (written in Solidity), an SDK to support dApp development, and a "dapps" directory, which are protocol interf
+This repo contains the protocol source code (written in Solidity), an SDK to support dApp development, and a "dapps" directory, which are frontends built on top of the SCP.
 
 # Architecture
 ### Minimal Proxy Commitments
