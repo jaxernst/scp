@@ -39,7 +39,7 @@
 		<div class="grid-item commitment-area" style="padding: 0">
 			<UserCommitmentsArea/>
 		</div>
-		<div class="grid-item feed">Feed</div>
+		<!--<div class="grid-item feed">Feed</div>-->
 	</div>
 </div>
 	
