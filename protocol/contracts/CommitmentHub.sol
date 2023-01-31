@@ -51,10 +51,10 @@ contract CommitmentHub is CommitmentFactory {
     mapping(uint => BaseCommitment) public commitments;
 
     event CommitmentCreation(
-        uint indexed id,
         address indexed user,
         RegisteredCommitmentType indexed _type,
-        address commitmentAddr
+        address commitmentAddr,
+        uint id
     );
 
     /**
@@ -69,6 +69,6 @@ contract CommitmentHub is CommitmentFactory {
         
         uint id = ++nextCommitmentId;
         commitments[id] = commitment;
-        emit CommitmentCreation(id, msg.sender, _type, address(commitment));
+        emit CommitmentCreation(msg.sender, _type, address(commitment), id);
     }
 }
