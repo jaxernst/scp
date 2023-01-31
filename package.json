@@ -5,12 +5,13 @@
   "repository": "https://github.com/jaxernst/the-social-alarm-clock.git",
   "author": "jaxernst <51183683+jaxernst@users.noreply.github.com>",
   "scripts": {
-    "test-protocol": "yarn workspace @social-alarm-clock/protocol test",
-    "start-local-interface": "yarn workspace @social-alarm-clock/protocol deploy-local && yarn workspace @social-alarm-clock/interface dev"
+    "test-protocol": "yarn workspace @scp/protocol test",
+    "start-local-interface": "yarn workspace @scp/protocol deploy-local && yarn workspace @social-alarm-clock/interface dev"
   },
   "workspaces": [
     "protocol",
-    "interface"
+    "sdk",
+    "dapps/**"
   ],
   "dependencies": {
     "ts-node": "^10.9.1",

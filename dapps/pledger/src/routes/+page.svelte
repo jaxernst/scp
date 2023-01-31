@@ -12,7 +12,6 @@
 	import { CommitmentProtocolHubAddr } from '$lib/constants';
 	import UserCommitmentsArea from 'src/components/commitments-display/UserCommitmentsArea.svelte';
 	import { getCommitmentHub } from '$lib/commitments';
-	import Hud2 from 'src/components/Hud2.svelte';
 	
 	/**
 	 * Add an instance of the protocol hub contract to stores 
