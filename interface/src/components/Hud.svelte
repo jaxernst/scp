@@ -46,7 +46,7 @@
     background-color: var(--theme-container2);
     padding: .8em .4em .8em .4em;
     height: 35px;
-    font-size: max(1.4vw, 16px);
+    font-size: 16px;
     white-space: nowrap;
   }
 
