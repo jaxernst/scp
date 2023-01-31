@@ -51,9 +51,10 @@ contract CommitmentHub is CommitmentFactory {
     mapping(uint => BaseCommitment) public commitments;
 
     event CommitmentCreation(
+        uint indexed id,
         address indexed user,
         RegisteredCommitmentType indexed _type,
-        address indexed commitmentAddr
+        address commitmentAddr
     );
 
     /**
@@ -65,8 +66,9 @@ contract CommitmentHub is CommitmentFactory {
     ) public payable {
         BaseCommitment commitment = _createCommitment(_type);
         commitment.init{ value: msg.value }(_initData);
-        commitments[++nextCommitmentId] = commitment;
-
-        emit CommitmentCreation(msg.sender, _type, address(commitment));
+        
+        uint id = ++nextCommitmentId;
+        commitments[id] = commitment;
+        emit CommitmentCreation(id, msg.sender, _type, address(commitment));
     }
 }

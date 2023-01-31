@@ -96,7 +96,7 @@ describe("CommitmentHub", () => {
       const txs = await repeat(commitmentHub.createCommitment, [commitmentTypeVals["BaseCommitment"], baseInitData], 5)
       await waitAll(txs)
       const events = await commitmentHub.queryFilter(
-        commitmentHub.filters.CommitmentCreation(owner.address as any)
+        commitmentHub.filters.CommitmentCreation(null, owner.address as any)
       )
       expect(events.length).to.equal(5)
     })
