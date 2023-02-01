@@ -11,6 +11,7 @@
   "workspaces": [
     "protocol",
     "sdk",
+    "sdk/svelte-scp-store",
     "dapps/**"
   ],
   "dependencies": {

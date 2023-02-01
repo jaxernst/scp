@@ -1,0 +1,12 @@
+{
+  "name": "@scp/svelte-scp-store",
+  "packageManager": "yarn@3.2.4",
+  "type": "module",
+  "module": "stores.ts",
+  "devDependencies": {
+    "svelte-ethers-store": "^2.5.9"
+  },
+  "dependencies": {
+    "svelte": "^3.55.1"
+  }
+}
