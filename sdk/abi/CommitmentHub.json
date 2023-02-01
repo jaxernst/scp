@@ -15,10 +15,16 @@
         "type": "uint8"
       },
       {
-        "indexed": true,
+        "indexed": false,
         "internalType": "address",
         "name": "commitmentAddr",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
       }
     ],
     "name": "CommitmentCreation",
