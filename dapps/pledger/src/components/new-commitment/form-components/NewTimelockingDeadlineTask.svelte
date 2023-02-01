@@ -1,6 +1,5 @@
 <script lang=ts>
 	import { BigNumber } from "ethers";
-  import { getCommitmentHub } from "$lib/commitments";
 
   let taskDescription = "task description"
   let deadline: number

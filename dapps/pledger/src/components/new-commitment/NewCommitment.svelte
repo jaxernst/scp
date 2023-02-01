@@ -1,11 +1,11 @@
 <script lang=ts>
     import { formData } from "./formData";
-    import { createCommitment, getCommitmentHub } from "$lib/commitments";
     import type { CommitmentType } from "@scp/protocol/lib/types";
-	import { createEventDispatcher, type ComponentType } from "svelte";
+	import type { ComponentType } from "svelte";
 	import { connectionError } from "$lib/stores/dAppReady";
-	import { sessionTransactionReceipts } from "$lib/stores/stores";
-	import { scpUser } from "$lib/stores/commitmentsStore";
+	import { cph } from "$lib/stores/stores";
+	import { scpUser } from "@scp/sdk/svelte-scp-stores/stores";
+	import { createCommitment } from "@scp/sdk/src/scp-helpers";
 
     export let displayName: string
     export let commitmentType: CommitmentType
@@ -13,9 +13,8 @@
     export let onExit: () => void
 
     const onSubmit = async () => {
-        const hub = getCommitmentHub()
-        if (!hub) throw Error("No Hub contract")
-        scpUser.addTx(createCommitment(hub, commitmentType, $formData as any))
+        if (!$cph) throw Error("No Hub contract")
+        scpUser.addTx(createCommitment($cph, commitmentType, $formData as any))
     }
 
 </script>

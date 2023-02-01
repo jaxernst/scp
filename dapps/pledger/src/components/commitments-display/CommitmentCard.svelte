@@ -1,7 +1,6 @@
 <script lang="ts">
-	import type { UserCommitment } from "$lib/commitments";
-	import { scpUser } from "$lib/stores/commitmentsStore";
-	import type { BaseCommitment, TimelockingDeadlineTask } from "@scp/protocol/typechain-types";
+	import type { UserCommitment } from "@scp/sdk/src/scp-helpers";
+	import { scpUser } from "@scp/sdk/svelte-scp-stores/stores";
   import MdExpandMore from 'svelte-icons/md/MdExpandMore.svelte'
   export let commitment: UserCommitment
   let name = commitment.contract.name()

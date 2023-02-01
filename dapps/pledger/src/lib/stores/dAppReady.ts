@@ -1,10 +1,10 @@
-import { derived, writable } from 'svelte/store';
+import { derived, get, writable } from 'svelte/store';
 import { connected, chainId, signer } from 'svelte-ethers-store';
-import { getCommitmentHub } from '$lib/commitments';
-import { supportedCommitmentTypes, ZERO_ADDRESS } from '$lib/constants';
+import { supportedCommitmentTypes, ZERO_ADDRESS } from '$lib/constants'
 import type { CommitmentHub } from '@scp/protocol/typechain-types';
 import { commitmentTypeVals } from '@scp/protocol/lib/types';
 import { SupportedChainId } from 'src/SupportedChainId';
+import { cph } from './stores';
 
 /**
  * Stores to determine  whether the dApp is ready to be interacted with.
@@ -45,13 +45,12 @@ export const dAppReady = derived(
 		}
 
 		// Get SCP Hub
-		const hub = getCommitmentHub();
-		if (!hub) {
+		if (!get(cph)) {
 			connectionError.set('No Commitment Hub Found');
 			return set(false);
 		}
 
-		supportedCommitmentsRegistered(hub)
+		supportedCommitmentsRegistered(get(cph)!)
 			.then((typesRegistered) => {
 				if (!typesRegistered) {
 					connectionError.set('Commitment Types Not Registered');

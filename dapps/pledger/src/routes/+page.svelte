@@ -1,23 +1,23 @@
 <script lang="ts">
-	import '../app.css';
-
-	import ConnectWalletPopup from 'src/components/ConnectWalletPopup.svelte';
-	import NewCommitmentArea from 'src/components/new-commitment/NewCommitmentArea.svelte';
-	import Hud from 'src/components/Hud.svelte';
 	import Modal from 'svelte-simple-modal';
-	import { modal } from "$lib/stores/stores";
 	import { connected, defaultEvmStores, signer, signerAddress } from "svelte-ethers-store";
 	import { onMount } from 'svelte';
-	import hubAbi from "src/abi/CommitmentHub.json"
-	import { CommitmentProtocolHubAddr } from '$lib/constants';
+	
+	import '../app.css';
+	import ConnectWalletPopup from 'src/components/ConnectWalletPopup.svelte';
+	import NewCommitmentArea from 'src/components/new-commitment/NewCommitmentArea.svelte';
 	import UserCommitmentsArea from 'src/components/commitments-display/UserCommitmentsArea.svelte';
-	import { getCommitmentHub } from '$lib/commitments';
+	import Hud from 'src/components/Hud.svelte';
+	
+	import { modal } from "$lib/stores/stores";
+	import { CommitmentProtocolHubAddr } from '$lib/constants';
+	import hubAbi from '@scp/sdk/abi/CommitmentHub.json'
 	
 	/**
 	 * Add an instance of the protocol hub contract to stores 
 	 */
 	defaultEvmStores.attachContract(
-		"ProtocolHub",
+		"CommitmentHub",
 		CommitmentProtocolHubAddr,
 		JSON.stringify(hubAbi)
 	);

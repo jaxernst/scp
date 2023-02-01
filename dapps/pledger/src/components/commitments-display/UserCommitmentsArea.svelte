@@ -1,11 +1,7 @@
 <script lang="ts">
-	import type { UserCommitment } from '$lib/commitments';
-	import { scpUser } from '$lib/stores/commitmentsStore';
+	import { type UserCommitmentStore, scpUser } from '@scp/sdk/svelte-scp-stores/stores';
 	import { cph } from '$lib/stores/stores';
 	import { CommitStatus } from '@scp/protocol/lib/types';
-  	import type {
-		CommitmentHub
-	} from '@scp/protocol/typechain-types/contracts/CommitmentHub.sol/CommitmentHub';
 	import { signer } from 'svelte-ethers-store';
 	import CommitmentCard from './CommitmentCard.svelte';
 
@@ -15,7 +11,7 @@
 	}
 
 	let show: Display = Display.ACTIVE
-	let commitmentQuery: Promise<UserCommitment[]> = new Promise(() => {})
+	let commitmentQuery = new Promise(() => {})
 	$: if ($cph && $signer) commitmentQuery = scpUser.fetchCommitments($cph, $signer)
 
 	$: activePageOn = (display: Display) => {
@@ -44,13 +40,13 @@
 			<p>Loading...</p>
 		{:then commitments} 
 			{#if show === Display.ACTIVE}
-				{#each $scpUser.commitments.filter(
+				{#each Object.values($scpUser.commitments).filter(
 					commit => commit.status === CommitStatus.ACTIVE
 				) as commitment}
 					<CommitmentCard { commitment }/>
 				{/each}
 			{:else}
-				{#each $scpUser.commitments.filter(
+				{#each Object.values($scpUser.commitments).filter(
 					commit => commit.status !== CommitStatus.ACTIVE
 				) as commitment}
 					<CommitmentCard { commitment }/>
