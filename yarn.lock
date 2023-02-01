@@ -1576,7 +1576,7 @@ __metadata:
   dependencies:
     "@rollup/plugin-node-resolve": ^15.0.0
     "@scp/protocol": "workspace:^"
-    "@scp/sdk": "workspace:^"
+    "@scp/svelte-scp-store": "workspace:^"
     "@sveltejs/adapter-auto": next
     "@sveltejs/kit": next
     "@typescript-eslint/eslint-plugin": ^5.27.0
@@ -1584,7 +1584,6 @@ __metadata:
     eslint: ^8.16.0
     eslint-config-prettier: ^8.3.0
     eslint-plugin-svelte3: ^4.0.0
-    ethers: ^5.7.2
     prettier: ^2.6.2
     prettier-plugin-svelte: ^2.7.0
     svelte: ^3.44.0
@@ -1624,9 +1623,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@scp/sdk@workspace:^, @scp/sdk@workspace:sdk":
+"@scp/sdk@workspace:sdk":
   version: 0.0.0-use.local
   resolution: "@scp/sdk@workspace:sdk"
+  dependencies:
+    "@scp/protocol": "workspace:^"
+    ethers: ^5.7.2
   languageName: unknown
   linkType: soft
 
@@ -1658,6 +1660,15 @@ __metadata:
     typescript: ^4.7.4
     vite: ^3.1.0
     web3modal: ^1.9.9
+  languageName: unknown
+  linkType: soft
+
+"@scp/svelte-scp-store@workspace:^, @scp/svelte-scp-store@workspace:sdk/svelte-scp-store":
+  version: 0.0.0-use.local
+  resolution: "@scp/svelte-scp-store@workspace:sdk/svelte-scp-store"
+  dependencies:
+    svelte: ^3.55.1
+    svelte-ethers-store: ^2.5.9
   languageName: unknown
   linkType: soft
 
@@ -6595,6 +6606,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"svelte-ethers-store@npm:^2.5.9":
+  version: 2.5.9
+  resolution: "svelte-ethers-store@npm:2.5.9"
+  dependencies:
+    "@metamask/jazzicon": ^2.0.0
+    ethereum-blockies-base64: ^1.0.2
+    ethers: ^5.0.0
+    svelte: ^3.0.0
+    svelte-proxied-store: ^1.1.5
+  checksum: b9f9ca9cbdfb37fe85a708385b54a4aca443b70ee8c0cf2d33747d0291e75be472b7e4e6d4468f495c2fab7ca789f706a932be71314ede51afc86c52894c3892
+  languageName: node
+  linkType: hard
+
 "svelte-hmr@npm:^0.15.0":
   version: 0.15.0
   resolution: "svelte-hmr@npm:0.15.0"
@@ -6674,6 +6698,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"svelte-proxied-store@npm:^1.1.5":
+  version: 1.1.5
+  resolution: "svelte-proxied-store@npm:1.1.5"
+  checksum: de88a08c5a5d7ce00e6f9e863adb69de0c02399a84a03efd50ad27d7c2f0fe995f8876a174284083d4a126c7a0076189fab424d9bfc5b69a20ff825d42e19b79
+  languageName: node
+  linkType: hard
+
 "svelte-simple-modal@npm:^1.4.1":
   version: 1.4.1
   resolution: "svelte-simple-modal@npm:1.4.1"
@@ -6704,6 +6735,13 @@ __metadata:
   version: 3.51.0
   resolution: "svelte@npm:3.51.0"
   checksum: b1dcb48f9ebcb7cbf062b3cf71fc8f73dddfa6e56d14af4837c4cae00b52407c65d5170248d6e2e2e15937c2df84dfe93c50a552bd5ce94a59174b1f593600b2
+  languageName: node
+  linkType: hard
+
+"svelte@npm:^3.55.1":
+  version: 3.55.1
+  resolution: "svelte@npm:3.55.1"
+  checksum: ce66391bae68b2055a0a63ee0477e73f036247d4dd5abd5240372d5f4971a452ad29c4ef2c630ab089697429edd61756ef7b764e7597ad7e897ce9f8a9457fec
   languageName: node
   linkType: hard
 
