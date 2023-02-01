@@ -1,1 +1,1 @@
-import { crossfade } from "svelte/transition"
+import { crossfade } from 'svelte/transition';

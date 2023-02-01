@@ -1,4 +1,8 @@
 {
   "name": "@scp/sdk",
-  "packageManager": "yarn@3.2.4"
+  "packageManager": "yarn@3.2.4",
+  "dependencies": {
+    "@scp/protocol": "workspace:^",
+    "ethers": "^5.7.2"
+  }
 }

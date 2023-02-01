@@ -53,7 +53,7 @@ export interface UserCommitment {
 export async function getUserCommitments(
 	hub?: CommitmentHub,
 	user?: Signer
-): Promise<Map<number, UserCommitment> | undefined> {
+): Promise<Record<number, UserCommitment> | undefined> {
 	if (!hub || !user) return
 
 	const creationEvents = await queryCommitmentCreationEvents(
@@ -63,7 +63,7 @@ export async function getUserCommitments(
 
 	if (!creationEvents) return
 
-	const out = new Map<number, UserCommitment>()
+	const out: Record<number, UserCommitment> = {}
 	const queryResults = []
 	for (const { args, blockNumber } of creationEvents) {
 		const contract = getCommitment(
@@ -74,11 +74,11 @@ export async function getUserCommitments(
 
 		const queryResult = contract.status()
 			.then((status: CommitStatus) => {
-				out.set(args.id, {
+				out[args.id.toString()] = {
 					contract,
 					creationBlock: blockNumber,
 					status
-				})
+				}
 			})
 			.catch((err) => console.warn("Error getting commitment status"))
 
@@ -86,7 +86,7 @@ export async function getUserCommitments(
 	}
 
 	await Promise.allSettled(queryResults);
-	if (out.size !== creationEvents.length) {
+	if (Object.keys(out).length !== creationEvents.length) {
 		throw Error('getUserCommitments: Invariant error');
 	}
 

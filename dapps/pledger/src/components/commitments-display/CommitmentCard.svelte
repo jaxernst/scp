@@ -1,6 +1,6 @@
 <script lang="ts">
+	import { scpUser } from "$lib/scpUser";
 	import type { UserCommitment } from "@scp/sdk/src/scp-helpers";
-	import { scpUser } from "@scp/sdk/svelte-scp-stores/stores";
   import MdExpandMore from 'svelte-icons/md/MdExpandMore.svelte'
   export let commitment: UserCommitment
   let name = commitment.contract.name()

@@ -4,8 +4,9 @@
 	import type { ComponentType } from "svelte";
 	import { connectionError } from "$lib/stores/dAppReady";
 	import { cph } from "$lib/stores/stores";
-	import { scpUser } from "@scp/sdk/svelte-scp-stores/stores";
+
 	import { createCommitment } from "@scp/sdk/src/scp-helpers";
+	import { scpUser } from "$lib/scpUser";
 
     export let displayName: string
     export let commitmentType: CommitmentType

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { type UserCommitmentStore, scpUser } from '@scp/sdk/svelte-scp-stores/stores';
+	import { scpUser } from '$lib/scpUser';
 	import { cph } from '$lib/stores/stores';
 	import { CommitStatus } from '@scp/protocol/lib/types';
 	import { signer } from 'svelte-ethers-store';
@@ -38,10 +38,12 @@
 	<div class="body">
 		{#await commitmentQuery}
 			<p>Loading...</p>
-		{:then commitments} 
+		{:then} 
 			{#if show === Display.ACTIVE}
 				{#each Object.values($scpUser.commitments).filter(
-					commit => commit.status === CommitStatus.ACTIVE
+					commit => {
+						return commit.status === CommitStatus.ACTIVE
+					}
 				) as commitment}
 					<CommitmentCard { commitment }/>
 				{/each}

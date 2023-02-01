@@ -1,94 +1,96 @@
 @font-face {
-    font-family: 'Orbitron';
-    src: url('fonts/Orbitron-Regular.ttf');
-    
+	font-family: 'Orbitron';
+	src: url('fonts/Orbitron-Regular.ttf');
 }
 
 @font-face {
-    font-family: 'Karla';
-    src: url('fonts/Karla-Regular.ttf');
+	font-family: 'Karla';
+	src: url('fonts/Karla-Regular.ttf');
 }
 
 :root {
-    --background-gradient: linear-gradient(0deg, rgb(115, 203, 203) 0%, rgb(139, 113, 158) 100%);
-    --background-gradient2: linear-gradient(0deg, rgb(0, 0, 0) 0%, rgba(17, 67, 87, 1) 100%);
-    --background-gradient1: linear-gradient(0deg, rgba(242, 148, 146, 1) 0%, rgba(17, 67, 87, 1) 100%);
-    --theme-container1: rgba(255, 255, 255, 0.817);
-    --theme-container2: rgba(230, 230, 230, 0.848);
-    --theme-container3: rgb(124, 124, 124);
-    --theme-container4: rgba(27, 27, 27, 0.853);
-    
-    --theme-color1: rgba(239, 239, 239, 0.777);
-    --theme-color2: rgb(46, 46, 46);
-    --theme-color3: rgb(183, 243, 239);
-    --theme-color3-dark: rgb(102, 150, 147);
-    --theme-color4: rgb(16, 42, 56);
-    
-    --alert-color: rgba(255, 0, 0);
-    --alert-color-dark: rgba(255, 0, 0);
+	--background-gradient: linear-gradient(0deg, rgb(115, 203, 203) 0%, rgb(139, 113, 158) 100%);
+	--background-gradient2: linear-gradient(0deg, rgb(0, 0, 0) 0%, rgba(17, 67, 87, 1) 100%);
+	--background-gradient1: linear-gradient(
+		0deg,
+		rgba(242, 148, 146, 1) 0%,
+		rgba(17, 67, 87, 1) 100%
+	);
+	--theme-container1: rgba(255, 255, 255, 0.817);
+	--theme-container2: rgba(230, 230, 230, 0.848);
+	--theme-container3: rgb(124, 124, 124);
+	--theme-container4: rgba(27, 27, 27, 0.853);
 
-    --font-xsmall: 10px;
-    --font-small: 11px;
-    --font-medium: 14px;
-    --font-large: 18px;
-    --font-xlarge: 28px;
+	--theme-color1: rgba(239, 239, 239, 0.777);
+	--theme-color2: rgb(46, 46, 46);
+	--theme-color3: rgb(183, 243, 239);
+	--theme-color3-dark: rgb(102, 150, 147);
+	--theme-color4: rgb(16, 42, 56);
 
-    --border-radius4: 20px;
-    --border-radius3: 16px;
-    --border-radius2: 12px;
-    --border-radius1: 8px;
+	--alert-color: rgba(255, 0, 0);
+	--alert-color-dark: rgba(255, 0, 0);
+
+	--font-xsmall: 10px;
+	--font-small: 11px;
+	--font-medium: 14px;
+	--font-large: 18px;
+	--font-xlarge: 28px;
+
+	--border-radius4: 20px;
+	--border-radius3: 16px;
+	--border-radius2: 12px;
+	--border-radius1: 8px;
 }
 
 html {
-    background: url("/bg-image.png") no-repeat center center fixed;
-    -webkit-background-size: cover;
-    -moz-background-size: cover;
-    -o-background-size: cover;
-    background-size: cover;
-    height: 100vh;
-    width: 100vw;
+	background: url('/bg-image.png') no-repeat center center fixed;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
+	height: 100vh;
+	width: 100vw;
 }
 
 body {
-    font-family: 'Karla';
-    color: var(--theme-color2);
-    margin: 0;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    
+	font-family: 'Karla';
+	color: var(--theme-color2);
+	margin: 0;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
 }
 
 h1 {
-    font-family: 'Orbitron';
-    letter-spacing: .15em;
-    color: var(--theme-color1);
-    font-size: 20px;
+	font-family: 'Orbitron';
+	letter-spacing: 0.15em;
+	color: var(--theme-color1);
+	font-size: 20px;
 }
 
 button {
-    background: none;
-    border: none;
+	background: none;
+	border: none;
 }
 
 .button-primary {
-    font-family: 'Orbitron';
-    padding: .5em;
-    background: none;
-    border: none;
-    outline: 1px solid white;
-    border-radius: 5px;
-    color: var(--theme-color1);
-    transition: 0.2s ease-in-out;
+	font-family: 'Orbitron';
+	padding: 0.5em;
+	background: none;
+	border: none;
+	outline: 1px solid white;
+	border-radius: 5px;
+	color: var(--theme-color1);
+	transition: 0.2s ease-in-out;
 }
 
 .button-primary:hover {
-  background-color: black;
-  color: white;
-  border-color: black;
+	background-color: black;
+	color: white;
+	border-color: black;
 }
 
 .label {
-    color: var(--theme-color2);
-    font-size: small;
+	color: var(--theme-color2);
+	font-size: small;
 }

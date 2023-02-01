@@ -1,6 +1,6 @@
 import { derived, get, writable } from 'svelte/store';
 import { connected, chainId, signer } from 'svelte-ethers-store';
-import { supportedCommitmentTypes, ZERO_ADDRESS } from '$lib/constants'
+import { supportedCommitmentTypes, ZERO_ADDRESS } from '$lib/constants';
 import type { CommitmentHub } from '@scp/protocol/typechain-types';
 import { commitmentTypeVals } from '@scp/protocol/lib/types';
 import { SupportedChainId } from 'src/SupportedChainId';
@@ -22,12 +22,12 @@ type ConnectionError =
 	| 'Wrong Chain'
 	| 'No Commitment Hub Found'
 	| 'Commitment Types Not Registered'
-	| 'No Signer'
+	| 'No Signer';
 
 export const connectionError = writable<ConnectionError | null>(null);
 
 export const dAppReady = derived(
-	[chainId, connected, signer], 
+	[chainId, connected, signer],
 	([$chainId, $connected, $signer], set) => {
 		if (!$connected) {
 			connectionError.set('Not Connected');
@@ -40,8 +40,8 @@ export const dAppReady = derived(
 		}
 
 		if (!$signer) {
-			connectionError.set("No Signer")
-			return set(false)
+			connectionError.set('No Signer');
+			return set(false);
 		}
 
 		// Get SCP Hub
@@ -56,11 +56,12 @@ export const dAppReady = derived(
 					connectionError.set('Commitment Types Not Registered');
 					return set(false);
 				}
-				connectionError.set(null)
+				connectionError.set(null);
 				set(true);
 			})
 			.catch(() => set(false));
-});
+	}
+);
 
 async function supportedCommitmentsRegistered(hub: CommitmentHub) {
 	for (let type of supportedCommitmentTypes) {

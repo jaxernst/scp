@@ -14,7 +14,7 @@
 	"devDependencies": {
 		"@rollup/plugin-node-resolve": "^15.0.0",
 		"@scp/protocol": "workspace:^",
-		"@scp/sdk": "workspace:^",
+		"@scp/svelte-scp-store": "workspace:^",
 		"@sveltejs/adapter-auto": "next",
 		"@sveltejs/kit": "next",
 		"@typescript-eslint/eslint-plugin": "^5.27.0",
