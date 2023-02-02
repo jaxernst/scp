@@ -49,14 +49,14 @@ export enum CommitStatus {
     CANCELLED,
 }
 
-export enum ScheduleModules {
+export enum ScheduleModule {
     NONE,
     DEADLINE,
     ALARM,
     INTERVAL
 }
 
-export enum PenaltyModules {
+export enum PenaltyModule {
     TIMELOCK,
     DONATION
 }

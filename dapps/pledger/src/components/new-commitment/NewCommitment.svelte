@@ -32,7 +32,8 @@
         <div class=submit-button-container>
             <button 
                 disabled={!!$connectionError} 
-                class={"button-submit" + ($connectionError ? "disabled" : "")}
+                class=button-submit
+                class:$connectionError={"disabled"}
             >
                 {$connectionError ?? "Submit ->"}
             </button>

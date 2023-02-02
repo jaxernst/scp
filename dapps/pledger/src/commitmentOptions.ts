@@ -1,8 +1,5 @@
-import NewBaseCommitment from './components/new-commitment/form-components/NewBaseCommitment.svelte';
-import NewTimelockingDeadlineTask from './components/new-commitment/form-components/NewTimelockingDeadlineTask.svelte';
-import NewTodo from './components/new-commitment/form-components/NewTodo.svelte';
-import ToDoCard from './components/commitments-display/ToDoCard.svelte';
 import type { CommitmentType } from '@scp/protocol/lib/types';
+import CreateDeadlineCommitment from './components/new-commitment/form-components/CreateDeadlineCommitment.svelte'
 
 export type CommitmentOption = {
 	id: number;
@@ -15,27 +12,14 @@ export type CommitmentOption = {
 export const commitmentOptions: CommitmentOption[] = [
 	{
 		id: 0,
-		name: 'Todo',
-		commitmentType: 'BaseCommitment',
-		formComponent: NewTodo,
-		displayCardContent: ToDoCard
+		name: 'Deadline',
+		commitmentType: 'TimelockingDeadlineTask',
+		formComponent: CreateDeadlineCommitment
 	},
 	{
 		id: 1,
-		name: 'Timelock  Deadline',
-		commitmentType: 'TimelockingDeadlineTask',
-		formComponent: NewTimelockingDeadlineTask
-	},
-	{
-		id: 2,
 		name: 'Goal',
 		commitmentType: 'BaseCommitment',
-		formComponent: NewBaseCommitment
+		formComponent: CreateDeadlineCommitment
 	},
-	{
-		id: 3,
-		name: 'Alarm',
-		commitmentType: 'BaseCommitment',
-		formComponent: NewBaseCommitment
-	}
 ];
