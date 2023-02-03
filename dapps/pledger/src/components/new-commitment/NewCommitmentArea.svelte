@@ -60,9 +60,7 @@
                 commitmentType={activeOption.commitmentType}
                 formComponent={activeOption.formComponent}
                 onExit={onExit}
-            >
-                <svelte:component this={activeOption.formComponent}/>
-            </NewCommitment>
+            />
         </div>
     {/if}
 </div>

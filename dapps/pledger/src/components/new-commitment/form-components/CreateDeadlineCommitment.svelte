@@ -1,5 +1,8 @@
 <script lang=ts>
-	import { PenaltyModule } from "@scp/sdk/types/types";
+	import { PenaltyModule } from "@scp/sdk/src/types";
+  import { EthSymbol } from "@scp/dapp-lib";
+  import { formData } from "../formData";
+	import type { CommitmentType, InitializationTypes } from "@scp/protocol/lib/types";
 
 
   let taskDescription: string
@@ -7,7 +10,22 @@
   let deadlineTime: string
   let penaltyModule: PenaltyModule | undefined
   let collatoralVal: number
-  $: console.log(penaltyModule)
+
+  let initData: InitializationTypes[CommitmentType] = {
+
+  }
+
+  $: deadlineTimestamp = Math.floor(
+    new Date(deadlineDate + " " + deadlineTime).getTime() / 1000
+  )
+
+  $: if (penaltyModule) {
+    formData.set({
+      deadline: deadlineTimestamp,
+      submissionWindow: 60*60
+
+    })
+  }
 </script>
 
 <div class=container>
@@ -30,7 +48,7 @@
       id=deadline
       type=date 
       bind:value={deadlineDate}
-      placeholder="date"
+      placeholder=date
       class=input-item
   />
   <input 
@@ -43,20 +61,21 @@
 </div>
 
 <div class=line>
-  <label for=penalty class=fixed-width>Penalty Module:</label>
+  <label for=penalty class="nowrap">Penalty Module:</label>
   <select name=penalty class=input-item bind:value={penaltyModule}>
     <option>None</option>
     <option value={PenaltyModule.TIMELOCK}>Timelock</option>
   </select>
   {#if penaltyModule === PenaltyModule.TIMELOCK}
+    <label for=collatoral>Collatoral:</label>
     <input 
-      type=range 
+      name=collatoral
+      type=number
+      class=input-item
       bind:value={collatoralVal}
-      min=0
-      max=100000
-      class=fixed-width
+      style="width: 60px"
     />
-    {#if collatoralVal} {collatoralVal / 100000} {/if}
+    <EthSymbol/>
   {/if}
 </div>
 
@@ -73,8 +92,9 @@
     justify-content: space-evenly;
   }
 
-  .full-width {
-    width: 100%;
+  .nowrap {
+    white-space: nowrap;
+    overflow: hidden;
   }
 
   label {
@@ -95,7 +115,4 @@
     gap: .5em;
   }
 
-  .fixed-width {
-    width: 50px;
-  }
 </style>
