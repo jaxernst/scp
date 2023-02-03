@@ -1570,11 +1570,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@scp/dapp-lib@workspace:^, @scp/dapp-lib@workspace:dapps/lib":
+  version: 0.0.0-use.local
+  resolution: "@scp/dapp-lib@workspace:dapps/lib"
+  languageName: unknown
+  linkType: soft
+
 "@scp/interface@workspace:^, @scp/interface@workspace:dapps/pledger":
   version: 0.0.0-use.local
   resolution: "@scp/interface@workspace:dapps/pledger"
   dependencies:
     "@rollup/plugin-node-resolve": ^15.0.0
+    "@scp/dapp-lib": "workspace:^"
     "@scp/protocol": "workspace:^"
     "@scp/svelte-scp-store": "workspace:^"
     "@sveltejs/adapter-auto": next
