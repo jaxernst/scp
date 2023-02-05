@@ -33,7 +33,7 @@
 <div class=transition-wrapper>
     {#if activeDisplay === Display.CARDS}
         <div 
-            style="display: flex; flex-direction:column; gap:.5em" 
+            style="display: flex; flex-direction: column; gap: .5em" 
             transition:fade="{{duration}}"
         >
             <div class=label style="display: flex;">New Commitment</div>
@@ -57,7 +57,6 @@
         >
             <NewCommitment
                 displayName={activeOption.name} 
-                commitmentType={activeOption.commitmentType}
                 formComponent={activeOption.formComponent}
                 onExit={onExit}
             />
