@@ -1,4 +1,4 @@
-import { ContractReceipt, ContractTransaction, Signer } from "ethers";
+import { BigNumber, ContractReceipt, ContractTransaction, Signer } from "ethers";
 import { derived, get, writable } from "svelte/store";
 import type {
   contracts as ContractsStore,
@@ -69,13 +69,14 @@ export function MakeUserCommitmentStore(
     fetchCommitments();
   };
 
-  const _createCommitment = async <T extends CommitmentType>(
+  const _createCommitment = <T extends CommitmentType>(
     type: T,
-    initData: InitializationTypes[T]
+    initData: InitializationTypes[T],
+    txVal?: BigNumber
   ) => {
     const hub = get(cph);
     if (!hub) throw Error("No Hub Found");
-    const tx = createCommitment(hub, type, initData);
+    const tx = createCommitment(hub, type, initData, txVal);
     addTx(tx)
     return tx
   };
