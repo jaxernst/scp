@@ -2,11 +2,16 @@ import { ContractReceipt, ContractTransaction, Signer } from "ethers";
 import { derived, get, writable } from "svelte/store";
 import type {
   contracts as ContractsStore,
-  signer as SignerStore
+  signer as SignerStore,
 } from "svelte-ethers-store";
-import { getUserCommitments, type UserCommitment } from "../src/scp-helpers";
+import {
+  createCommitment,
+  getUserCommitments,
+  type UserCommitment,
+} from "../src/scp-helpers";
 
 import type { CommitmentHub } from "@scp/protocol/typechain-types";
+import { CommitmentType, InitializationTypes } from "../src/types";
 
 export interface UserCommitmentStore {
   commitments: UserCommitment[];
@@ -14,14 +19,21 @@ export interface UserCommitmentStore {
   rcs: ContractReceipt[];
 }
 
-export function MakeUserCommitmentStore(contracts: typeof ContractsStore, signer: typeof SignerStore) {
+export function MakeUserCommitmentStore(
+  contracts: typeof ContractsStore,
+  signer: typeof SignerStore
+) {
   /**
    * Store definitions
    */
   const txs = writable<ContractTransaction[]>([]);
   const rcs = writable<ContractReceipt[]>([]);
   const commitments = writable<Record<number, UserCommitment>>({});
-  const cph = derived(contracts, $contracts => $contracts["CommitmentHub"] as unknown as CommitmentHub )
+  const cph = derived(
+    contracts,
+    ($contracts) =>
+      $contracts["CommitmentHub"] as unknown as CommitmentHub | undefined
+  );
 
   /**
    * Store operations/functions
@@ -31,7 +43,7 @@ export function MakeUserCommitmentStore(contracts: typeof ContractsStore, signer
     _signer?: Signer
   ): Promise<Record<number, UserCommitment>> => {
     _signer = _signer ?? get(signer);
-    _hub = _hub ?? get(cph)
+    _hub = _hub ?? get(cph);
 
     if (!_hub || !_signer) return {};
 
@@ -39,7 +51,7 @@ export function MakeUserCommitmentStore(contracts: typeof ContractsStore, signer
     const result = await getUserCommitments(_hub, _signer);
 
     if (result) {
-      console.log("Updating commitments")
+      console.log("Updating commitments");
       commitments.set(result);
     }
 
@@ -57,12 +69,23 @@ export function MakeUserCommitmentStore(contracts: typeof ContractsStore, signer
     fetchCommitments();
   };
 
+  const _createCommitment = async <T extends CommitmentType>(
+    type: T,
+    initData: InitializationTypes[T]
+  ) => {
+    const hub = get(cph);
+    if (!hub) throw Error("No Hub Found");
+    const tx = createCommitment(hub, type, initData);
+    addTx(tx)
+    return tx
+  };
+
   return {
     // The primary store data is derived from the following stores: txs, rcs, commitments
     subscribe: derived(
       [txs, rcs, commitments],
       ([$txs, $rcs, $commitments]) => {
-        console.log("Updating main store")
+        console.log("Updating main store");
         return {
           commitments: $commitments,
           txs: $txs,
@@ -72,7 +95,7 @@ export function MakeUserCommitmentStore(contracts: typeof ContractsStore, signer
     ).subscribe,
     fetchCommitments,
     startListener: () => {}, // Not implemented
+    createCommitment: _createCommitment,
     addTx,
   };
 }
-
