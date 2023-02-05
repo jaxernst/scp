@@ -4,7 +4,7 @@
 </script>
 
 <div class="header">
-	<h1>The Social Commitment Protocol</h1>
+	<h1>Pledger </h1>
 	<div class=account-area>
 		<ConnectionStatus/>
 	</div>
