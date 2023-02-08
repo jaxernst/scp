@@ -39,7 +39,7 @@ contract BaseCommitment is ICommitment {
             (string, string)
         ); 
 
-        emit CommitmentCreated(description);
+        emit CommitmentInitialized(description);
     }
 
     function submitConfirmationWithProof(string memory proofUri) public virtual override onlyOwner {

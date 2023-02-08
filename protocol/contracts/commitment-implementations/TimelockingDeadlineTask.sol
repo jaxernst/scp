@@ -44,7 +44,7 @@ contract TimelockingDeadlineTask is BaseCommitment {
         schedule.init(deadline, submissionWindow);
         penalizer.init(msg.value, timelockDuration);
 
-        emit CommitmentCreated(taskDescription);
+        emit CommitmentInitialized(taskDescription);
     }
     
     /**
