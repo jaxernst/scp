@@ -9,7 +9,7 @@
         "type": "string"
       }
     ],
-    "name": "CommitmentCreated",
+    "name": "CommitmentInitialized",
     "type": "event"
   },
   {
