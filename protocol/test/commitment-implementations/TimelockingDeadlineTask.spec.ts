@@ -39,6 +39,16 @@ describe("Commitment Implementation #1: TimelockDeadlineTask", () => {
         commitment = await initCommitment()
         user = commitment.signer
     })
+
+    it("Emits the taskDescription as an event after initializing", async () => {
+      const result = await commitment.queryFilter(
+        commitment.filters.CommitmentInitialized()
+      )
+
+      expect(result.length).to.equal(1)
+      expect(result[0].args.description).to.equal(taskDescription)
+    })
+
     it("Does not allow confirmations to be submitted before the submission window", async () => {
         await expect(commitment.submitConfirmation()).to.be.revertedWith("NOT_IN_SUBMISSION_WINDOW")
         await expect(commitment.submitConfirmationWithProof("")).to.be.revertedWith("NOT_IN_SUBMISSION_WINDOW")
