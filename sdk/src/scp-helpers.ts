@@ -9,6 +9,7 @@ import {
 	type InitializationTypes
 } from '@scp/protocol/lib/types';
 import type { CommitmentHub } from '@scp/protocol/typechain-types';
+import { BaseCommitment, CommitmentInitializedEvent } from '@scp/protocol/typechain-types/contracts/BaseCommitment';
 import type { CommitmentCreationEvent } from '@scp/protocol/typechain-types/contracts/CommitmentHub.sol/CommitmentHub';
 import { ethers, Signer, type BigNumberish } from 'ethers';
 
@@ -46,7 +47,8 @@ export function getCommitment<T extends keyof CommitmentContractTypes>(
 
 export interface UserCommitment {
 	contract: CommitmentContractTypes[CommitmentType];
-	creationBlock: number
+	creationBlock: number;
+	description: string;
 	status: CommitStatus;
 }
 
@@ -72,25 +74,23 @@ export async function getUserCommitments(
 			user
 		);
 
-		const queryResult = contract.status()
-			.then((status: CommitStatus) => {
-				out[args.id.toString()] = {
-					contract,
-					creationBlock: blockNumber,
-					status
-				}
-			})
-			.catch((err) => console.warn("Error getting commitment status"))
+		out[args.id.toNumber()] = {
+			contract,
+			creationBlock: blockNumber,
+			description: await getDescription(contract),
+			status: await contract.status(),
+		}
 
-		queryResults.push(queryResult)
-	}
-
-	await Promise.allSettled(queryResults);
-	if (Object.keys(out).length !== creationEvents.length) {
-		throw Error('getUserCommitments: Invariant error');
 	}
 
 	return out;
+}
+
+export async function getDescription(commit: BaseCommitment) {
+	const initEvent = await commit.queryFilter(
+		commit.filters.CommitmentInitialized(),
+	)
+	return initEvent[0].args.description
 }
 
 export async function queryCommitmentCreationEvents(hub: CommitmentHub, address: string) {
