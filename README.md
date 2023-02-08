@@ -29,7 +29,7 @@ Commitments are independent, ownable smart contracts. Deploying new bytecode for
 ## Base Commitment
 ```solidity
 interface ICommitment {
-    event CommitmentCreated(string description);
+    event CommitmentInitialized(string description);
     event ConfirmationSubmitted();
     event ProofSubmitted(string uri, uint proofId);
     event StatusChanged(Status from, Status to);
