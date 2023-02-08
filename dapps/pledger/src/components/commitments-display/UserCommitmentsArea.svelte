@@ -2,6 +2,7 @@
 	import { scpUser } from '$lib/scpUser';
 	import { cph } from '$lib/stores/stores';
 	import { CommitStatus } from '@scp/protocol/lib/types';
+	import type { UserCommitment } from '@scp/sdk/src/scp-helpers';
 	import { signer } from 'svelte-ethers-store';
 	import CommitmentCard from './CommitmentCard.svelte';
 
@@ -10,14 +11,21 @@
 		PAST
 	}
 
-	let show: Display = Display.ACTIVE
-	let commitmentQuery = new Promise(() => {})
-	$: if ($cph && $signer) commitmentQuery = scpUser.fetchCommitments($cph, $signer)
+	let show: Display = Display.ACTIVE;
+	let commitmentQuery = new Promise(() => {});
+	$: if ($cph && $signer) commitmentQuery = scpUser.fetchCommitments($cph, $signer);
 
 	$: activePageOn = (display: Display) => {
 		return show === display ? 'active-page' : '';
 	};
 
+	const statusFilter = (show: Display) => {
+		if (show === Display.ACTIVE) {
+			return (commit: UserCommitment) => commit.status === CommitStatus.ACTIVE;
+		} else {
+			return (commit: UserCommitment) => commit.status !== CommitStatus.ACTIVE;
+		}
+	};
 </script>
 
 <div class="container">
@@ -38,22 +46,10 @@
 	<div class="body">
 		{#await commitmentQuery}
 			<p>Loading...</p>
-		{:then} 
-			{#if show === Display.ACTIVE}
-				{#each Object.values($scpUser.commitments).filter(
-					commit => {
-						return commit.status === CommitStatus.ACTIVE
-					}
-				) as commitment}
-					<CommitmentCard { commitment }/>
-				{/each}
-			{:else}
-				{#each Object.values($scpUser.commitments).filter(
-					commit => commit.status !== CommitStatus.ACTIVE
-				) as commitment}
-					<CommitmentCard { commitment }/>
-				{/each}
-			{/if}
+		{:then}
+			{#each Object.values($scpUser.commitments).filter(statusFilter(show)) as commitment}
+				<CommitmentCard {commitment}/>
+			{/each}
 		{/await}
 	</div>
 </div>
@@ -62,8 +58,8 @@
 	.container {
 		display: flex;
 		flex-direction: column;
-    	height: 100%;
-    	box-sizing: border-box;
+		height: 100%;
+		box-sizing: border-box;
 	}
 
 	.header {
@@ -76,13 +72,13 @@
 	}
 	.active-page {
 		background-color: var(--theme-container2);
-    	transition: background-color .2s;
+		transition: background-color 0.2s;
 	}
 
 	.body {
 		display: flex;
 		flex-direction: column;
-		gap: .5em;
+		gap: 0.5em;
 		overflow-y: auto;
 		padding: 1em;
 	}
