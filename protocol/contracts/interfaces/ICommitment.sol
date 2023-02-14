@@ -4,7 +4,7 @@ pragma solidity ^0.8.9;
 import "../types.sol";
 
 interface ICommitment {
-    event CommitmentCreated(string description);
+    event CommitmentInitialized(string description);
     event ConfirmationSubmitted();
     event ProofSubmitted(string uri, uint proofId);
     event ConfirmationRevoked(string uri, uint proofId);
