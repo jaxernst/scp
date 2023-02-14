@@ -1,86 +1,80 @@
-<script lang=ts>
-    import { expoInOut } from "svelte/easing";
-	import { crossfade, fade } from "svelte/transition";
-	
-    import NewCommitment from "./NewCommitment.svelte";
-    import { commitmentOptions, type CommitmentOption } from "../../commitmentOptions"
+<script lang ts>
+	import { expoInOut } from 'svelte/easing';
+	import { crossfade, fade } from 'svelte/transition';
 
-    enum Display {
-        CARDS,
-        NEW_COMMITMENT
-    }
-    
-    let activeDisplay = Display.CARDS
-    let activeOption: null | CommitmentOption = null
-    
-    const showNewCommitment = (id: number) => {
-        activeDisplay = Display.NEW_COMMITMENT
-        activeOption = commitmentOptions[id]
-    }
+	import NewCommitment from './NewCommitment.svelte';
+	import { commitmentOptions, type CommitmentOption } from '../../commitmentOptions';
 
-    const onExit = () => {
-        activeDisplay = Display.CARDS
-    }
-
-    const duration = 500
-    export const [send, receive] = crossfade({ 
-        duration,
-        easing: expoInOut
-    })
-
-</script>
-
-<div class=transition-wrapper>
-    {#if activeDisplay === Display.CARDS}
-        <div 
-            style="display: flex; flex-direction:column; gap:.5em" 
-            transition:fade="{{duration}}"
-        >
-            <div class=label style="display: flex;">New Commitment</div>
-            <div class="card-area transition-replace">
-            {#each commitmentOptions as option}
-                <button 
-                    class="card-button-decor card-layout" 
-                    on:click={() => showNewCommitment(option.id)}
-                    in:receive="{{key:option.id}}"
-                    out:send="{{key:option.id}}"
-                >
-                <span>{option.name}</span>
-            </button>
-            {/each}
-        </div>
-    </div>
-    {:else if activeDisplay === Display.NEW_COMMITMENT && activeOption}
-        <div 
-            in:receive="{{key:activeOption.id}}"
-            out:send="{{key:activeOption.id}}"
-        >
-            <NewCommitment
-                displayName={activeOption.name} 
-                commitmentType={activeOption.commitmentType}
-                formComponent={activeOption.formComponent}
-                onExit={onExit}
-            />
-        </div>
-    {/if}
-</div>
-<style>
-    .card-area {
-		margin: 0;
-        flex-grow: 1;
-        display: flex;
-        gap: .5em;
+	enum Display {
+		CARDS,
+		NEW_COMMITMENT
 	}
 
-    .transition-wrapper {
-        flex-grow: 1;
-        display: grid;
-    }
+	let activeDisplay = Display.CARDS;
+	let activeOption: null | CommitmentOption = null;
 
-    .transition-wrapper > div {
-        grid-row: 1;
-        grid-column: 1;
-    }
+	const showNewCommitment = (id: number) => {
+		activeDisplay = Display.NEW_COMMITMENT;
+		activeOption = commitmentOptions[id];
+	};
+
+	const onExit = () => {
+		activeDisplay = Display.CARDS;
+	};
+
+	const duration = 500;
+	export const [send, receive] = crossfade({
+		duration,
+		easing: expoInOut
+	});
+</script>
+
+<div class="transition-wrapper">
+	{#if activeDisplay === Display.CARDS}
+		<div style="display: flex; flex-direction:column; gap:.5em" transition:fade={{ duration }}>
+			<div class="label" style="display: flex;">New Commitment</div>
+			<div class="card-area transition-replace">
+				{#each commitmentOptions as option}
+					<button
+						class="card-button-decor card-layout"
+						on:click={() => showNewCommitment(option.id)}
+						in:receive={{ key: option.id }}
+						out:send={{ key: option.id }}
+					>
+						<span>{option.name}</span>
+					</button>
+				{/each}
+			</div>
+		</div>
+	{:else if activeDisplay === Display.NEW_COMMITMENT && activeOption}
+		<div in:receive={{ key: activeOption.id }} out:send={{ key: activeOption.id }}>
+			<NewCommitment
+				displayName={activeOption.name}
+				commitmentType={activeOption.commitmentType}
+				formComponent={activeOption.formComponent}
+				{onExit}
+			/>
+		</div>
+	{/if}
+</div>
+
+<style>
+	.card-area {
+		margin: 0;
+		flex-grow: 1;
+		display: flex;
+		gap: 0.5em;
+	}
+
+	.transition-wrapper {
+		flex-grow: 1;
+		display: grid;
+	}
+
+	.transition-wrapper > div {
+		grid-row: 1;
+		grid-column: 1;
+	}
 
 	.card-button-decor {
 		font-family: 'Orbitron';
@@ -90,7 +84,7 @@
 		background-color: var(--theme-container1);
 		min-width: 55px;
 		height: 55px;
-		transition: color .2s, box-shadow .4s, background-color .1s;
+		transition: color 0.2s, box-shadow 0.4s, background-color 0.1s;
 	}
 
 	.card-button-decor:hover {
