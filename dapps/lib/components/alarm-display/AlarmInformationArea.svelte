@@ -1,5 +1,5 @@
 <script>
-	import LabeledLine from '../LabeledLine.svelte';
+	import LabeledLine from '../../../pledger/src/components/unused/LabeledLine.svelte';
 	import AlarmActiveDays from './AlarmActiveDays.svelte';
 	import AlarmStats from './AlarmStats.svelte';
 

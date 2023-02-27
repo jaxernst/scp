@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	export let overrideTime: string | null = null
+	export let fontSize: string = "5rem"
 
 	let date = new Date();
 	
@@ -35,7 +36,7 @@
 
 </script>
 
-<div class="clock-text-container">
+<div class="clock-text-container" style="--font-size: {fontSize}">
 	<div class="clock-text">
 		{time}
 	</div>
@@ -55,10 +56,10 @@
 		position: relative;
 		display: flex;
 		justify-content: center;
+		align-items: center;
 		text-align: center;
 		overflow: hidden;
 		white-space: nowrap;
-		padding: 1em ;
 	}
 	
 	.clock-text {
@@ -67,7 +68,6 @@
 		font-family: "digital-clock", sans-serif;
 		font-weight: 400;
 		color: white;
-		transform: translateY(11%);
 	}
 
 	.background {
@@ -75,5 +75,4 @@
 		position: absolute;
 		text-shadow: 5px 3px #000000;
 	}
-
 </style>
