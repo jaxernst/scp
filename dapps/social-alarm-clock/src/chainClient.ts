@@ -33,6 +33,7 @@ export const web3Modal = derived(ethClient, ($ethClient) => new Web3Modal(
   $ethClient
   )
 )
+
 export const account = writable<GetAccountResult | undefined>()
 export const ensName = writable<string | undefined>()
 

@@ -3,13 +3,17 @@
   import { getAccount } from "@wagmi/core";
   import { ensName, web3Modal } from "./chainClient";
   import { account } from "./chainClient";
+  import Web3Status from "./Web3Status.svelte";
 
   let accountHasAlarm = false
 </script>
 
 <main>
   <div class="clock-container">
-    <div>The Social Alarm Clock</div>
+    <div class="header">
+      <div class="title">The Social Alarm Clock</div>
+      <Web3Status/>
+    </div>
     <div>
       <ClockDisplay />
     </div>
@@ -59,7 +63,18 @@
   }
 
   .connect-wallet-button {
-    padding: 1.5em;
-    background: none;
+    padding: 1em;
+    margin: 1em;
   }
+
+  .header {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+  }
+
+  .title {
+    grid-column: 2/3;
+  }
+
+
 </style>
