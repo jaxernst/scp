@@ -8,7 +8,7 @@
     displayName = $ensName ? $ensName : shorthandAddress($account.address)
   }
 
-  let indicatorColor = $account && $account.isConnected ? "green" : "red"
+  $: indicatorColor = $account && $account.isConnected ? "green" : "red"
 </script>
 
 {#if $account && displayName}
@@ -35,6 +35,6 @@
 
     .displayName {
       font-size: smaller;
-      color: rgb(168, 121, 44);
+      color: rgb(201, 145, 34);
     }
 </style>
