@@ -4,13 +4,13 @@
 </script>
 
 <div class="header">
-	<h1>Pledger </h1>
-	<div class=account-area>
-		<ConnectionStatus/>
+	<h1>Pledger</h1>
+	<div class="account-area">
+		<ConnectionStatus />
 	</div>
 </div>
 
-<slot/>
+<slot />
 
 <style>
 	.header {
