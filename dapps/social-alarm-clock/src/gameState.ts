@@ -1,11 +1,11 @@
-import { writable } from "svelte/store"
+import { writable } from "svelte/store";
 
- enum View {
+enum View {
   CONNECT_WALLET,
   NO_ACTIVE_GAME,
   CREATE_ALARM,
   JOIN_ALARM,
-  ALARM_ACTIVE
+  ALARM_ACTIVE,
 }
 
-export const gameActive = writable(false)
+export const gameActive = writable(false);
