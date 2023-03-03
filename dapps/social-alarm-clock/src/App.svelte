@@ -44,7 +44,7 @@
     },
   };
 
-  const selected = writable(0)
+  const selected = writable(0);
   const itemWheel = {
     numItems: 5,
     _i: 1,
@@ -85,7 +85,7 @@
       {:else if view === View.CREATE_ALARM}
         <div class="wide-bar">
           <div on:click={() => itemWheel.prev()}>{"<-"}</div>
-          
+
           {#if $selected === 1}
             <div>
               Select Days
@@ -99,7 +99,7 @@
               </div>
             </div>
           {:else if $selected}
-            <div >
+            <div>
               <div>Select Time</div>
               <input id="select-time" type="time" />
             </div>
