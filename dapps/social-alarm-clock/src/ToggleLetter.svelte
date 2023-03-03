@@ -1,9 +1,9 @@
 <script lang="ts">
-  export let value: string = ''
-  export let toggled = false
+  export let value: string = "";
+  export let toggled = false;
 </script>
 
-<button style="all:unset" on:click={() => toggled = !toggled}>
+<button style="all:unset" on:click={() => (toggled = !toggled)}>
   <div class={"letter" + (toggled ? "active" : "")}>
     {value}
   </div>
