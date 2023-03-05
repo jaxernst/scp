@@ -1,12 +1,21 @@
-import { derived, get, writable } from "svelte/store"
-  import { configureChains, createClient, fetchEnsName, getAccount, type GetAccountResult } from "@wagmi/core";
-  import { arbitrum, mainnet, polygon } from "@wagmi/core/chains";
-  import { Web3Modal } from "@web3modal/html";
-  import {
-    EthereumClient,
-    modalConnectors,
-    walletConnectProvider,
-  } from "@web3modal/ethereum";
+import { derived, get, writable } from "svelte/store";
+import CommitmentHubAbi from "@scp/sdk/abi/CommitmentHub.json";
+import {
+  configureChains,
+  createClient,
+  fetchEnsName,
+  getAccount,
+  prepareWriteContract,
+  type GetAccountResult,
+  watchAccount,
+} from "@wagmi/core";
+import { arbitrum, mainnet, polygon } from "@wagmi/core/chains";
+import { Web3Modal } from "@web3modal/html";
+import {
+  EthereumClient,
+  modalConnectors,
+  walletConnectProvider,
+} from "@web3modal/ethereum";
 
 const chains = [arbitrum, mainnet, polygon];
 
@@ -26,28 +35,28 @@ const wagmiClient = createClient({
   provider,
 });
 
-export const ethClient = writable(new EthereumClient(wagmiClient, chains))
+export const ethClient = writable(new EthereumClient(wagmiClient, chains));
 
-export const web3Modal = derived(ethClient, ($ethClient) => new Web3Modal(
-  { projectId: "698bddafdbc932fc6eb19c24ab471c3a" },
-  $ethClient
-  )
-)
+export const web3Modal = derived(
+  ethClient,
+  ($ethClient) =>
+    new Web3Modal({ projectId: "698bddafdbc932fc6eb19c24ab471c3a" }, $ethClient)
+);
 
-export const account = writable<GetAccountResult | undefined>()
-export const ensName = writable<string | undefined>()
+export const account = writable<GetAccountResult | undefined>();
+export const ensName = writable<string | undefined>();
 
 get(ethClient).watchAccount(async (_account) => {
-  if (!_account.isConnected) return  account.set(undefined)
-  
-  account.set(_account)
+  if (!_account.isConnected) return account.set(undefined);
+
+  account.set(_account);
 
   let _ensName: string;
   try {
-    _ensName = await fetchEnsName({ address: _account.address})
+    _ensName = await fetchEnsName({ address: _account.address });
   } catch {
-    return
+    return;
   }
 
-  ensName.set(_ensName)
-})
+  ensName.set(_ensName);
+});
