@@ -1,14 +1,9 @@
 <script lang="ts">
   import { ClockDisplay } from "@scp/dapp-lib";
-  import { getAccount } from "@wagmi/core";
-  import { ensName, web3Modal } from "./chainClient";
+  import { web3Modal } from "./chainClient";
   import { account } from "./chainClient";
   import Web3Status from "./Web3Status.svelte";
   import { createGameOptions, gameActive } from "./gameState";
-  import AlarmClockFace from "./AlarmClockFace.svelte";
-  import { derived, get, writable } from "svelte/store";
-  import ToggleLetter from "./ToggleLetter.svelte";
-  import type { SvelteComponentDev } from "svelte/internal";
   import CreateNewAlarm from "./create-new-alarm/CreateNewAlarm.svelte";
 
   let joinGameAddress = "";
@@ -43,7 +38,7 @@
       <div style="width:min-content">
         {#if showBack}
           <button on:click={() => (view = initView())} class="light-button"
-            >{"<-"}</button
+            >{"x"}</button
           >
         {/if}
       </div>
@@ -128,10 +123,5 @@
     align-items: center;
     flex-wrap: wrap;
     gap: 1em;
-  }
-
-  .days {
-    display: flex;
-    gap: 0.5em;
   }
 </style>
