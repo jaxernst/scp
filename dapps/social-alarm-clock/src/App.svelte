@@ -4,11 +4,12 @@
   import { ensName, web3Modal } from "./chainClient";
   import { account } from "./chainClient";
   import Web3Status from "./Web3Status.svelte";
-  import { gameActive } from "./gameState";
+  import { createGameOptions, gameActive } from "./gameState";
   import AlarmClockFace from "./AlarmClockFace.svelte";
-  import { get, writable } from "svelte/store";
+  import { derived, get, writable } from "svelte/store";
   import ToggleLetter from "./ToggleLetter.svelte";
   import type { SvelteComponentDev } from "svelte/internal";
+  import CreateNewAlarm from "./create-new-alarm/CreateNewAlarm.svelte";
 
   let joinGameAddress = "";
   let accountHasAlarm = false;
@@ -32,29 +33,8 @@
 
   $: showBack = [View.CREATE_ALARM, View.JOIN_ALARM].includes(view);
 
-  const alarmSetup = {
-    days: {
-      M: false,
-      T: false,
-      W: false,
-      Th: false,
-      F: false,
-      Sa: false,
-      Su: false,
-    },
-  };
-
-  const selected = writable(0);
-  const itemWheel = {
-    numItems: 5,
-    _i: 1,
-    next: function () {
-      selected.update(() => ++this._i % this.numItems);
-    },
-    prev: function () {
-      selected.update(() => --this._i % this.numItems);
-    },
-  };
+  $: selected = $createGameOptions.selected;
+  $: console.log(selected);
 </script>
 
 <main>
@@ -62,7 +42,7 @@
     <div class="header">
       <div style="width:min-content">
         {#if showBack}
-          <button on:click={() => (view = initView())} class="back-button"
+          <button on:click={() => (view = initView())} class="light-button"
             >{"<-"}</button
           >
         {/if}
@@ -83,42 +63,7 @@
         >
         <button on:click={() => (view = View.JOIN_ALARM)}>Join Alarm</button>
       {:else if view === View.CREATE_ALARM}
-        <div class="wide-bar">
-          <div on:click={() => itemWheel.prev()}>{"<-"}</div>
-
-          {#if $selected === 1}
-            <div>
-              Select Days
-              <div class="days">
-                {#each Object.keys(alarmSetup.days) as day}
-                  <ToggleLetter
-                    value={day}
-                    bind:toggled={alarmSetup.days[day]}
-                  />
-                {/each}
-              </div>
-            </div>
-          {:else if $selected}
-            <div>
-              <div>Select Time</div>
-              <input id="select-time" type="time" />
-            </div>
-          {:else if $selected}
-            <div>
-              <div>Timezone Mode</div>
-              <select>
-                <option>Same Time of Day</option>
-                <option>Same Absolute Time</option>
-              </select>
-            </div>
-          {:else if $selected}
-            <div>
-              <div>Buy In</div>
-              <input type="number" />
-            </div>
-          {/if}
-          <div on:click={itemWheel.next}>{"->"}</div>
-        </div>
+        <CreateNewAlarm />
       {:else if view === View.JOIN_ALARM}
         <div class="wide-bar">
           <label for="address">Enter Partner's Address: </label>
@@ -183,12 +128,6 @@
     align-items: center;
     flex-wrap: wrap;
     gap: 1em;
-  }
-
-  .back-button {
-    background: none;
-    background-color: rgb(60, 60, 60);
-    padding: 0.3em 0.5em;
   }
 
   .days {
