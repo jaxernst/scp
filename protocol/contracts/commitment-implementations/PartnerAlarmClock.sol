@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
+/**
 import "../BaseCommitment.sol";
 import "../schedule-modules/AlarmSchedule.sol";
 import "../penalty-modules/DonationPenalty.sol";
@@ -10,13 +11,12 @@ enum AlarmTimezoneMode {
     SAME_RELATIVE_TIME
 }
 
-/**
   The partner alarm clock is a commitment contract that allows two people to set an 'alarm'
   together, which represents an agreement for both parties to wake up at the same time on the
   designated days. To verify that each party has woken up, they simply need to submit a 
   confirmation transaction before the alarm time. Failure to do so can result in a penalty
   that will transfer funds to the other party.
- */
+ 
 contract PartnerAlarmClock is BaseCommitment {
     string constant IMPLEMENTATION_NAME = "Partner Alarm Clock";
 
@@ -55,7 +55,7 @@ contract PartnerAlarmClock is BaseCommitment {
 
     /**
      * Only party2 can activate the alarm clock schedule
-     */
+     
     function start() public payable {
         require(msg.value >= betAmount, "INSUFFICIENT_FUNDS_SENT");
         require(msg.sender == otherPlayer, "ONLY_PLAYER_2_CAN_START");
@@ -69,6 +69,8 @@ contract PartnerAlarmClock is BaseCommitment {
     /**
      * Allow either player to 'confirm' a wakeup. Wakeups must be submitted within
      * the submission window for the entry to be recorded
-     */
+     *
     function submitConfirmation() public payable {}
 }
+
+*/
