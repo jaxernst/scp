@@ -1,7 +1,7 @@
 import { HardhatUserConfig } from "hardhat/config";
-import '@nomiclabs/hardhat-ethers';
-import '@nomicfoundation/hardhat-chai-matchers';
-import 'hardhat-abi-exporter'
+import "@nomiclabs/hardhat-ethers";
+import "@nomicfoundation/hardhat-chai-matchers";
+import "hardhat-abi-exporter";
 import "@typechain/hardhat";
 
 const config: HardhatUserConfig = {
@@ -9,16 +9,17 @@ const config: HardhatUserConfig = {
   abiExporter: [
     {
       runOnCompile: true,
-      path: '../sdk/abi',
+      path: "../sdk/abi",
       format: "json",
       flat: true,
       only: [
         "CommitmentHub.sol",
         "TimelockingDeadlineTask.sol",
-        "BaseCommitment.sol"
-      ]
+        "PartnerAlarmClock.sol",
+        "BaseCommitment.sol",
+      ],
     },
-  ]
+  ],
 };
 
 export default config;

@@ -6,7 +6,8 @@ pragma solidity ^0.8.9;
  */
 enum RegisteredCommitmentType {
     BASE,
-    DEADLINE
+    DEADLINE,
+    PARTNER_ALARM_CLOCK
 }
 
 /**
