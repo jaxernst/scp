@@ -5,8 +5,8 @@
   $: console.log($buyIn);
 </script>
 
+<div>Select Buy In</div>
 <div>
-  <div>Select Buy In</div>
   <input type="number" bind:value={$buyIn} min="0" step="0.001" />
   <b><EthSymbol /></b>
 </div>

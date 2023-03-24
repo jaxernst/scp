@@ -3,13 +3,11 @@
   import { alarmDays } from "../alarmCreation";
 </script>
 
-<div>
-  Select Days
-  <div class="days">
-    {#each Object.keys($alarmDays) as day}
-      <ToggleLetter value={day} bind:toggled={$alarmDays[day]} />
-    {/each}
-  </div>
+Select Days
+<div class="days">
+  {#each Object.keys($alarmDays) as day}
+    <ToggleLetter value={day} bind:toggled={$alarmDays[day]} />
+  {/each}
 </div>
 
 <style>

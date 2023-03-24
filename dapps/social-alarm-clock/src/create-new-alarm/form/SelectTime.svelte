@@ -5,7 +5,5 @@
   let timeOfDay;
 </script>
 
-<div>
-  <div>Select Time</div>
-  <input id="select-time" type="time" bind:value={$alarmTime} />
-</div>
+<div>Select Time</div>
+<input id="select-time" type="time" bind:value={$alarmTime} />
