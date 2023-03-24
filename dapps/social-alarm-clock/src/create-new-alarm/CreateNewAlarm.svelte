@@ -7,6 +7,7 @@
   import SelectTime from "./form/SelectTime.svelte";
   import SelectTimezoneMode from "./form/SelectTimezoneMode.svelte";
 
+  const numSelections = 5;
   const selections = SelectionWheel(5);
   $: selected = $selections.selected;
 
@@ -19,27 +20,29 @@
     });
     const data = await writeContract(config);
   };
+  const formComponents = [
+    SelectDays,
+    SelectTime,
+    SelectTimezoneMode,
+    SelectBuyIn,
+  ];
 </script>
 
 <div class="create-alarm-bar">
   <button
     class="arrow light-button"
     disabled={$selections.atStart}
-    on:click={selections.prev}>{"<-"}</button
-  >
-  {#if selected === 0}
-    <SelectDays />
-  {:else if selected === 1}
-    <SelectTime />
-  {:else if selected === 2}
-    <SelectTimezoneMode />
-  {:else if selected === 3}
-    <SelectBuyIn />
-  {:else if selected === 4}
-    <div>
+    on:click={selections.prev}
+    >{"<-"}
+  </button>
+
+  <div class="form-input">
+    {#if selected === numSelections - 1}
       <button disabled={!$isReady} on:click={createAlarm}>Submit</button>
-    </div>
-  {/if}
+    {:else}
+      <svelte:component this={formComponents[selected]} />
+    {/if}
+  </div>
 
   <button
     class="arrow light-button"
@@ -53,6 +56,15 @@
     display: grid;
     grid-template-columns: 1fr 300px 1fr;
     justify-items: center;
+    align-items: center;
+    height: 4em;
+  }
+
+  .form-input {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    justify-content: center;
     align-items: center;
   }
 
