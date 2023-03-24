@@ -1,4 +1,5 @@
 import { BigNumber } from "ethers";
+import { parseEther } from "ethers/lib/utils.js";
 import { derived, get, writable } from "svelte/store";
 
 export const SelectionWheel = (numItems: number) => {
@@ -45,13 +46,18 @@ export const alarmDays = writable({
 export const buyIn = writable<number | null>(null);
 export const timezoneMode = writable<TimezoneMode | null>(null);
 export const alarmTime = writable<string | null>(null);
+export const submissionWindow = writable<number>(60 * 30);
+export const missedAlarmPenalty = writable(parseEther(".01"));
+export const otherPlayer = writable<string | null>(
+  "0x9B8DB9bffcCd1F2Cc5044d67a1b9C68dD6Deff6a"
+);
 
 export const isReady = derived(
   [buyIn, timezoneMode, alarmTime, alarmDays],
   ([$buyIn, $timezoneMode, $alarmTime, $alarmDays]) => {
     return (
       $buyIn &&
-      $timezoneMode &&
+      $timezoneMode !== null &&
       $alarmTime &&
       Object.values($alarmDays).some((v) => v)
     );
