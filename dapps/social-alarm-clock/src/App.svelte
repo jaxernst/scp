@@ -48,9 +48,12 @@
     <div>
       <ClockDisplay />
     </div>
-    <div class="game-area">
+    <div class="lower-area">
       {#if view === View.CONNECT_WALLET}
-        <button class="connect-wallet-button" on:click={$web3Modal.openModal()}>
+        <button
+          class="connect-wallet-button"
+          on:click={() => $web3Modal.openModal()}
+        >
           Connect Wallet
         </button>
       {:else if view === View.NO_ACTIVE_GAME}
@@ -97,7 +100,7 @@
     flex-direction: column;
   }
 
-  .game-area {
+  .lower-area {
     display: flex;
     justify-content: space-evenly;
     place-items: center;
