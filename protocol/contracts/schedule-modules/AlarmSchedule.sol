@@ -1,57 +1,80 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
+import "hardhat/console.sol";
+
 library AlarmSchedule {
-    uint constant SECONDS_PER_DAY = 1 days;
+    event ScheduleInitialized(uint alarmTime);
 
     struct Schedule {
         // Init vars
-        uint alarmTime;
-        uint8[] alarmDays;
-        uint submissionWindow;
-        int timezoneOffset;
+        uint alarmTime; // Seconds after midnight the alarm is to be set for
+        uint8[] alarmDays; // Days of the week the alarm is to be set for (1 Sunday)
+        uint submissionWindow; // Seconds before the deadline that the user can submit a confirmation
+        int timezoneOffset; // The user's timezone offset (+/- 12 hrs) from UTC in seconds
         // Schedule state vars
         uint activationTime;
-        uint32[7] entries;
+        uint lastEntryTime;
+        bool initialized;
+        uint32[7] alarmEntries;
     }
 
     function init(
         Schedule storage self,
         uint alarmTime,
-        uint8[] calldata alarmDaysOfWeek,
+        uint8[] memory alarmDaysOfWeek,
         uint submissionWindow,
         int timezoneOffset
     ) internal {
+        require(_validateDaysArr(alarmDaysOfWeek), "INVALID_DAYS");
+        require(alarmTime < 1 days, "INVALID_ALARM_TIME");
+        require(
+            -43200 < timezoneOffset && timezoneOffset < 43200,
+            "INVALID_TIMEZONE_OFFSET"
+        );
         self.alarmTime = alarmTime;
         self.alarmDays = alarmDaysOfWeek;
         self.submissionWindow = submissionWindow;
         self.timezoneOffset = timezoneOffset;
+        self.initialized = true;
+
+        emit ScheduleInitialized(alarmTime);
     }
 
-    function start(Schedule storage self) public {
+    function start(Schedule storage self) internal {
+        require(self.initialized, "NOT_INITIALIZED");
         self.activationTime = block.timestamp;
     }
 
-    function entries(Schedule storage self) internal view returns (uint) {
-        uint confirmations = 0;
-        for (uint i; i < self.alarmDays.length; i++) {
-            confirmations += self.entries[self.alarmDays[i]];
+    function entries(
+        Schedule storage self
+    ) internal view returns (uint confirmations) {
+        confirmations = 0;
+        for (uint i; i < self.alarmEntries.length; i++) {
+            confirmations += self.alarmEntries[i];
         }
     }
 
     function recordEntry(Schedule storage self) internal {
+        uint timeSinceLastEntry = block.timestamp - self.lastEntryTime;
+        // Require that the user has waited at least 1 day since last entry (with margin for the submission window)
+        require(
+            timeSinceLastEntry >= 1 days - self.submissionWindow,
+            "ALREADY_SUBMITTED_TODAY"
+        );
         require(inSubmissionWindow(self), "NOT_IN_SUBMISSION_WINDOW");
-        self.entries[_dayOfWeek(block.timestamp)]++;
+        self.lastEntryTime = block.timestamp;
+        self.alarmEntries[_dayOfWeek(block.timestamp) - 1]++;
     }
 
     function inSubmissionWindow(
         Schedule storage self
-    ) public view returns (bool) {
-        if (_deadlinePassedToday(self)) return false;
+    ) internal view returns (bool) {
+        if (_deadlinePassedToday(self)) {
+            return false;
+        }
         return (nextDeadline(self) - block.timestamp) < self.submissionWindow;
     }
-
-    function totalConfirmations() external view returns (uint confirmations) {}
 
     /**
      * Determine how many total alarm deadlines have been missed for this scheulde.
@@ -84,11 +107,13 @@ library AlarmSchedule {
             }
             numMissedDeadlines +=
                 expectedConfirmationsOnThisDay -
-                uint(self.entries[checkDay - 1]);
+                uint(self.alarmEntries[checkDay - 1]);
         }
     }
 
-    function nextDeadline(Schedule storage self) public view returns (uint256) {
+    function nextDeadline(
+        Schedule storage self
+    ) internal view returns (uint256) {
         uint lastMidnight = _lastMidnightTimestamp(self);
         if (_deadlinePassedToday(self)) {
             return lastMidnight + 1 days + self.alarmTime;
@@ -97,7 +122,9 @@ library AlarmSchedule {
         }
     }
 
-    function lastDeadline(Schedule storage self) public view returns (uint256) {
+    function lastDeadline(
+        Schedule storage self
+    ) internal view returns (uint256) {
         uint lastMidnight = _lastMidnightTimestamp(self);
         if (_deadlinePassedToday(self)) {
             return lastMidnight + self.alarmTime;
@@ -106,13 +133,11 @@ library AlarmSchedule {
         }
     }
 
-    /*** Private/Internal Functions ***/
-
     function _deadlinePassedToday(
         Schedule storage self
-    ) private view returns (bool) {
+    ) internal view returns (bool) {
         uint _now = _offsetTimestamp(block.timestamp, self.timezoneOffset);
-        return (_now % SECONDS_PER_DAY) > self.alarmTime;
+        return (_now % 1 days) > self.alarmTime;
     }
 
     /**
@@ -143,11 +168,11 @@ library AlarmSchedule {
         return false;
     }
 
-    // 1 = Monday, 7 = Sunday
+    // 1 = Sunday, 7 = Saturday
     function _dayOfWeek(
         uint256 timestamp
     ) internal pure returns (uint8 dayOfWeek) {
-        uint256 _days = timestamp / SECONDS_PER_DAY;
+        uint256 _days = timestamp / 1 days;
         dayOfWeek = uint8(((_days + 3) % 7) + 1);
     }
 
@@ -156,7 +181,7 @@ library AlarmSchedule {
         uint256 toTime
     ) internal pure returns (uint256) {
         if (toTime < fromTime) return 0;
-        return (toTime - fromTime) / SECONDS_PER_DAY;
+        return (toTime - fromTime) / 1 days;
     }
 
     /**
@@ -164,9 +189,9 @@ library AlarmSchedule {
      */
     function _lastMidnightTimestamp(
         Schedule storage self
-    ) private view returns (uint) {
+    ) internal view returns (uint) {
         uint _now = _offsetTimestamp(block.timestamp, self.timezoneOffset);
-        return _now - (_now % SECONDS_PER_DAY);
+        return _now - (_now % 1 days);
     }
 
     function _offsetTimestamp(
