@@ -4,8 +4,7 @@ import {
   configureChains,
   createClient,
   fetchEnsName,
-  getAccount,
-  prepareWriteContract,
+  fetchSigner,
   type GetAccountResult,
   watchAccount,
 } from "@wagmi/core";
@@ -16,11 +15,12 @@ import {
   modalConnectors,
   walletConnectProvider,
 } from "@web3modal/ethereum";
+import type { ethers } from "ethers";
 
 const chains = [arbitrum, mainnet, polygon];
 
 // Wagmi Core Client
-const { provider } = configureChains(chains, [
+export const { provider } = configureChains(chains, [
   walletConnectProvider({ projectId: "698bddafdbc932fc6eb19c24ab471c3a" }),
 ]);
 
@@ -35,6 +35,8 @@ const wagmiClient = createClient({
   provider,
 });
 
+export const w = writable(wagmiClient);
+
 export const ethClient = writable(new EthereumClient(wagmiClient, chains));
 
 export const web3Modal = derived(
@@ -44,6 +46,7 @@ export const web3Modal = derived(
 );
 
 export const account = writable<GetAccountResult | undefined>();
+export const signer = writable<ethers.Signer | undefined>();
 export const ensName = writable<string | undefined>();
 
 get(ethClient).watchAccount(async (_account) => {
@@ -52,11 +55,14 @@ get(ethClient).watchAccount(async (_account) => {
   account.set(_account);
 
   let _ensName: string;
+  let _signer: ethers.Signer;
   try {
     _ensName = await fetchEnsName({ address: _account.address });
+    _signer = await fetchSigner();
   } catch {
     return;
   }
 
   ensName.set(_ensName);
+  signer.set(_signer);
 });
