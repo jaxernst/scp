@@ -1,9 +1,9 @@
 <script lang="ts">
   import { ClockDisplay } from "@scp/dapp-lib";
-  import { web3Modal } from "./chainClient";
-  import { account } from "./chainClient";
+  import { web3Modal } from "./lib/chainClient";
+  import { account } from "./lib/chainClient";
   import Web3Status from "./Web3Status.svelte";
-  import { createGameOptions, gameActive } from "./gameState";
+  import { createGameOptions, activeGame } from "./lib/gameState";
   import CreateNewAlarm from "./create-new-alarm/CreateNewAlarm.svelte";
 
   let joinGameAddress = "";
@@ -20,10 +20,11 @@
   $: initView = () =>
     !$account?.isConnected
       ? View.CONNECT_WALLET
-      : !$gameActive
+      : !$activeGame
       ? View.NO_ACTIVE_GAME
       : View.ALARM_ACTIVE;
 
+  $: console.log($activeGame);
   $: view = initView();
 
   $: showBack = [View.CREATE_ALARM, View.JOIN_ALARM].includes(view);
