@@ -18,6 +18,7 @@
   import SelectTimezoneMode from "./form/SelectTimezoneMode.svelte";
   import { parseEther } from "ethers/lib/utils.js";
   import { get } from "svelte/store";
+  import { CommitmentHubAddress } from "../lib/contractInterface";
 
   const numSelections = 5;
   const selections = SelectionWheel(5);
@@ -57,7 +58,7 @@
     });
 
     const config = await prepareWriteContract({
-      address: "0x5fbdb2315678afecb367f032d93f642f64180aa3",
+      address: CommitmentHubAddress,
       abi: CommitmentHubAbi,
       functionName: "createCommitment",
       args: [2, encodedParams],
@@ -66,8 +67,9 @@
       },
     });
 
-    const data = await writeContract(config);
+    await writeContract(config);
   };
+
   const formComponents = [
     SelectDays,
     SelectTime,

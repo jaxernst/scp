@@ -1,6 +1,6 @@
 <script lang ts>
-  import { account, ensName } from "./chainClient";
-  import { web3Modal } from "./chainClient";
+  import { account, ensName } from "./lib/chainClient";
+  import { web3Modal } from "./lib/chainClient";
   import { shorthandAddress } from "@scp/dapp-lib";
 
   let displayName;
