@@ -17,20 +17,15 @@
     ALARM_ACTIVE,
   }
 
-  $: initView = () =>
+  $: getHomeView = () =>
     !$account?.isConnected
       ? View.CONNECT_WALLET
       : !$activeGame
       ? View.NO_ACTIVE_GAME
       : View.ALARM_ACTIVE;
 
-  $: console.log($activeGame);
-  $: view = initView();
-
+  $: view = getHomeView();
   $: showBack = [View.CREATE_ALARM, View.JOIN_ALARM].includes(view);
-
-  $: selected = $createGameOptions.selected;
-  $: console.log(selected);
 </script>
 
 <main>
@@ -38,7 +33,7 @@
     <div class="header">
       <div style="width:min-content">
         {#if showBack}
-          <button on:click={() => (view = initView())} class="light-button"
+          <button on:click={() => (view = getHomeView())} class="light-button"
             >{"x"}</button
           >
         {/if}
