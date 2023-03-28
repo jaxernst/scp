@@ -3,6 +3,10 @@ import { derived, get, writable, type Readable } from "svelte/store";
 import { commitmentHub } from "./contractInterface";
 import { account } from "./chainClient";
 import { commitmentTypeVals } from "@scp/protocol/lib/types";
+import {
+  getUserCommitments,
+  queryCommitmentCreationEvents,
+} from "@scp/sdk/src/scp-helpers";
 
 enum View {
   CONNECT_WALLET,
@@ -35,29 +39,18 @@ const SelectionWheel = (items: number) => {
 
 export const activeGame = derived(
   [commitmentHub, account],
-  async ([$hub, $account]) => {
-    if (!$account || !$hub) return;
-    console.log(
-      $hub.filters.CommitmentCreation(
-        $account.address,
-        commitmentTypeVals["PartnerAlarmClock"]
-      )
-    );
-    const creationEvents = await $hub.queryFilter(
-      $hub.filters.CommitmentCreation(
-        $account.address,
-        commitmentTypeVals["PartnerAlarmClock"]
-      )
-    );
+  ([$hub, $account], set) => {
+    console.log("drived", $hub, $account);
+    if (!$hub || !$hub.provider || !$account) return;
 
-    if (creationEvents.length === 0) {
-      console.log("No creation events found");
-      return undefined;
-    }
-
-    const lastCreationEvent = creationEvents[creationEvents.length - 1];
-    return lastCreationEvent.args.commitmentAddr;
+    queryCommitmentCreationEvents($hub, $account.address, "PartnerAlarmClock")
+      .then((events) => {
+        console.log("Read events", events);
+        if (events.length === 0) return set(undefined);
+        set(events[events.length - 1].args.commitmentAddr);
+      })
+      .catch((e) => console.log(e));
   }
-) as Readable<Promise<string | undefined>>;
+) as Readable<string | undefined>;
 
 export const createGameOptions = SelectionWheel(4);
