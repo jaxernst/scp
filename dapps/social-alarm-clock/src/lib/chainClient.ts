@@ -6,9 +6,8 @@ import {
   fetchEnsName,
   fetchSigner,
   type GetAccountResult,
-  watchAccount,
 } from "@wagmi/core";
-import { arbitrum, mainnet, polygon } from "@wagmi/core/chains";
+import { mainnet, polygon, hardhat } from "@wagmi/core/chains";
 import { Web3Modal } from "@web3modal/html";
 import {
   EthereumClient,
@@ -17,7 +16,7 @@ import {
 } from "@web3modal/ethereum";
 import type { ethers } from "ethers";
 
-const chains = [arbitrum, mainnet, polygon];
+const chains = [mainnet, polygon, hardhat];
 
 // Wagmi Core Client
 export const { provider } = configureChains(chains, [
@@ -54,15 +53,20 @@ get(ethClient).watchAccount(async (_account) => {
 
   account.set(_account);
 
-  let _ensName: string;
-  let _signer: ethers.Signer;
-  try {
-    _ensName = await fetchEnsName({ address: _account.address });
-    _signer = await fetchSigner();
-  } catch {
-    return;
-  }
+  let _ensName = await logOnFailure(
+    async () => await fetchEnsName({ address: _account.address })
+  );
+  let _signer = await logOnFailure(async () => await fetchSigner());
 
+  console.log("Got signer", _signer);
   ensName.set(_ensName);
   signer.set(_signer);
 });
+
+const logOnFailure = async (func: () => Promise<any>) => {
+  try {
+    return await func();
+  } catch (e) {
+    console.error(e);
+  }
+};
