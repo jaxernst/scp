@@ -58,7 +58,6 @@ get(ethClient).watchAccount(async (_account) => {
   );
   let _signer = await logOnFailure(async () => await fetchSigner());
 
-  console.log("Got signer", _signer);
   ensName.set(_ensName);
   signer.set(_signer);
 });
