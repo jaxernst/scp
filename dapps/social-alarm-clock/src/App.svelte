@@ -3,11 +3,9 @@
   import { web3Modal } from "./lib/chainClient";
   import { account } from "./lib/chainClient";
   import Web3Status from "./Web3Status.svelte";
-  import { createGameOptions, activeGame } from "./lib/gameState";
+  import { createGameOptions, userAlarmActive } from "./lib/gameState";
   import CreateNewAlarm from "./create-new-alarm/CreateNewAlarm.svelte";
-
-  let joinGameAddress = "";
-  let accountHasAlarm = false;
+  import JoinAlarm from "./JoinAlarm.svelte";
 
   enum View {
     CONNECT_WALLET,
@@ -20,7 +18,7 @@
   $: getHomeView = () =>
     !$account?.isConnected
       ? View.CONNECT_WALLET
-      : !$activeGame
+      : !$userAlarmActive
       ? View.NO_ACTIVE_GAME
       : View.ALARM_ACTIVE;
 
@@ -59,11 +57,7 @@
       {:else if view === View.CREATE_ALARM}
         <CreateNewAlarm />
       {:else if view === View.JOIN_ALARM}
-        <div class="wide-bar">
-          <label for="address">Enter Partner's Address: </label>
-          <input id="address" type="text" bind:value={joinGameAddress} />
-          <button style="padding: .2em .5em">go</button>
-        </div>
+        <JoinAlarm />
       {:else if view === View.ALARM_ACTIVE}
         Alarm active
       {:else}
