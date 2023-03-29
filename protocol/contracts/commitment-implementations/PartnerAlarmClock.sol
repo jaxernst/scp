@@ -30,10 +30,9 @@ contract PartnerAlarmClock is BaseCommitment {
     uint alarmTime;
     uint8[] alarmActiveDays;
     uint betDuration;
-    uint betAmount;
     uint submissionWindow;
     int timezoneOffset;
-
+    uint public betAmount;
     address public player1;
     address public player2;
     uint public missedAlarmPenalty;
@@ -43,6 +42,8 @@ contract PartnerAlarmClock is BaseCommitment {
     ) public payable virtual override initializer {
         require(msg.value > 0, "BET_VALUE_REQUIRED");
 
+        // Initialize to an inactive state, commitment becomes activated once player 2 starts
+        status = CommitmentStatus.INACTIVE;
         name = IMPLEMENTATION_NAME;
         betAmount = msg.value;
         player1 = msg.sender;
@@ -84,6 +85,7 @@ contract PartnerAlarmClock is BaseCommitment {
      * Only player2 can start the alarm
      */
     function start() public payable {
+        require(status == CommitmentStatus.INACTIVE, "ALREADY_STARTED");
         require(msg.value >= betAmount, "INSUFFICIENT_FUNDS_SENT");
         require(msg.sender == player2, "ONLY_PLAYER_2_CAN_START");
 
@@ -91,6 +93,7 @@ contract PartnerAlarmClock is BaseCommitment {
         players[player2].schedule.start();
         players[player2].depositAmount += msg.value;
 
+        status = CommitmentStatus.ACTIVE;
         emit CommitmentInitialized("Alarm Bet Started");
     }
 

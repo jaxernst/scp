@@ -24,6 +24,7 @@ enum ScheduleType {
  * Status represents all the states that commitments can be in
  */
 enum CommitmentStatus {
+    INACTIVE,
     ACTIVE,
     PAUSED,
     COMPLETE,
