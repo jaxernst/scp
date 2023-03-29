@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import CommitmentHubAbi from "@scp/sdk/abi/CommitmentHub.json";
 import { signer } from "./chainClient";
-import { derived, get } from "svelte/store";
+import { derived } from "svelte/store";
 import type { CommitmentHub } from "@scp/protocol/typechain-types";
 
 export const CommitmentHubAddress =
