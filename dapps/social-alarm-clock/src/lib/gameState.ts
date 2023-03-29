@@ -2,11 +2,17 @@ import { readContract } from "@wagmi/core";
 import { derived, get, writable, type Readable } from "svelte/store";
 import { commitmentHub } from "./contractInterface";
 import { account } from "./chainClient";
-import { commitmentTypeVals } from "@scp/protocol/lib/types";
+import { CommitStatus, commitmentTypeVals } from "@scp/protocol/lib/types";
 import {
+  getCommitment,
   getUserCommitments,
   queryCommitmentCreationEvents,
 } from "@scp/sdk/src/scp-helpers";
+import type {
+  CommitmentHub,
+  PartnerAlarmClock,
+} from "@scp/protocol/typechain-types";
+import { getAlarm } from "./getAlarm";
 
 enum View {
   CONNECT_WALLET,
@@ -27,30 +33,38 @@ const SelectionWheel = (items: number) => {
     })).subscribe,
 
     next: () => {
-      if (get(selected) === items - 1) return console.log("Return");
+      if (get(selected) === items - 1) return;
       selected.set(get(selected) + 1);
     },
     prev: () => {
-      if (get(selected) === 0) return console.log("return");
+      if (get(selected) === 0) return;
       selected.set(get(selected) - 1);
     },
   };
 };
 
-export const activeGame = derived(
+export const createGameOptions = SelectionWheel(4);
+
+export const userAlarm = derived(
   [commitmentHub, account],
   ([$hub, $account], set) => {
-    console.log("drived", $hub, $account);
-    if (!$hub || !$hub.provider || !$account) return;
+    if (!$hub || !$hub.provider || !$account) return set(undefined);
 
-    queryCommitmentCreationEvents($hub, $account.address, "PartnerAlarmClock")
-      .then((events) => {
-        console.log("Read events", events);
-        if (events.length === 0) return set(undefined);
-        set(events[events.length - 1].args.commitmentAddr);
-      })
-      .catch((e) => console.log(e));
-  }
-) as Readable<string | undefined>;
+    getAlarm($hub, $account.address)
+      .then((result) => set(result))
+      .catch((err) => {
+        console.error(err);
+        set(undefined);
+      });
+  },
+  undefined
+) as Readable<PartnerAlarmClock | undefined>;
 
-export const createGameOptions = SelectionWheel(4);
+export const userAlarmActive = derived([userAlarm], ([$alarm], set) => {
+  if (!$alarm) return set(false);
+  console.log($alarm);
+  $alarm.status().then((status) => {
+    set(status === CommitStatus.ACTIVE);
+    console.log(status);
+  });
+});
