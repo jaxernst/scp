@@ -1,8 +1,6 @@
 <script>
   import { EthSymbol } from "@scp/dapp-lib";
-  import { parseEther } from "ethers/lib/utils.js";
   import { buyIn } from "../alarmCreation";
-  $: console.log($buyIn);
 </script>
 
 <div>Select Buy In</div>
