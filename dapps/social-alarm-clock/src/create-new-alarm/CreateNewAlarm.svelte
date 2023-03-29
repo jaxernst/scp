@@ -40,14 +40,6 @@
     // to a time of day in seconds
     const [hours, minutes] = $alarmTime.split(":");
     const alarmTimeSeconds = parseInt(hours) * 60 * 60 + parseInt(minutes) * 60;
-    console.log(
-      alarmTimeSeconds,
-      alarmDaysArr,
-      $missedAlarmPenalty,
-      $submissionWindow,
-
-      $otherPlayer
-    );
     const encodedParams = encodeCreationParams("PartnerAlarmClock", {
       alarmTime: alarmTimeSeconds,
       alarmdays: alarmDaysArr,
