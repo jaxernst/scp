@@ -72,6 +72,7 @@ export const solidityInitializationTypes = {
 };
 
 export enum CommitStatus {
+  INACTIVE,
   ACTIVE,
   PAUSED,
   COMPLETE,
