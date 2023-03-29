@@ -1,8 +1,5 @@
 <script>
   import { alarmTime } from "../alarmCreation";
-
-  $: console.log($alarmTime);
-  let timeOfDay;
 </script>
 
 <div>Select Time</div>
