@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "../BaseCommitment.sol";
-import "../schedule-modules/AlarmSchedule.sol";
-import "../penalty-modules/FixedPenaltyDistributor.sol";
+import "../../BaseCommitment.sol";
+import "../../schedule-modules/AlarmSchedule.sol";
+import "../../penalty-modules/FixedPenaltyDistributor.sol";
 
 /**
  * The partner alarm clock is a commitment contract that allows two people to set an 'alarm'
@@ -41,7 +41,6 @@ contract PartnerAlarmClock is BaseCommitment {
         bytes calldata data
     ) public payable virtual override initializer {
         require(msg.value > 0, "BET_VALUE_REQUIRED");
-        
 
         // Initialize to an inactive state, commitment becomes activated once player 2 starts
         status = CommitmentStatus.INACTIVE;
