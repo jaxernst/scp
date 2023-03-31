@@ -2,14 +2,17 @@
   import { otherPlayer } from "./create-new-alarm/alarmCreation";
   import { account } from "./lib/chainClient";
   import { commitmentHub } from "./lib/contractInterface";
-  import { getAlarm } from "./lib/getAlarm";
+  import { getMostRecentAlarm } from "./lib/getAlarm";
 
   let joinGameAddress = "";
   let error = null;
 
   const joinAlarm = async (otherPlayer: string) => {
     // Check if other player has and alarm with connected account's address
-    const otherPlayerAlarm = await getAlarm($commitmentHub, joinGameAddress);
+    const otherPlayerAlarm = await getMostRecentAlarm(
+      $commitmentHub,
+      joinGameAddress
+    );
 
     if (!otherPlayerAlarm) {
       error = "No alarm found for this address";

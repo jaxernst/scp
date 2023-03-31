@@ -3,7 +3,7 @@
   import { web3Modal } from "./lib/chainClient";
   import { account } from "./lib/chainClient";
   import Web3Status from "./Web3Status.svelte";
-  import { createGameOptions, userAlarmActive } from "./lib/gameState";
+  import { userAlarmActive } from "./lib/contractInterface";
   import CreateNewAlarm from "./create-new-alarm/CreateNewAlarm.svelte";
   import JoinAlarm from "./JoinAlarm.svelte";
 

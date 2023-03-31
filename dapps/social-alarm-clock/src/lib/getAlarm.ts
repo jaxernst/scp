@@ -5,21 +5,37 @@ import type {
 import {
   getCommitment,
   queryCommitmentCreationEvents,
+  queryUserJoinedCommitmentEvents,
 } from "@scp/sdk/src/scp-helpers";
 
-export const getAlarm = async (
+/**
+ * Get the alarm most recentely created or joined by the user
+ */
+export const getMostRecentAlarm = async (
   hub: CommitmentHub,
   userAddress: string
 ): Promise<PartnerAlarmClock | undefined> => {
-  const events = await queryCommitmentCreationEvents(
+  const creationEvents = await queryCommitmentCreationEvents(
     hub,
     userAddress,
     "PartnerAlarmClock"
   );
-  console.log(events, userAddress);
-  if (events.length === 0) {
+
+  const userJoinedEvents = await queryUserJoinedCommitmentEvents(
+    hub,
+    userAddress,
+    "PartnerAlarmClock"
+  );
+
+  if (creationEvents.length === 0 && userJoinedEvents.length === 0) {
     return;
   }
+
+  // Sort userJoinedEvents and creationEvents by block emitted and get
+  // the commitment address for the most recently emitted event
+  const events = [...creationEvents, ...userJoinedEvents].sort(
+    (a, b) => a.blockNumber - b.blockNumber
+  );
 
   const commitment = getCommitment(
     "PartnerAlarmClock",
