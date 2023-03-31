@@ -50,6 +50,31 @@
     "type": "event"
   },
   {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "enum RegisteredCommitmentType",
+        "name": "_type",
+        "type": "uint8"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "commitmentAddr",
+        "type": "address"
+      }
+    ],
+    "name": "UserJoined",
+    "type": "event"
+  },
+  {
     "inputs": [
       {
         "internalType": "enum RegisteredCommitmentType",
@@ -103,6 +128,24 @@
     "name": "createCommitment",
     "outputs": [],
     "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "enum RegisteredCommitmentType",
+        "name": "_type",
+        "type": "uint8"
+      },
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "emitUserJoined",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

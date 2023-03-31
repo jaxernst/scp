@@ -4,6 +4,7 @@ pragma solidity ^0.8.9;
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {BaseCommitment} from "./BaseCommitment.sol";
+import {ICommitmentHub} from "./interfaces/ICommitmentHub.sol";
 import "./types.sol";
 
 import "hardhat/console.sol";
@@ -33,10 +34,6 @@ contract CommitmentFactory is Ownable {
         require(commitmentRegistry[_type] == address(0), "TYPE_REGISTERED");
         commitmentRegistry[_type] = deployedAt;
     }
-
-    // Sub hubs are commitment deployers with specialized functionality to manage the commitments
-    // deployed under them.
-    function registerSubHub() onlyOwner {}
 }
 
 /**
@@ -47,10 +44,16 @@ contract CommitmentFactory is Ownable {
  * Commitments and Commitment pools deployed from the hub are deployed as Minimal Proxies (clones), to reduce gas
  * costs.
  */
-contract ScpHub is CommitmentFactory {
+contract CommitmentHub is CommitmentFactory, ICommitmentHub {
     uint public nextCommitmentId = 1;
-    mapping(uint => BaseCommitment) public commitments;
-    mapping(uint => CommitmentHub) public hubs;
+    mapping(uint => BaseCommitment) public commitments; // Lookup commitment by id
+    mapping(address => uint) commitmentIds; // Lookup commitment by address
+
+    event UserJoined(
+        RegisteredCommitmentType indexed _type,
+        address indexed user,
+        address commitmentAddr
+    );
 
     event CommitmentCreation(
         address indexed user,
@@ -58,11 +61,6 @@ contract ScpHub is CommitmentFactory {
         address commitmentAddr,
         uint id
     );
-
-    event HubCreation(
-        address indexed creator
-        address indexed hubAddr
-    )
 
     /**
      * Creates and initializes a commitment
@@ -76,6 +74,21 @@ contract ScpHub is CommitmentFactory {
 
         uint id = ++nextCommitmentId;
         commitments[id] = commitment;
+        commitmentIds[address(commitment)] = id;
         emit CommitmentCreation(msg.sender, _type, address(commitment), id);
+    }
+
+    /**
+     * Called by commitments to indicate a user has joined the commitment
+     */
+    function emitUserJoined(
+        RegisteredCommitmentType _type,
+        address user
+    ) external {
+        require(
+            commitmentIds[msg.sender] != 0,
+            "NOT_HUB_REGISTERED_COMMITMENT"
+        );
+        emit UserJoined(_type, user, msg.sender);
     }
 }

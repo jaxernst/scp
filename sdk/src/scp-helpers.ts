@@ -106,3 +106,13 @@ export async function queryCommitmentCreationEvents(
     )
   );
 }
+
+export async function queryUserJoinedCommitmentEvents(
+  hub: CommitmentHub,
+  address: string,
+  commitmentType: CommitmentType
+) {
+  return await hub.queryFilter(
+    hub.filters.UserJoined(commitmentTypeVals[commitmentType], address)
+  );
+}

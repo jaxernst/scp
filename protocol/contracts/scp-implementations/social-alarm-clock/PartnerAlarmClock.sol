@@ -4,6 +4,7 @@ pragma solidity ^0.8.9;
 import "../../BaseCommitment.sol";
 import "../../schedule-modules/AlarmSchedule.sol";
 import "../../penalty-modules/FixedPenaltyDistributor.sol";
+import {ICommitmentHub} from "../../interfaces/ICommitmentHub.sol";
 
 /**
  * The partner alarm clock is a commitment contract that allows two people to set an 'alarm'
@@ -14,6 +15,7 @@ import "../../penalty-modules/FixedPenaltyDistributor.sol";
  */
 contract PartnerAlarmClock is BaseCommitment {
     string constant IMPLEMENTATION_NAME = "Partner Alarm Clock";
+    ICommitmentHub deploymentHub;
 
     using AlarmSchedule for AlarmSchedule.Schedule;
 
@@ -41,6 +43,7 @@ contract PartnerAlarmClock is BaseCommitment {
         bytes calldata data
     ) public payable virtual override initializer {
         require(msg.value > 0, "BET_VALUE_REQUIRED");
+        deploymentHub = ICommitmentHub(msg.sender);
 
         // Initialize to an inactive state, commitment becomes activated once player 2 starts
         status = CommitmentStatus.INACTIVE;
@@ -92,6 +95,11 @@ contract PartnerAlarmClock is BaseCommitment {
         players[player1].schedule.start();
         players[player2].schedule.start();
         players[player2].depositAmount += msg.value;
+
+        deploymentHub.emitUserJoined(
+            RegisteredCommitmentType.PARTNER_ALARM_CLOCK,
+            player2
+        );
 
         status = CommitmentStatus.ACTIVE;
         emit CommitmentInitialized("Alarm Bet Started");
