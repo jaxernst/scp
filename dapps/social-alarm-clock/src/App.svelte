@@ -3,9 +3,10 @@
   import { web3Modal } from "./lib/chainClient";
   import { account } from "./lib/chainClient";
   import Web3Status from "./Web3Status.svelte";
-  import { userAlarmActive } from "./lib/contractInterface";
+  import { userHasActiveAlarm } from "./lib/contractInterface";
   import CreateNewAlarm from "./create-new-alarm/CreateNewAlarm.svelte";
   import JoinAlarm from "./JoinAlarm.svelte";
+  import ActiveAlarm from "./active-alarm/ActiveAlarm.svelte";
 
   enum View {
     CONNECT_WALLET,
@@ -18,16 +19,17 @@
   $: getHomeView = () =>
     !$account?.isConnected
       ? View.CONNECT_WALLET
-      : !$userAlarmActive
+      : !$userHasActiveAlarm
       ? View.NO_ACTIVE_GAME
       : View.ALARM_ACTIVE;
 
   $: view = getHomeView();
+  $: console.log("View val:", view);
   $: showBack = [View.CREATE_ALARM, View.JOIN_ALARM].includes(view);
 </script>
 
 <main>
-  <div class="clock-container">
+  <div class="container">
     <div class="header">
       <div style="width:min-content">
         {#if showBack}
@@ -35,13 +37,14 @@
             >{"x"}</button
           >
         {/if}
+        <div class="clock-display" style={"font-size: 1.2em"}>
+          <ClockDisplay />
+        </div>
       </div>
       <div class="title">The Social Alarm Clock</div>
       <Web3Status />
     </div>
-    <div>
-      <ClockDisplay />
-    </div>
+
     <div class="lower-area">
       {#if view === View.CONNECT_WALLET}
         <button
@@ -59,7 +62,7 @@
       {:else if view === View.JOIN_ALARM}
         <JoinAlarm />
       {:else if view === View.ALARM_ACTIVE}
-        Alarm active
+        <ActiveAlarm />
       {:else}
         UH OH
       {/if}
@@ -71,7 +74,7 @@
   main {
     border: 1px solid white;
     border-radius: 18px;
-    background-color: rgb(80, 80, 80);
+    background-color: rgba(54, 54, 54, 0.756);
     box-shadow: 5px 10px #000000;
     width: 620px;
     min-height: 250px;
@@ -84,7 +87,7 @@
     }
   }
 
-  .clock-container {
+  .container {
     padding: 1em;
     display: flex;
     flex-direction: column;
@@ -108,13 +111,8 @@
     align-items: center;
   }
 
-  .wide-bar {
-    width: 100%;
-    box-sizing: border-box;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 1em;
+  .title {
+    font-weight: bold;
+    text-align: center;
   }
 </style>

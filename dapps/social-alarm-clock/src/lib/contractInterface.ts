@@ -8,6 +8,7 @@ import type {
 } from "@scp/protocol/typechain-types";
 import { getMostRecentAlarm } from "./getAlarm";
 import { CommitStatus } from "@scp/protocol/lib/types";
+import type { EvmAddress } from "../types";
 
 export const CommitmentHubAddress =
   "0x5fbdb2315678afecb367f032d93f642f64180aa3";
@@ -37,11 +38,20 @@ export const userAlarm = derived(
   undefined
 ) as Readable<PartnerAlarmClock | undefined>;
 
-export const userAlarmActive = derived([userAlarm], ([$alarm], set) => {
+export const userHasActiveAlarm = derived([userAlarm], ([$alarm], set) => {
   if (!$alarm) return set(false);
-  console.log($alarm);
+
   $alarm.status().then((status) => {
     set(status === CommitStatus.ACTIVE);
-    console.log(status);
+    console.log("Alarm status:", status);
   });
 });
+
+export const getOtherPlayer = async (
+  alarm: PartnerAlarmClock,
+  user: string
+) => {
+  const player1 = await alarm.player1();
+  const player2 = await alarm.player2();
+  return player1 === user ? player2 : player1;
+};
