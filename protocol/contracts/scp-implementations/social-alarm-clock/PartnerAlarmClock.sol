@@ -29,11 +29,10 @@ contract PartnerAlarmClock is BaseCommitment {
 
     mapping(address => Player) players;
 
-    uint alarmTime;
-    uint8[] alarmActiveDays;
-    uint betDuration;
-    uint submissionWindow;
-    int timezoneOffset;
+    uint public alarmTime;
+    uint8[] public alarmActiveDays;
+    uint public submissionWindow;
+    int public timezoneOffset;
     uint public betAmount;
     address public player1;
     address public player2;
@@ -49,7 +48,7 @@ contract PartnerAlarmClock is BaseCommitment {
         status = CommitmentStatus.INACTIVE;
         name = IMPLEMENTATION_NAME;
         betAmount = msg.value;
-        player1 = msg.sender;
+        player1 = tx.origin;
 
         (
             alarmTime,
@@ -127,6 +126,10 @@ contract PartnerAlarmClock is BaseCommitment {
         } else {
             revert("INVALID_PLAYER");
         }
+    }
+
+    function alarmDays() public view returns (uint8[] memory) {
+        return alarmActiveDays;
     }
 
     // When a player withdraws, their total penalty is calculated based of their missed deadlines,
