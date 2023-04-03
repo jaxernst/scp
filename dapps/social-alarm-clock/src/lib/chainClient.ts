@@ -56,6 +56,7 @@ get(ethClient).watchAccount(async (_account) => {
   let _ensName = await logOnFailure(
     async () => await fetchEnsName({ address: _account.address })
   );
+
   let _signer = await logOnFailure(async () => await fetchSigner());
 
   ensName.set(_ensName);
