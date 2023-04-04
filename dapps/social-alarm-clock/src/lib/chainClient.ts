@@ -1,10 +1,10 @@
-import { derived, get, writable } from "svelte/store";
-import CommitmentHubAbi from "@scp/sdk/abi/CommitmentHub.json";
+import { derived, get, writable, type Readable } from "svelte/store";
 import {
   configureChains,
   createClient,
   fetchEnsName,
   fetchSigner,
+  type GetNetworkResult,
   type GetAccountResult,
 } from "@wagmi/core";
 import { mainnet, polygon, hardhat } from "@wagmi/core/chains";
@@ -34,10 +34,7 @@ const wagmiClient = createClient({
   provider,
 });
 
-export const w = writable(wagmiClient);
-
 export const ethClient = writable(new EthereumClient(wagmiClient, chains));
-
 export const web3Modal = derived(
   ethClient,
   ($ethClient) =>
@@ -45,28 +42,26 @@ export const web3Modal = derived(
 );
 
 export const account = writable<GetAccountResult | undefined>();
-export const signer = writable<ethers.Signer | undefined>();
-export const ensName = writable<string | undefined>();
+export const network = writable<GetNetworkResult | undefined>();
 
-get(ethClient).watchAccount(async (_account) => {
-  if (!_account.isConnected) return account.set(undefined);
-
-  account.set(_account);
-
-  let _ensName = await logOnFailure(
-    async () => await fetchEnsName({ address: _account.address })
-  );
-
-  let _signer = await logOnFailure(async () => await fetchSigner());
-
-  ensName.set(_ensName);
-  signer.set(_signer);
-});
-
-const logOnFailure = async (func: () => Promise<any>) => {
-  try {
-    return await func();
-  } catch (e) {
-    console.error(e);
+export const signer = derived(
+  [account, network],
+  ([$account, $network], set) => {
+    if (!$network || !$account) return;
+    fetchSigner({ chainId: $network.chain.id }).then(set);
   }
-};
+) as Readable<ethers.Signer | undefined>;
+
+export const ensName = derived([account, network], ([$account], set) => {
+  if (!$account) return;
+
+  fetchEnsName({ address: $account.address })
+    .then(set)
+    .catch(() => {
+      console.log("No ens found");
+      set(undefined);
+    });
+}) as Readable<string | undefined>;
+
+get(ethClient).watchAccount(account.set);
+get(ethClient).watchNetwork(network.set);
