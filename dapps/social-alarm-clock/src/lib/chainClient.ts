@@ -6,6 +6,7 @@ import {
   fetchSigner,
   type GetNetworkResult,
   type GetAccountResult,
+  switchNetwork,
 } from "@wagmi/core";
 import { mainnet, polygon, hardhat } from "@wagmi/core/chains";
 import { Web3Modal } from "@web3modal/html";
@@ -16,10 +17,10 @@ import {
 } from "@web3modal/ethereum";
 import type { ethers } from "ethers";
 
-const chains = [mainnet, polygon, hardhat];
+const supportedChains = [hardhat];
 
 // Wagmi Core Client
-export const { provider } = configureChains(chains, [
+export const { provider } = configureChains(supportedChains, [
   walletConnectProvider({ projectId: "698bddafdbc932fc6eb19c24ab471c3a" }),
 ]);
 
@@ -29,12 +30,14 @@ const wagmiClient = createClient({
     projectId: "698bddafdbc932fc6eb19c24ab471c3a",
     version: "1", // or "2"
     appName: "web3Modal",
-    chains,
+    chains: supportedChains,
   }),
   provider,
 });
 
-export const ethClient = writable(new EthereumClient(wagmiClient, chains));
+export const ethClient = writable(
+  new EthereumClient(wagmiClient, supportedChains)
+);
 export const web3Modal = derived(
   ethClient,
   ($ethClient) =>
@@ -47,7 +50,7 @@ export const network = writable<GetNetworkResult | undefined>();
 export const signer = derived(
   [account, network],
   ([$account, $network], set) => {
-    if (!$network || !$account) return;
+    if (!$network?.chain?.id || !$account) return;
     fetchSigner({ chainId: $network.chain.id }).then(set);
   }
 ) as Readable<ethers.Signer | undefined>;
@@ -64,4 +67,11 @@ export const ensName = derived([account, network], ([$account], set) => {
 }) as Readable<string | undefined>;
 
 get(ethClient).watchAccount(account.set);
-get(ethClient).watchNetwork(network.set);
+get(ethClient).watchNetwork((net) => {
+  if (!net.chain) return;
+
+  network.set(net);
+  if (!supportedChains.map((c) => c.id as number).includes(net.chain.id)) {
+    switchNetwork({ chainId: supportedChains[0].id });
+  }
+});
