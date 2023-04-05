@@ -4,7 +4,7 @@
   import { shorthandAddress } from "@scp/dapp-lib";
 
   let displayName;
-  $: if ($account) {
+  $: if ($account?.address) {
     displayName = $ensName ? $ensName : shorthandAddress($account.address);
   }
 
