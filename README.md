@@ -15,7 +15,7 @@ There are many ways to implement commitments and build apps on of the protocol, 
 
 - Task and Todo tracking apps that allow users to put down ‘collateral’ on their commitments and incentivize themselves to be more productive.
 - Social apps that allow goals and commitments to be shared with friends, with credit systems in place to reward users for high achievement and proving to the protocol that commitments have been completed
-- DAO governce participation enforcement systems
+- DAO governance participation enforcement systems
 - Public accountability systems for public-figures or organizations to officiate their commitments/promises
 
 
@@ -85,12 +85,12 @@ interface IEnforcementModule {
     function exit() external;
 }
 ```
-Enforcement modules are a core component to the protocol that facilitate commitment interactivity. Custom enforcement modules can be created to facilitate pooled commitments with reward structures and penalization logic. This may include logic for pool members to vote on each other's 'proof of completion', logic to time-lock funds if deadlines are missed, and can if implement achievement 'credit' systems where users get more reputation for posting commitments and successfully completing them. The possibilities here are endless.
+Enforcement modules are a core component of the protocol that facilitate commitment interactivity. Custom enforcement modules can be created to facilitate pooled commitments with reward structures and penalization logic. This may include logic for pool members to vote on each other's 'proof of completion', logic to time-lock funds if deadlines are missed, and can if implement achievement 'credit' systems where users get more reputation for posting commitments and successfully completing them. The possibilities here are endless.
 
 ## Composed Commitment Extension Examples
 
 __ToDo or Die__  
-This commitment extension acts as a way to forcefully incentivize yourself to get your goals and ToDo items accomplished. You describe what is is you need to get done, then set a deadline. If you fail to mark it as completed in time, there will be automated penalties. Penalties are customizable but may include:
+This commitment extension acts as a way to forcefully incentivize yourself to get your goals and ToDo items accomplished. You describe what it is you need to get done, then set a deadline. If you fail to mark it as completed in time, there will be automated penalties. Penalties are customizable but may include:
 * Timelocking your funds in the smart contract
 * Automatically donating your funds to preset addresses
 
