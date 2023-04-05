@@ -19,12 +19,15 @@
   import { parseEther } from "ethers/lib/utils.js";
   import { get } from "svelte/store";
   import { CommitmentHubAddress } from "../lib/contractInterface";
+  import { toast } from "@zerodevx/svelte-toast";
+  import { view } from "../lib/appView";
 
   const numSelections = 5;
   const selections = SelectionWheel(5);
   $: selected = $selections.selected;
 
   const dayValueMap = { Su: 1, M: 2, T: 3, W: 4, Th: 5, F: 6, Sa: 7 };
+
   const createAlarm = async () => {
     const alarmDaysArr = Object.entries($alarmDays).reduce(
       (acc, [day, selected]) => {
@@ -59,7 +62,14 @@
       },
     });
 
-    await writeContract(config);
+    try {
+      const tx = await writeContract(config);
+      const rc = await tx.wait();
+      toast.push("Alarm creation successful!");
+      view.initView();
+    } catch (err) {
+      toast.push("Alarm creation failed with:" + err.message);
+    }
   };
 
   const formComponents = [
