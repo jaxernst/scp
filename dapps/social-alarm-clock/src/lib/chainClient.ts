@@ -19,6 +19,8 @@ import type { ethers } from "ethers";
 
 const supportedChains = [hardhat];
 
+export type Account = GetAccountResult;
+
 // Wagmi Core Client
 export const { provider } = configureChains(supportedChains, [
   walletConnectProvider({ projectId: "698bddafdbc932fc6eb19c24ab471c3a" }),
@@ -51,17 +53,24 @@ export const signer = derived(
   [account, network],
   ([$account, $network], set) => {
     if (!$network?.chain?.id || !$account) return;
-    fetchSigner({ chainId: $network.chain.id }).then(set);
+    const noSignerError = (e?: any) =>
+      console.error("Signer fetching failed", e);
+
+    fetchSigner({ chainId: $network.chain.id })
+      .then((signer) => {
+        if (signer) return set(signer);
+        noSignerError();
+      })
+      .catch((e) => noSignerError());
   }
 ) as Readable<ethers.Signer | undefined>;
 
 export const ensName = derived([account, network], ([$account], set) => {
-  if (!$account) return;
+  if (!$account?.address) return;
 
   fetchEnsName({ address: $account.address })
-    .then(set)
+    .then((ens) => ens !== null && set(ens))
     .catch(() => {
-      console.log("No ens found");
       set(undefined);
     });
 }) as Readable<string | undefined>;
