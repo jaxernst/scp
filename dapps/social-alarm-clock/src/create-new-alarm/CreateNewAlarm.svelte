@@ -18,7 +18,10 @@
   import SelectTimezoneMode from "./form/SelectTimezoneMode.svelte";
   import { parseEther } from "ethers/lib/utils.js";
   import { get } from "svelte/store";
-  import { CommitmentHubAddress } from "../lib/contractInterface";
+  import {
+    CommitmentHubAddress,
+    transactionReceipts,
+  } from "../lib/contractInterface";
   import { toast } from "@zerodevx/svelte-toast";
   import { view } from "../lib/appView";
 
@@ -66,9 +69,10 @@
       const tx = await writeContract(config);
       const rc = await tx.wait();
       toast.push("Alarm creation successful!");
-      view.initView();
+      transactionReceipts.update((rcs) => [...rcs, rc]);
     } catch (err) {
       toast.push("Alarm creation failed with:" + err.message);
+      return;
     }
   };
 
