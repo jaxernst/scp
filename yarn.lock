@@ -2074,7 +2074,7 @@ __metadata:
     eslint-plugin-svelte3: ^4.0.0
     prettier: ^2.6.2
     prettier-plugin-svelte: ^2.7.0
-    svelte: ^3.44.0
+    svelte: ^3.58.0
     svelte-check: ^2.7.1
     svelte-ethers-store: ^2.5.8
     svelte-icons: ^2.1.0
@@ -2124,7 +2124,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@scp/svelte-scp-store@workspace:sdk/svelte-scp-store"
   dependencies:
-    svelte: ^3.55.1
+    svelte: ^3.58.0
     svelte-ethers-store: ^2.5.9
   languageName: unknown
   linkType: soft
@@ -8888,7 +8888,7 @@ __metadata:
     "@web3modal/ethereum": ^2.1.1
     "@web3modal/html": ^2.1.1
     "@zerodevx/svelte-toast": ^0.9.3
-    svelte: ^3.55.1
+    svelte: ^3.58.0
     svelte-check: ^2.10.3
     svelte-web3: ^4.0.1
     tslib: ^2.5.0
@@ -9402,17 +9402,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"svelte@npm:^3.44.0":
-  version: 3.51.0
-  resolution: "svelte@npm:3.51.0"
-  checksum: b1dcb48f9ebcb7cbf062b3cf71fc8f73dddfa6e56d14af4837c4cae00b52407c65d5170248d6e2e2e15937c2df84dfe93c50a552bd5ce94a59174b1f593600b2
-  languageName: node
-  linkType: hard
-
-"svelte@npm:^3.55.1":
-  version: 3.55.1
-  resolution: "svelte@npm:3.55.1"
-  checksum: ce66391bae68b2055a0a63ee0477e73f036247d4dd5abd5240372d5f4971a452ad29c4ef2c630ab089697429edd61756ef7b764e7597ad7e897ce9f8a9457fec
+"svelte@npm:^3.58.0":
+  version: 3.58.0
+  resolution: "svelte@npm:3.58.0"
+  checksum: c05625705961adc971e2bed6b86957c065f34e9d358390ad8dc953f8b4c956bb5ed297e3466f18c8080339cd26b973294489ee4094800fd75a8650fa1f6a9b52
   languageName: node
   linkType: hard
 
