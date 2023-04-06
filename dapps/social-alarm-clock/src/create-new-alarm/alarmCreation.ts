@@ -56,6 +56,7 @@ export const isReady = derived(
   [buyIn, timezoneMode, alarmTime, alarmDays],
   ([$buyIn, $timezoneMode, $alarmTime, $alarmDays]) => {
     return (
+      $buyIn &&
       $buyIn > 0 &&
       $timezoneMode !== null &&
       $alarmTime !== null &&
