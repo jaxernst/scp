@@ -1,49 +1,60 @@
-import { ethers } from "ethers";
+import { Contract, ethers } from "ethers";
 import CommitmentHubAbi from "@scp/sdk/abi/CommitmentHub.json";
 import { account, signer } from "./chainClient";
-import { derived, type Readable } from "svelte/store";
+import { derived, writable, type Readable } from "svelte/store";
+import { getAlarms } from "./getAlarm";
 import type {
   CommitmentHub,
   PartnerAlarmClock,
 } from "@scp/protocol/typechain-types";
-import { getMostRecentAlarm } from "./getAlarm";
 import { CommitStatus } from "@scp/protocol/lib/types";
-import type { EvmAddress } from "../types";
+
+export enum AlarmState {
+  NO_ALARM,
+  PENDING_START,
+  ACTIVE,
+  UNKNOWN,
+}
 
 export const CommitmentHubAddress =
   "0x5fbdb2315678afecb367f032d93f642f64180aa3";
 
-export const commitmentHub = derived(
-  signer,
-  ($signer) =>
-    new ethers.Contract(
-      CommitmentHubAddress,
-      CommitmentHubAbi,
-      $signer
-    ) as unknown as CommitmentHub
-);
+export const transactionReceipts = writable<
+  ethers.providers.TransactionReceipt[]
+>([]);
+
+export const commitmentHub = derived(signer, ($signer) => {
+  return new ethers.Contract(
+    CommitmentHubAddress,
+    CommitmentHubAbi,
+    $signer
+  ) as unknown as CommitmentHub;
+});
 
 export const userAlarm = derived(
-  [commitmentHub, account],
-  ([$hub, $account], set) => {
-    if (!$hub || !$hub.provider || !$account) return set(undefined);
+  [account, commitmentHub, transactionReceipts],
+  ([$user, $commitmentHub], set) => {
+    if (!$user?.address || !$commitmentHub) return;
 
-    getMostRecentAlarm($hub, $account.address)
-      .then((result) => set(result))
-      .catch((err) => {
-        console.error(err);
+    getAlarms($commitmentHub, $user.address)
+      .then((alarms) => {
+        if (alarms && alarms.length > 0) return set(alarms[alarms.length - 1]);
         set(undefined);
-      });
-  },
-  undefined
+      })
+      .catch((e) => console.log("Could not fetch alarms", e));
+  }
 ) as Readable<PartnerAlarmClock | undefined>;
 
-export const userHasActiveAlarm = derived([userAlarm], ([$alarm], set) => {
-  if (!$alarm) return set(false);
+export const userAlarmState = derived(userAlarm, ($alarm, set) => {
+  if (!$alarm) {
+    set(AlarmState.NO_ALARM);
+    return;
+  }
 
   $alarm.status().then((status) => {
-    set(status === CommitStatus.ACTIVE);
-    console.log("Alarm status:", status);
+    if (status === CommitStatus.INACTIVE) return set(AlarmState.PENDING_START);
+    if (status === CommitStatus.ACTIVE) return set(AlarmState.ACTIVE);
+    return set(AlarmState.UNKNOWN);
   });
 });
 
