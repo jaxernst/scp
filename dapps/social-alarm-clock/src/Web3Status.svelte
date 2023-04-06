@@ -1,9 +1,9 @@
-<script lang ts>
+<script lang="ts">
   import { account, ensName } from "./lib/chainClient";
   import { web3Modal } from "./lib/chainClient";
   import { shorthandAddress } from "@scp/dapp-lib";
 
-  let displayName;
+  let displayName: string | undefined;
   $: if ($account?.address) {
     displayName = $ensName ? $ensName : shorthandAddress($account.address);
   }
@@ -11,12 +11,12 @@
   $: indicatorColor = $account && $account.isConnected ? "green" : "red";
 </script>
 
-{#if $account && displayName}
-  <div class="container" on:click={$web3Modal.openModal}>
-    <div class="displayName">{displayName}</div>
-    <div class="indicator" style="background-color:{indicatorColor}" />
+<div class="container" on:click={() => $web3Modal.openModal()}>
+  <div class="displayName">
+    {displayName || ""}
   </div>
-{/if}
+  <div class="indicator" style="background-color:{indicatorColor}" />
+</div>
 
 <style>
   .container {
