@@ -1,59 +1,44 @@
 <script lang="ts">
   import { ClockDisplay } from "@scp/dapp-lib";
+  import { CommitStatus } from "@scp/protocol/lib/types";
   import { web3Modal } from "./lib/chainClient";
   import { account } from "./lib/chainClient";
-  import Web3Status from "./Web3Status.svelte";
   import {
+    commitmentHub,
     getOtherPlayer,
     userAlarm,
-    userHasActiveAlarm,
   } from "./lib/contractInterface";
+  import { View, showBackButton, view } from "./lib/appView";
+
+  import { SvelteToast } from "@zerodevx/svelte-toast";
+  import Web3Status from "./Web3Status.svelte";
   import CreateNewAlarm from "./create-new-alarm/CreateNewAlarm.svelte";
   import JoinAlarm from "./JoinAlarm.svelte";
   import ActiveAlarm from "./active-alarm/ActiveAlarm.svelte";
-  import { CommitStatus } from "@scp/protocol/lib/types";
-
-  enum View {
-    CONNECT_WALLET,
-    NO_ACTIVE_GAME,
-    WAITING_FOR_OTHER_PLAYER,
-    CREATE_ALARM,
-    JOIN_ALARM,
-    ALARM_ACTIVE,
-  }
-
-  $: getHomeView = () =>
-    !$account?.isConnected
-      ? View.CONNECT_WALLET
-      : !$userHasActiveAlarm
-      ? View.NO_ACTIVE_GAME
-      : View.ALARM_ACTIVE;
-
-  $: view = getHomeView();
-  $: console.log("View val:", view);
-  $: showBack = [View.CREATE_ALARM, View.JOIN_ALARM].includes(view);
 
   $: otherPlayer =
-    $userAlarm && $account
+    $userAlarm && $account?.address
       ? getOtherPlayer($userAlarm, $account.address)
       : undefined;
-  $: $userAlarm?.status().then((status) => {
-    if (status === CommitStatus.INACTIVE) {
-      view === View.WAITING_FOR_OTHER_PLAYER;
-    }
-  });
+
+  let alarmId: string | null = null;
+  $: if ($commitmentHub && $userAlarm && !alarmId) {
+    $commitmentHub.commitmentIds($userAlarm.address).then((id) => {
+      if (id) alarmId = id.toString();
+    });
+  }
 </script>
 
 <main>
+  <SvelteToast />
+
   <div class="container">
     <div class="header">
       <div style="width:min-content">
-        {#if showBack}
-          <button on:click={() => (view = getHomeView())} class="light-button"
-            >{"x"}</button
-          >
+        {#if $showBackButton}
+          <button on:click={view.goBack} class="light-button">{"x"}</button>
         {/if}
-        {#if view === View.ALARM_ACTIVE}
+        {#if $view === View.ALARM_ACTIVE}
           <div class="clock-display" style={"font-size: 1.2em"}>
             <ClockDisplay />
           </div>
@@ -64,33 +49,34 @@
     </div>
 
     <div style="font-size:4em"><ClockDisplay /></div>
+
     <div class="lower-area">
-      {#if view === View.CONNECT_WALLET}
+      {#if $view === View.CONNECT_WALLET}
         <button
           class="connect-wallet-button"
           on:click={() => $web3Modal.openModal()}
         >
           Connect Wallet
         </button>
-      {:else if view === View.NO_ACTIVE_GAME}
-        {#if $userAlarm}
-          <div style="outline: 1px dashed grey; padding: 1em">
-            <div>Alarm Pending</div>
-            {#await otherPlayer then otherPlayer}
-              <i>Waiting for {otherPlayer}</i>
-            {/await}
-          </div>
-        {:else}
-          <button on:click={() => (view = View.CREATE_ALARM)}
-            >Create Alarm</button
-          >
-          <button on:click={() => (view = View.JOIN_ALARM)}>Join Alarm</button>
-        {/if}
-      {:else if view === View.CREATE_ALARM}
+      {:else if $view === View.NO_ALARM}
+        <button on:click={() => view.changeTo(View.CREATE_ALARM)}
+          >Create Alarm</button
+        >
+        <button on:click={() => view.changeTo(View.JOIN_ALARM)}
+          >Join Alarm</button
+        >
+      {:else if $view === View.CREATE_ALARM}
         <CreateNewAlarm />
-      {:else if view === View.JOIN_ALARM}
+      {:else if $view === View.JOIN_ALARM}
         <JoinAlarm />
-      {:else if view === View.ALARM_ACTIVE}
+      {:else if $view === View.WAITING_FOR_OTHER_PLAYER}
+        <div style="outline: 1px dashed grey; padding: 1em">
+          <div>Alarm {alarmId ? "#" + alarmId : ""} Pending</div>
+          {#await otherPlayer then otherPlayer}
+            <i>Waiting for {otherPlayer}</i>
+          {/await}
+        </div>
+      {:else if $view === View.ALARM_ACTIVE}
         <ActiveAlarm />
       {:else}
         UH OH
