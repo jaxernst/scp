@@ -1,22 +1,18 @@
 <script lang="ts">
-  import { otherPlayer } from "./create-new-alarm/alarmCreation";
   import { account } from "./lib/chainClient";
   import { commitmentHub } from "./lib/contractInterface";
-  import { getMostRecentAlarm } from "./lib/getAlarm";
+  import { getAlarmById, getAlarms } from "./lib/getAlarm";
 
-  let joinGameAddress = "";
-  let error = null;
+  let alarmId = "";
+  let error: null | string = null;
 
-  const joinAlarm = async (otherPlayer: string) => {
-    // Check if other player has and alarm with connected account's address
-    const otherPlayerAlarm = await getMostRecentAlarm(
-      $commitmentHub,
-      joinGameAddress
-    );
+  const joinAlarm = async () => {
+    if (!$account) return;
 
+    // Check if other player has an alarm with connected account's address
+    const otherPlayerAlarm = await getAlarmById(alarmId, $commitmentHub);
     if (!otherPlayerAlarm) {
-      error = "No alarm found for this address";
-      return;
+      return (error = "No alarm contract found for provided ID");
     }
 
     // Check if other player's alarm has the connected account's address as a partner
@@ -32,11 +28,11 @@
 </script>
 
 <div class="wide-bar">
-  <label for="address">Enter Partner's Address: </label>
-  <input id="address" type="text" bind:value={joinGameAddress} />
+  <label for="address">Enter Partner's Alarm ID: </label>
+  <input id="address" type="text" bind:value={alarmId} />
   <button
     style="padding: .2em .5em"
-    on:click={() => (error = "") || joinAlarm($otherPlayer)}>go</button
+    on:click={() => (error = "") || joinAlarm()}>go</button
   >
   {#if error}
     <div style="color: red">{error}</div>
