@@ -47,7 +47,7 @@ contract CommitmentFactory is Ownable {
 contract CommitmentHub is CommitmentFactory, ICommitmentHub {
     uint public nextCommitmentId = 1;
     mapping(uint => BaseCommitment) public commitments; // Lookup commitment by id
-    mapping(address => uint) commitmentIds; // Lookup commitment by address
+    mapping(address => uint) public commitmentIds; // Lookup commitment by address
 
     event UserJoined(
         RegisteredCommitmentType indexed _type,
@@ -72,7 +72,7 @@ contract CommitmentHub is CommitmentFactory, ICommitmentHub {
         BaseCommitment commitment = _createCommitment(_type);
         commitment.init{value: msg.value}(_initData);
 
-        uint id = ++nextCommitmentId;
+        uint id = nextCommitmentId++;
         commitments[id] = commitment;
         commitmentIds[address(commitment)] = id;
         emit CommitmentCreation(msg.sender, _type, address(commitment), id);
