@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { ClockDisplay } from "@scp/dapp-lib";
+  import { ClockDisplay, shorthandAddress } from "@scp/dapp-lib";
   import { CommitStatus } from "@scp/protocol/lib/types";
   import { web3Modal } from "./lib/chainClient";
   import { account } from "./lib/chainClient";
@@ -48,7 +48,9 @@
       <Web3Status />
     </div>
 
-    <div style="font-size:4em"><ClockDisplay /></div>
+    {#if $view !== View.ALARM_ACTIVE}
+      <div style="font-size:4em"><ClockDisplay /></div>
+    {/if}
 
     <div class="lower-area">
       {#if $view === View.CONNECT_WALLET}
@@ -71,9 +73,10 @@
         <JoinAlarm />
       {:else if $view === View.WAITING_FOR_OTHER_PLAYER}
         <div style="outline: 1px dashed grey; padding: 1em">
-          <div>Alarm {alarmId ? "#" + alarmId : ""} Pending</div>
+          <div><b>Alarm {alarmId ? "#" + alarmId : ""} Pending</b></div>
           {#await otherPlayer then otherPlayer}
-            <i>Waiting for {otherPlayer}</i>
+            <i>Waiting for {shorthandAddress(otherPlayer)} to start the alarm</i
+            >
           {/await}
         </div>
       {:else if $view === View.ALARM_ACTIVE}
@@ -104,7 +107,8 @@
 
   .container {
     padding: 1em;
-    height: 200px;
+    margin-bottom: 1em;
+    min-height: 200px;
     display: flex;
     flex-direction: column;
   }
