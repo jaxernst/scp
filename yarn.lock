@@ -2124,7 +2124,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@scp/svelte-scp-store@workspace:sdk/svelte-scp-store"
   dependencies:
-    svelte: ^3.58.0
+    svelte: ^3.55.1
     svelte-ethers-store: ^2.5.9
   languageName: unknown
   linkType: soft
@@ -9402,7 +9402,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"svelte@npm:^3.58.0":
+"svelte@npm:^3.55.1, svelte@npm:^3.58.0":
   version: 3.58.0
   resolution: "svelte@npm:3.58.0"
   checksum: c05625705961adc971e2bed6b86957c065f34e9d358390ad8dc953f8b4c956bb5ed297e3466f18c8080339cd26b973294489ee4094800fd75a8650fa1f6a9b52
