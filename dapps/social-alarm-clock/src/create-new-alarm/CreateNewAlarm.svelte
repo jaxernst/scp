@@ -18,12 +18,10 @@
   import SelectTimezoneMode from "./form/SelectTimezoneMode.svelte";
   import { parseEther } from "ethers/lib/utils.js";
   import { get } from "svelte/store";
-  import {
-    CommitmentHubAddress,
-    transactionReceipts,
-  } from "../lib/contractInterface";
+  import { CommitmentHubAddress } from "../lib/contractInterface";
   import { toast } from "@zerodevx/svelte-toast";
-  import { view } from "../lib/appView";
+  import { transactions } from "../lib/transactions";
+  import type { ContractTransaction } from "ethers";
 
   const numSelections = 5;
   const selections = SelectionWheel(5);
@@ -61,18 +59,18 @@
       functionName: "createCommitment",
       args: [2, encodedParams],
       overrides: {
-        value: parseEther(get(buyIn).toString()),
+        value: parseEther(get(buyIn)?.toString() ?? "0"),
       },
     });
 
-    try {
-      const tx = await writeContract(config);
-      const rc = await tx.wait();
+    const txResult = await transactions.addTransaction(
+      writeContract(config) as Promise<ContractTransaction>
+    );
+
+    if (!txResult.error) {
       toast.push("Alarm creation successful!");
-      transactionReceipts.update((rcs) => [...rcs, rc]);
-    } catch (err) {
-      toast.push("Alarm creation failed with:" + err.message);
-      return;
+    } else {
+      toast.push("Alarm creation failed with: " + txResult.error.message);
     }
   };
 

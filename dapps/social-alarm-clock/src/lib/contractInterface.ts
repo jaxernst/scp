@@ -8,6 +8,7 @@ import type {
   PartnerAlarmClock,
 } from "@scp/protocol/typechain-types";
 import { CommitStatus } from "@scp/protocol/lib/types";
+import { transactions } from "./transactions";
 
 export enum AlarmState {
   NO_ALARM,
@@ -19,10 +20,6 @@ export enum AlarmState {
 export const CommitmentHubAddress =
   "0x5fbdb2315678afecb367f032d93f642f64180aa3";
 
-export const transactionReceipts = writable<
-  ethers.providers.TransactionReceipt[]
->([]);
-
 export const commitmentHub = derived(signer, ($signer) => {
   return new ethers.Contract(
     CommitmentHubAddress,
@@ -32,9 +29,9 @@ export const commitmentHub = derived(signer, ($signer) => {
 });
 
 export const userAlarm = derived(
-  [account, commitmentHub, transactionReceipts],
+  [account, commitmentHub, transactions],
   ([$user, $commitmentHub], set) => {
-    if (!$user?.address || !$commitmentHub) return;
+    if (!$user?.address || !$commitmentHub?.signer) return;
 
     getAlarms($commitmentHub, $user.address)
       .then((alarms) => {
