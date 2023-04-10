@@ -15,6 +15,7 @@
   import CreateNewAlarm from "./create-new-alarm/CreateNewAlarm.svelte";
   import JoinAlarm from "./JoinAlarm.svelte";
   import ActiveAlarm from "./active-alarm/ActiveAlarm.svelte";
+  import Welcome from "./Welcome.svelte";
 
   $: otherPlayer =
     $userAlarm && $account?.address
@@ -29,64 +30,69 @@
   }
 </script>
 
-<main>
-  <SvelteToast />
+{#if $view === View.WELCOME}
+  <Welcome />
+{:else}
+  <main>
+    <SvelteToast />
 
-  <div class="container">
-    <div class="header">
-      <div style="width:min-content">
-        {#if $showBackButton}
-          <button on:click={view.goBack} class="light-button">{"x"}</button>
-        {/if}
-        {#if $view === View.ALARM_ACTIVE}
-          <div class="clock-display" style={"font-size: 1.2em"}>
-            <ClockDisplay />
+    <div class="container">
+      <div class="header">
+        <div style="width:min-content">
+          {#if $showBackButton}
+            <button on:click={view.goBack} class="light-button">{"x"}</button>
+          {/if}
+          {#if $view === View.ALARM_ACTIVE}
+            <div class="clock-display" style={"font-size: 1.2em"}>
+              <ClockDisplay />
+            </div>
+          {/if}
+        </div>
+        <div class="title">The Social Alarm Clock</div>
+        <Web3Status />
+      </div>
+
+      {#if $view !== View.ALARM_ACTIVE}
+        <div style="font-size:4em"><ClockDisplay /></div>
+      {/if}
+
+      <div class="lower-area">
+        {#if $view === View.CONNECT_WALLET}
+          <button
+            class="connect-wallet-button"
+            on:click={() => $web3Modal.openModal()}
+          >
+            Connect Wallet
+          </button>
+        {:else if $view === View.NO_ALARM}
+          <button on:click={() => view.changeTo(View.CREATE_ALARM)}
+            >Create Alarm</button
+          >
+          <button on:click={() => view.changeTo(View.JOIN_ALARM)}
+            >Join Alarm</button
+          >
+        {:else if $view === View.CREATE_ALARM}
+          <CreateNewAlarm />
+        {:else if $view === View.JOIN_ALARM}
+          <JoinAlarm />
+        {:else if $view === View.WAITING_FOR_OTHER_PLAYER}
+          <div style="outline: 1px dashed grey; padding: 1em">
+            <div><b>Alarm {alarmId ? "#" + alarmId : ""} Pending</b></div>
+            {#await otherPlayer then otherPlayer}
+              <i
+                >Waiting for {shorthandAddress(otherPlayer)} to start the alarm</i
+              >
+            {/await}
           </div>
+        {:else if $view === View.ALARM_ACTIVE}
+          <ActiveAlarm />
+        {:else}
+          UH OH
         {/if}
       </div>
-      <div class="title">The Social Alarm Clock</div>
-      <Web3Status />
     </div>
-
-    {#if $view !== View.ALARM_ACTIVE}
-      <div style="font-size:4em"><ClockDisplay /></div>
-    {/if}
-
-    <div class="lower-area">
-      {#if $view === View.CONNECT_WALLET}
-        <button
-          class="connect-wallet-button"
-          on:click={() => $web3Modal.openModal()}
-        >
-          Connect Wallet
-        </button>
-      {:else if $view === View.NO_ALARM}
-        <button on:click={() => view.changeTo(View.CREATE_ALARM)}
-          >Create Alarm</button
-        >
-        <button on:click={() => view.changeTo(View.JOIN_ALARM)}
-          >Join Alarm</button
-        >
-      {:else if $view === View.CREATE_ALARM}
-        <CreateNewAlarm />
-      {:else if $view === View.JOIN_ALARM}
-        <JoinAlarm />
-      {:else if $view === View.WAITING_FOR_OTHER_PLAYER}
-        <div style="outline: 1px dashed grey; padding: 1em">
-          <div><b>Alarm {alarmId ? "#" + alarmId : ""} Pending</b></div>
-          {#await otherPlayer then otherPlayer}
-            <i>Waiting for {shorthandAddress(otherPlayer)} to start the alarm</i
-            >
-          {/await}
-        </div>
-      {:else if $view === View.ALARM_ACTIVE}
-        <ActiveAlarm />
-      {:else}
-        UH OH
-      {/if}
-    </div>
-  </div>
-</main>
+  </main>
+{/if}
 
 <style>
   main {
