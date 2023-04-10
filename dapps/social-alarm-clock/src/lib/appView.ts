@@ -3,6 +3,7 @@ import { account, type Account } from "./chainClient";
 import { AlarmState, userAlarm, userAlarmState } from "./contractInterface";
 
 export enum View {
+  WELCOME,
   CONNECT_WALLET,
 
   NO_ALARM,
@@ -14,11 +15,13 @@ export enum View {
 }
 
 function MakeAppViewController() {
-  const view = writable<View>(View.NO_ALARM);
+  const view = writable<View>(View.WELCOME);
+  let inWelcomeMode = true;
+
   const initView = () => {
     const _account = get(account);
     const alarmState = get(userAlarmState);
-
+    if (inWelcomeMode) return;
     if (!_account?.isConnected) return view.set(View.CONNECT_WALLET);
     if (alarmState === AlarmState.NO_ALARM) return view.set(View.NO_ALARM);
     if (alarmState === AlarmState.PENDING_START)
@@ -45,6 +48,10 @@ function MakeAppViewController() {
       if ([View.CREATE_ALARM, View.JOIN_ALARM].includes(get(view))) {
         initView();
       }
+    },
+    exitWelcome: () => {
+      inWelcomeMode = false;
+      initView();
     },
   };
 }
