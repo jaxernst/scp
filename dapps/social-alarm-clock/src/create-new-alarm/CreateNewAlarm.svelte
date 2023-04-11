@@ -15,6 +15,7 @@
   import SelectBuyIn from "./form/SelectBuyIn.svelte";
   import SelectDays from "./form/SelectDays.svelte";
   import SelectTime from "./form/SelectTime.svelte";
+  import SelectPartner from "./form/SelectPartner.svelte";
   import SelectTimezoneMode from "./form/SelectTimezoneMode.svelte";
   import { parseEther } from "ethers/lib/utils.js";
   import { get } from "svelte/store";
@@ -23,8 +24,16 @@
   import { transactions } from "../lib/transactions";
   import type { ContractTransaction } from "ethers";
 
-  const numSelections = 5;
-  const selections = SelectionWheel(5);
+  const formComponents = [
+    SelectPartner,
+    SelectDays,
+    SelectTime,
+    SelectTimezoneMode,
+    SelectBuyIn,
+  ];
+
+  const selections = SelectionWheel(formComponents.length + 1);
+
   $: selected = $selections.selected;
 
   const dayValueMap = { Su: 1, M: 2, T: 3, W: 4, Th: 5, F: 6, Sa: 7 };
@@ -74,39 +83,81 @@
     }
   };
 
-  const formComponents = [
-    SelectDays,
-    SelectTime,
-    SelectTimezoneMode,
-    SelectBuyIn,
-  ];
+  // This state is not currently being updated. The highlight option is shown
+  // using the seleciton wheel index
+  type OptionState = "valid" | "invalid" | "selected";
+  const options: Record<string, OptionState> = {
+    Partner: "selected",
+    Days: "invalid",
+    Time: "invalid",
+    Timezone: "invalid",
+    "Buy-in": "invalid",
+  };
 </script>
 
-<div class="create-alarm-bar">
-  <button
-    class="arrow light-button"
-    disabled={$selections.atStart}
-    on:click={selections.prev}
-    >{"<-"}
-  </button>
-
-  <div class="form-input">
-    {#if selected === numSelections - 1}
-      <button disabled={!$isReady} on:click={createAlarm}>Submit</button>
-    {:else}
-      <svelte:component this={formComponents[selected]} />
-    {/if}
+<div class="container">
+  <div class="options-overview">
+    {#each Object.entries(options) as [option, state], i}
+      <div
+        class="option"
+        class:selected={i === selected}
+        class:valid={state === "valid"}
+        class:invalid={state === "invalid"}
+      >
+        {option}
+      </div>
+    {/each}
   </div>
 
-  <button
-    class="arrow light-button"
-    disabled={$selections.atEnd}
-    on:click={selections.next}>{"->"}</button
-  >
+  <div class="selection-controls">
+    <button
+      class="arrow light-button"
+      disabled={$selections.atStart}
+      on:click={selections.prev}
+      >{"<-"}
+    </button>
+
+    <div class="form-input">
+      {#if selected === formComponents.length}
+        <button disabled={!$isReady} on:click={createAlarm}>Submit</button>
+      {:else}
+        <svelte:component this={formComponents[selected]} />
+      {/if}
+    </div>
+
+    <button
+      class="arrow light-button"
+      disabled={$selections.atEnd}
+      on:click={selections.next}>{"->"}</button
+    >
+  </div>
 </div>
 
 <style>
-  .create-alarm-bar {
+  .container {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .options-overview {
+    display: flex;
+    flex-direction: row;
+    gap: 2em;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.8em;
+    color: grey;
+  }
+
+  .selected {
+    color: white;
+    border-bottom: 2px solid white;
+  }
+
+  .selection-controls {
     display: grid;
     grid-template-columns: 1fr 300px 1fr;
     justify-items: center;
