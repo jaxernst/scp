@@ -16,6 +16,7 @@
   import JoinAlarm from "./JoinAlarm.svelte";
   import ActiveAlarm from "./active-alarm/ActiveAlarm.svelte";
   import Welcome from "./Welcome.svelte";
+  import { fade } from "svelte/transition";
 
   $: otherPlayer =
     $userAlarm && $account?.address
@@ -30,12 +31,12 @@
   }
 </script>
 
-{#if $view === View.WELCOME}
-  <Welcome />
-{:else}
-  <main>
-    <SvelteToast />
+<SvelteToast />
 
+{#if $view === View.WELCOME}
+  <Welcome outroDuration={500} />
+{:else}
+  <main in:fade={{ duration: 500, delay: 500 }}>
     <div class="container">
       <div class="header">
         <div style="width:min-content">

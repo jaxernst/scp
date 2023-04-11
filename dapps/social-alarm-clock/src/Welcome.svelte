@@ -4,6 +4,8 @@
   import { fade, slide } from "svelte/transition";
   import { quintInOut } from "svelte/easing";
 
+  export let outroDuration = 500;
+
   let entered = false;
   setTimeout(() => (entered = true), 500);
 </script>
@@ -12,18 +14,18 @@
   <div
     class="container"
     style="font-size:1.5em"
-    in:slide={{ duration: 500, easing: quintInOut }}
+    in:fade={{ duration: 500, easing: quintInOut }}
+    out:fade={{ duration: outroDuration }}
   >
-    <div>
+    <div out:fade={{ duration: 400 }}>
       <h3>Welcome to the Social Alarm Clock</h3>
-      <i transition:fade={{ duration: 800, delay: 1200 }}>Wake up earlier.</i>
     </div>
-    <div style="height: 40px;">
-      <button
-        style="margin:1em"
-        transition:fade={{ duration: 1200, delay: 2000 }}
-        on:click={view.exitWelcome}>Enter</button
-      >
+    <div transition:fade={{ duration: 800, delay: 1200 }}>
+      <i>Wake up earlier.</i>
+      <div style="height: 40px;">
+        <button style="margin:1em" on:click={view.exitWelcome}>Enter</button>
+        <button style="margin:1em" on:click={view.exitWelcome}>About</button>
+      </div>
     </div>
   </div>
 {/if}
