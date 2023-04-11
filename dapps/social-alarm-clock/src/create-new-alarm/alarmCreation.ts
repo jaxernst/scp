@@ -43,12 +43,14 @@ export const alarmDays = writable({
   Su: false,
 });
 
-export const buyIn = writable<number | null>(null);
-export const timezoneMode = writable<TimezoneMode | null>(null);
-export const alarmTime = writable<string | null>(null);
+export const buyIn = writable<number>(0.001);
+export const timezoneMode = writable<TimezoneMode>(
+  TimezoneMode.SAME_TIME_OF_DAY
+);
+export const alarmTime = writable<string>("06:30");
 export const submissionWindow = writable<number>(60 * 30);
 export const missedAlarmPenalty = writable(parseEther(".01"));
-export const otherPlayer = writable<string | null>(
+export const otherPlayer = writable<string>(
   "0x9B8DB9bffcCd1F2Cc5044d67a1b9C68dD6Deff6a"
 );
 
