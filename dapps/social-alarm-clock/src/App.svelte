@@ -3,11 +3,7 @@
   import { CommitStatus } from "@scp/protocol/lib/types";
   import { web3Modal } from "./lib/chainClient";
   import { account } from "./lib/chainClient";
-  import {
-    commitmentHub,
-    getOtherPlayer,
-    userAlarm,
-  } from "./lib/contractInterface";
+  import { commitmentHub, userAlarm } from "./lib/contractInterface";
   import { View, showBackButton, view } from "./lib/appView";
 
   import { SvelteToast } from "@zerodevx/svelte-toast";
@@ -17,6 +13,7 @@
   import ActiveAlarm from "./active-alarm/ActiveAlarm.svelte";
   import Welcome from "./Welcome.svelte";
   import { fade } from "svelte/transition";
+  import { getOtherPlayer } from "./lib/alarmHelpers";
 
   $: otherPlayer =
     $userAlarm && $account?.address
