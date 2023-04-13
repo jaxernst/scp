@@ -42,7 +42,7 @@
     const alarmDaysArr = Object.entries($alarmDays).reduce(
       (acc, [day, selected]) => {
         if (selected) {
-          acc.push(dayValueMap[day]);
+          acc.push(dayValueMap[day as keyof typeof dayValueMap]);
         }
         return acc;
       },
@@ -58,7 +58,7 @@
       alarmdays: alarmDaysArr,
       missedAlarmPenalty: $missedAlarmPenalty,
       submissionWindow: $submissionWindow,
-      timezoneOffset: -7 * 12,
+      timezoneOffset: new Date().getTimezoneOffset() * 60,
       otherPlayer: $otherPlayer,
     });
 
