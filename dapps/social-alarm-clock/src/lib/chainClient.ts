@@ -16,10 +16,11 @@ import {
   walletConnectProvider,
 } from "@web3modal/ethereum";
 import type { ethers } from "ethers";
+import type { EvmAddress } from "../types";
 
 const supportedChains = [hardhat];
 
-export type Account = GetAccountResult;
+export type Account = GetAccountResult & { address: EvmAddress };
 
 // Wagmi Core Client
 export const { provider } = configureChains(supportedChains, [
@@ -84,3 +85,10 @@ get(ethClient).watchNetwork((net) => {
     switchNetwork({ chainId: supportedChains[0].id });
   }
 });
+
+export const getRequiredAccount = derived(account, ($account) => {
+  return () => {
+    if (!$account) throw new Error("No account connected");
+    return account;
+  };
+}) as Readable<() => Readable<Account>>;

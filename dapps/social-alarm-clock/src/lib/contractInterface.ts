@@ -1,8 +1,8 @@
 import { Contract, ethers } from "ethers";
 import CommitmentHubAbi from "@scp/sdk/abi/CommitmentHub.json";
 import { account, signer } from "./chainClient";
-import { derived, writable, type Readable } from "svelte/store";
-import { getAlarms } from "./getAlarm";
+import { derived, writable, type Readable, get } from "svelte/store";
+import { getAlarms } from "./alarmHelpers";
 import type {
   CommitmentHub,
   PartnerAlarmClock,
@@ -55,11 +55,12 @@ export const userAlarmState = derived(userAlarm, ($alarm, set) => {
   });
 });
 
-export const getOtherPlayer = async (
-  alarm: PartnerAlarmClock,
-  user: string
-) => {
-  const player1 = await alarm.player1();
-  const player2 = await alarm.player2();
-  return player1 === user ? player2 : player1;
-};
+/**
+ * Store used for comonents where there has to be an alarm present
+ */
+export const getRequiredUserAlarm = derived(userAlarm, ($alarm) => {
+  return () => {
+    if (!$alarm) throw new Error("No alarm");
+    return userAlarm;
+  };
+}) as Readable<() => Readable<PartnerAlarmClock>>;
