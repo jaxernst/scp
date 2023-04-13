@@ -168,6 +168,26 @@ library AlarmSchedule {
         return false;
     }
 
+    // Should a bound be placed on the while loop?
+    function _nextAlarmDay(Schedule storage self) internal view returns (uint) {
+        uint today = _dayOfWeek(
+            _offsetTimestamp(block.timestamp, self.timezoneOffset)
+        );
+
+        uint checkDay = today;
+        while (true) {
+            for (uint i; i < self.alarmDays.length; i++) {
+                if (self.alarmDays[i] == checkDay) {
+                    if (checkDay == today && _deadlinePassedToday(self)) {
+                        continue;
+                    }
+                    return checkDay;
+                }
+            }
+            checkDay = (checkDay % 7) + 1;
+        }
+    }
+
     // 1 = Sunday, 7 = Saturday
     function _dayOfWeek(
         uint256 timestamp
@@ -182,6 +202,10 @@ library AlarmSchedule {
     ) internal pure returns (uint256) {
         if (toTime < fromTime) return 0;
         return (toTime - fromTime) / 1 days;
+    }
+
+    function timeUntilNextDeadline(Schedule storage self) public view {
+        uint nextActiveDay = _nextAlarmDay(self);
     }
 
     /**
