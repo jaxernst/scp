@@ -1,42 +1,36 @@
 <script lang="ts">
-  import { account, ensName } from "../lib/chainClient";
   import AlarmActiveDays from "../lib/components/AlarmActiveDays.svelte";
-  import { getOtherPlayer, userAlarm } from "../lib/contractInterface";
-  import {
-    shorthandAddress,
-    ClockDisplay,
-    timeString,
-    EthSymbol,
-  } from "@scp/dapp-lib";
+  import { getRequiredUserAlarm } from "../lib/contractInterface";
+  import { getRequiredAccount } from "../lib/chainClient";
+  import { ClockDisplay, timeString, EthSymbol } from "@scp/dapp-lib";
   import type { EvmAddress } from "../types";
-  import UserAlarmInfo from "./UserAlarmInfo.svelte";
+  import UserAlarmInfo from "./PlayerInfo.svelte";
   import { formatEther } from "ethers/lib/utils.js";
+  import { getOtherPlayer } from "../lib/alarmHelpers";
+  import PlayerInfo from "./PlayerInfo.svelte";
 
+  $: userAlarm = $getRequiredUserAlarm();
+  $: account = $getRequiredAccount();
   $: daysActive = $userAlarm.alarmDays();
   $: alarmTime = $userAlarm.alarmTime();
   $: penaltyVal = $userAlarm.missedAlarmPenalty();
   $: submissionWindow = $userAlarm.submissionWindow();
 
-  let otherPlayer: EvmAddress = null;
-  $: getOtherPlayer($userAlarm, $account.address).then(
+  let otherPlayer: EvmAddress | null = null;
+  $: getOtherPlayer($userAlarm, $account.address ?? "").then(
     (res) => (otherPlayer = res as EvmAddress)
   );
 </script>
 
 <div>
   <div class="container">
-    <UserAlarmInfo
-      userAddress={$account.address}
-      heading="Player 1"
-      missedAlarms={0}
-      betStanding={0.0134}
-    />
+    <PlayerInfo playerAddress={$account.address} />
 
     <div class="alarm-overview">
       {#await alarmTime then time}
         <div style={"font-size: 3.5em"}>
           <ClockDisplay
-            overrideTime={timeString(time)}
+            overrideTime={timeString(time.toNumber())}
             overrideColor={"orange"}
           />
         </div>
@@ -66,12 +60,7 @@
     </div>
 
     {#if otherPlayer}
-      <UserAlarmInfo
-        heading="Player 2"
-        userAddress={otherPlayer}
-        missedAlarms={5}
-        betStanding={-0.0134}
-      />
+      <PlayerInfo playerAddress={otherPlayer} />
     {/if}
   </div>
 </div>
