@@ -21,7 +21,6 @@
       <h3>Welcome to the Social Alarm Clock</h3>
     </div>
     <div transition:fade={{ duration: 800, delay: 1200 }}>
-      <i>Wake up earlier.</i>
       <div style="height: 40px;">
         <button style="margin:1em" on:click={view.exitWelcome}>Enter</button>
         <button style="margin:1em" on:click={view.exitWelcome}>About</button>
