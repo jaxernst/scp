@@ -100,12 +100,18 @@ describe("Schedule Modules Tests", () => {
         blockTime = await currentTimestamp();
         curTimeOfDay = timeOfDay(blockTime.toNumber());
         weekDay = dayOfWeek(blockTime.toNumber());
+        console.log(weekDay);
       });
 
       it("Only allows entries to be recorded when the block time is within submission window of an alarm time", async () => {
         // Init an alarm that will be due in 60 seconds (30 second submission window)
         await (
-          await schedule.init(curTimeOfDay + 60, [weekDay, weekDay + 1], 30, 0)
+          await schedule.init(
+            curTimeOfDay + 60,
+            [weekDay, (weekDay + 1) % 7],
+            30,
+            0
+          )
         ).wait();
 
         await expect(schedule.recordEntry()).to.revertedWith(
@@ -118,7 +124,12 @@ describe("Schedule Modules Tests", () => {
 
       it("Prevents duplicate entries", async () => {
         await (
-          await schedule.init(curTimeOfDay + 60, [weekDay, weekDay + 1], 60, 0)
+          await schedule.init(
+            curTimeOfDay + 60,
+            [weekDay, (weekDay + 1) % 7],
+            60,
+            0
+          )
         ).wait();
 
         await expect(schedule.recordEntry()).to.not.reverted;
@@ -135,7 +146,7 @@ describe("Schedule Modules Tests", () => {
         await (
           await schedule.init(
             curTimeOfDay - missedBySeconds,
-            [weekDay, weekDay + 1],
+            [weekDay, (weekDay + 1) % 7],
             60,
             0
           )
@@ -157,6 +168,23 @@ describe("Schedule Modules Tests", () => {
       it("Returns 0 before deadline", async () => {});
       it("(after deadline) Returns 0 if a confirmation was submitted within the window", async () => {});
       it("(after deadline) Returns 1 if no confirmation was submitted within the window", async () => {});
+    });
+    describe("nextAlarmTime()", () => {
+      let blockTime: number;
+      beforeEach(async () => {
+        blockTime = (await currentTimestamp()).toNumber();
+      });
+      it("Returns the next alarm time with a same day alarm (before alarm time)", async () => {
+        const currentDay = dayOfWeek(blockTime);
+        const curTimeOfDay = timeOfDay(blockTime);
+        await schedule.init(curTimeOfDay + 60, [currentDay], 60, 0);
+        console.log("Current day", currentDay);
+        expect(await schedule._dayOfWeek(0)).to.equal(currentDay);
+        expect(await schedule._nextAlarmDay()).to.equal(currentDay);
+        expect(await schedule.timeToNextDeadline()).to.approximately(60, 3);
+      });
+      it("Returns the next alarm time on the next day", async () => {});
+      it("Returns the next alarm time on the next week", async () => {});
     });
   });
 });

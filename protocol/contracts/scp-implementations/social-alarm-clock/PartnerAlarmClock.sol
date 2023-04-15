@@ -128,6 +128,16 @@ contract PartnerAlarmClock is BaseCommitment {
         }
     }
 
+    function timeToNextDeadline(address player) public view returns (uint) {
+        if (player == player1) {
+            return player1Schedule.timeToNextDeadline();
+        } else if (player == player2) {
+            return player2Schedule.timeToNextDeadline();
+        } else {
+            revert("INVALID_PLAYER");
+        }
+    }
+
     function alarmDays() public view returns (uint8[] memory) {
         return alarmActiveDays;
     }

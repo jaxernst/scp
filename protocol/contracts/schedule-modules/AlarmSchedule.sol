@@ -13,7 +13,7 @@ library AlarmSchedule {
         uint submissionWindow; // Seconds before the deadline that the user can submit a confirmation
         int timezoneOffset; // The user's timezone offset (+/- 12 hrs) from UTC in seconds
         // Schedule state vars
-        uint activationTime;
+        uint activationTimestamp;
         uint lastEntryTime;
         bool initialized;
         uint32[7] alarmEntries;
@@ -43,7 +43,7 @@ library AlarmSchedule {
 
     function start(Schedule storage self) internal {
         require(self.initialized, "NOT_INITIALIZED");
-        self.activationTime = block.timestamp;
+        self.activationTimestamp = block.timestamp;
     }
 
     function entries(
@@ -64,7 +64,10 @@ library AlarmSchedule {
         );
         require(inSubmissionWindow(self), "NOT_IN_SUBMISSION_WINDOW");
         self.lastEntryTime = block.timestamp;
-        self.alarmEntries[_dayOfWeek(block.timestamp) - 1]++;
+        uint8 localDay = _dayOfWeek(
+            _offsetTimestamp(block.timestamp, self.timezoneOffset)
+        );
+        self.alarmEntries[localDay - 1]++;
     }
 
     function inSubmissionWindow(
@@ -73,7 +76,9 @@ library AlarmSchedule {
         if (_deadlinePassedToday(self)) {
             return false;
         }
-        return (nextDeadline(self) - block.timestamp) < self.submissionWindow;
+        return
+            (_nextDeadlineInterval(self) - block.timestamp) <
+            self.submissionWindow;
     }
 
     /**
@@ -85,33 +90,63 @@ library AlarmSchedule {
     function missedDeadlines(
         Schedule storage self
     ) internal view returns (uint numMissedDeadlines) {
-        uint256 daysPassed = _daysPassed(self.activationTime, block.timestamp);
+        uint expectedEntries = 0;
+        uint oneWeekInSeconds = 7 days;
+        uint currentTime = block.timestamp;
+        uint weeksElapsed = (currentTime - self.activationTimestamp) /
+            oneWeekInSeconds;
 
-        // The current day of week is taken from the last deadline time (timezone adjusted)
-        uint256 lastDeadlineDay = _dayOfWeek(lastDeadline(self));
-
-        uint8 activationDay = _dayOfWeek(self.activationTime);
-
-        // The expected amount of confirmations for any given alarm day is at least
-        // the amount of weeks elasped.
-        uint minConfirmations = daysPassed / 7;
-
-        // If the user confirmations count for an active day is less than the expected
-        // deadline count on that day, missedWakeups is incremented by the difference
-        numMissedDeadlines = 0;
-        for (uint i; i < self.alarmDays.length; i++) {
-            uint8 checkDay = self.alarmDays[i];
-            uint expectedConfirmationsOnThisDay = minConfirmations;
-            if (activationDay <= checkDay && checkDay <= lastDeadlineDay) {
-                expectedConfirmationsOnThisDay++;
+        for (uint i = 0; i < self.alarmDays.length; i++) {
+            uint dayOfWeek = self.alarmDays[i];
+            uint dayStart = self.activationTimestamp + (dayOfWeek * 1 days);
+            if (dayStart + self.alarmTime < currentTime) {
+                expectedEntries += weeksElapsed;
+                if (
+                    currentTime % oneWeekInSeconds >=
+                    (dayStart % oneWeekInSeconds) + self.alarmTime
+                ) {
+                    expectedEntries++;
+                }
             }
-            numMissedDeadlines +=
-                expectedConfirmationsOnThisDay -
-                uint(self.alarmEntries[checkDay - 1]);
         }
+
+        if (expectedEntries == 0) {
+            return 0;
+        }
+
+        return expectedEntries - entries(self);
     }
 
-    function nextDeadline(
+    function timeToNextDeadline(
+        Schedule storage self
+    ) internal view returns (uint) {
+        uint nextActiveDay = _nextAlarmDay(self);
+        uint localTime = _offsetTimestamp(block.timestamp, self.timezoneOffset);
+        uint today = _dayOfWeek(localTime);
+        uint timeToNextDeadlineInterval = _nextDeadlineInterval(self) -
+            localTime;
+
+        // Get the difference in number of days
+        console.log(today, nextActiveDay);
+
+        uint daysAway = 0;
+        if (nextActiveDay > today) {
+            daysAway = nextActiveDay - today;
+        } else if (nextActiveDay < today) {
+            daysAway = 7 - (today - nextActiveDay);
+        }
+
+        console.log(daysAway, _deadlinePassedToday(self));
+        if (daysAway == 0 && _deadlinePassedToday(self)) {
+            // Take seconds in one week and subtract (seconds passed today - the alarm time)
+            uint timeOfDay = localTime % 1 days;
+            return 1 weeks - timeOfDay + self.alarmTime;
+        }
+
+        return timeToNextDeadlineInterval + (daysAway * 1 days);
+    }
+
+    function _nextDeadlineInterval(
         Schedule storage self
     ) internal view returns (uint256) {
         uint lastMidnight = _lastMidnightTimestamp(self);
@@ -122,7 +157,7 @@ library AlarmSchedule {
         }
     }
 
-    function lastDeadline(
+    function _lastDeadlineInterval(
         Schedule storage self
     ) internal view returns (uint256) {
         uint lastMidnight = _lastMidnightTimestamp(self);
@@ -159,7 +194,7 @@ library AlarmSchedule {
     ) internal view returns (bool) {
         // If the day of the commitment's next deadline is in the activeOnDays array,
         // return true
-        uint8 nextWakeupDay = _dayOfWeek(nextDeadline(self));
+        uint8 nextWakeupDay = _dayOfWeek(_nextDeadlineInterval(self));
         for (uint i; i < self.alarmDays.length; i++) {
             if (self.alarmDays[i] == nextWakeupDay) {
                 return true;
@@ -170,22 +205,23 @@ library AlarmSchedule {
 
     // Should a bound be placed on the while loop?
     function _nextAlarmDay(Schedule storage self) internal view returns (uint) {
-        uint today = _dayOfWeek(
+        uint8 today = _dayOfWeek(
             _offsetTimestamp(block.timestamp, self.timezoneOffset)
         );
 
-        uint checkDay = today;
-        while (true) {
+        uint8 checkDay = today;
+        uint n = 0;
+
+        while (n <= 7) {
             for (uint i; i < self.alarmDays.length; i++) {
                 if (self.alarmDays[i] == checkDay) {
-                    if (checkDay == today && _deadlinePassedToday(self)) {
-                        continue;
-                    }
                     return checkDay;
                 }
             }
             checkDay = (checkDay % 7) + 1;
+            n++;
         }
+        revert("invariant error");
     }
 
     // 1 = Sunday, 7 = Saturday
@@ -193,7 +229,7 @@ library AlarmSchedule {
         uint256 timestamp
     ) internal pure returns (uint8 dayOfWeek) {
         uint256 _days = timestamp / 1 days;
-        dayOfWeek = uint8(((_days + 3) % 7) + 1);
+        dayOfWeek = uint8(((_days + 4) % 7) + 1);
     }
 
     function _daysPassed(
@@ -202,10 +238,6 @@ library AlarmSchedule {
     ) internal pure returns (uint256) {
         if (toTime < fromTime) return 0;
         return (toTime - fromTime) / 1 days;
-    }
-
-    function timeUntilNextDeadline(Schedule storage self) public view {
-        uint nextActiveDay = _nextAlarmDay(self);
     }
 
     /**

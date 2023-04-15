@@ -31,11 +31,27 @@ contract AlarmScheduleMock {
         return schedule.missedDeadlines();
     }
 
+    function timeToNextDeadline() public view returns (uint256) {
+        return schedule.timeToNextDeadline();
+    }
+
     function inSubmissionWindow() public view returns (bool) {
         return schedule.inSubmissionWindow();
     }
 
     function recordEntry() public {
         return schedule.recordEntry();
+    }
+
+    function _nextAlarmDay() public view returns (uint256) {
+        return schedule._nextAlarmDay();
+    }
+
+    function _dayOfWeek(int offset) public view returns (uint256) {
+        uint offsetTime = AlarmSchedule._offsetTimestamp(
+            block.timestamp,
+            offset
+        );
+        return AlarmSchedule._dayOfWeek(offsetTime);
     }
 }
