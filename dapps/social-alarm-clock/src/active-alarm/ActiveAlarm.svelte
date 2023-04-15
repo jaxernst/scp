@@ -2,9 +2,13 @@
   import AlarmActiveDays from "../lib/components/AlarmActiveDays.svelte";
   import { getRequiredUserAlarm } from "../lib/contractInterface";
   import { getRequiredAccount } from "../lib/chainClient";
-  import { ClockDisplay, timeString, EthSymbol } from "@scp/dapp-lib";
+  import {
+    ClockDisplay,
+    timeString,
+    formatTime,
+    EthSymbol,
+  } from "@scp/dapp-lib";
   import type { EvmAddress } from "../types";
-  import UserAlarmInfo from "./PlayerInfo.svelte";
   import { formatEther } from "ethers/lib/utils.js";
   import { getOtherPlayer } from "../lib/alarmHelpers";
   import PlayerInfo from "./PlayerInfo.svelte";
@@ -19,8 +23,7 @@
     .then((res) => res.toNumber());
   $: timeToNextDeadline = $userAlarm
     .timeToNextDeadline($account.address)
-    .then((res) => res.toNumber())
-    .catch((res) => console.log(res));
+    .then((res) => res.toNumber());
 
   let otherPlayer: EvmAddress | null = null;
   $: getOtherPlayer($userAlarm, $account.address ?? "").then(
@@ -66,11 +69,11 @@
         {#await submissionWindow then submissionWindow}
           {#if timeSeconds > submissionWindow}
             <button disabled>
-              Confirm Wakeup in {timeString(timeSeconds)}</button
+              Confirm Wakeup in {formatTime(timeSeconds)}</button
             >
           {:else}
             <button>
-              Confirm Wakeup in the next {timeString(timeSeconds)}
+              Confirm Wakeup in the next {formatTime(timeSeconds)}
             </button>
           {/if}
         {/await}
