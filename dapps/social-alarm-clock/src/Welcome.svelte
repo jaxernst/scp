@@ -14,7 +14,7 @@
   <div
     class="container"
     style="font-size:1.5em"
-    in:fade={{ duration: 500, easing: quintInOut }}
+    in:fade={{ duration: 500 }}
     out:fade={{ duration: outroDuration }}
   >
     <div out:fade={{ duration: 400 }}>
