@@ -82,7 +82,7 @@ library AlarmSchedule {
     }
 
     /**
-     * Determine how many total alarm deadlines have been missed for this scheulde.
+     * Determine how many total alarm deadlines have been missed for this schedule.
      * @notice missed wakeups is a function of the alarm activation time,
      * the alarm active days, the last wakeup time, an the user's timezone:
      * missedWakeups = f(activationTime, alarmDays, lastalarmTime, timezoneOffset)
@@ -120,30 +120,38 @@ library AlarmSchedule {
     function timeToNextDeadline(
         Schedule storage self
     ) internal view returns (uint) {
-        uint nextActiveDay = _nextAlarmDay(self);
         uint localTime = _offsetTimestamp(block.timestamp, self.timezoneOffset);
-        uint today = _dayOfWeek(localTime);
-        uint timeToNextDeadlineInterval = _nextDeadlineInterval(self) -
-            localTime;
+        uint256 currentDay = _dayOfWeek(localTime);
+        uint256 currentDayTime = localTime - _lastMidnightTimestamp(self);
 
-        // Get the difference in number of days
-        console.log(today, nextActiveDay);
-
-        uint daysAway = 0;
-        if (nextActiveDay > today) {
-            daysAway = nextActiveDay - today;
-        } else if (nextActiveDay < today) {
-            daysAway = 7 - (today - nextActiveDay);
+        uint256 nextAlarmDay;
+        uint256 daysUntilNextAlarm;
+        if (currentDayTime >= self.alarmTime) {
+            currentDay = (currentDay % 7) + 1;
+            daysUntilNextAlarm = 1;
         }
 
-        console.log(daysAway, _deadlinePassedToday(self));
-        if (daysAway == 0 && _deadlinePassedToday(self)) {
-            // Take seconds in one week and subtract (seconds passed today - the alarm time)
-            uint timeOfDay = localTime % 1 days;
-            return 1 weeks - timeOfDay + self.alarmTime;
+        for (uint8 i = 0; i < self.alarmDays.length; i++) {
+            if (
+                self.alarmDays[i] >= currentDay &&
+                (nextAlarmDay == 0 || self.alarmDays[i] < nextAlarmDay)
+            ) {
+                nextAlarmDay = self.alarmDays[i];
+            }
         }
 
-        return timeToNextDeadlineInterval + (daysAway * 1 days);
+        if (nextAlarmDay == 0) {
+            for (uint8 i = 0; i < self.alarmDays.length; i++) {
+                if (nextAlarmDay == 0 || self.alarmDays[i] < nextAlarmDay) {
+                    nextAlarmDay = self.alarmDays[i];
+                }
+            }
+            daysUntilNextAlarm += 7 - currentDay + nextAlarmDay;
+        } else {
+            daysUntilNextAlarm += nextAlarmDay - currentDay;
+        }
+
+        return daysUntilNextAlarm * 1 days + self.alarmTime - currentDayTime;
     }
 
     function _nextDeadlineInterval(
@@ -215,6 +223,9 @@ library AlarmSchedule {
         while (n <= 7) {
             for (uint i; i < self.alarmDays.length; i++) {
                 if (self.alarmDays[i] == checkDay) {
+                    if (checkDay == today && _deadlinePassedToday(self)) {
+                        break;
+                    }
                     return checkDay;
                 }
             }
