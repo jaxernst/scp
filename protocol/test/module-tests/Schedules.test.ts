@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { BigNumber } from "ethers";
 import { deploy, deployTyped, makeDeploymentFixture } from "../helpers/deploy";
-import { currentTimestamp, dayOfWeek, timeOfDay } from "../helpers/time";
+import { DAY, currentTimestamp, dayOfWeek, timeOfDay } from "../helpers/time";
 import { advanceTime } from "../helpers/providerUtils";
 import { AlarmScheduleMock, DeadlineScheduleMock } from "../../typechain-types";
 
@@ -174,17 +174,52 @@ describe("Schedule Modules Tests", () => {
       beforeEach(async () => {
         blockTime = (await currentTimestamp()).toNumber();
       });
-      it("Returns the next alarm time with a same day alarm (before alarm time)", async () => {
-        const currentDay = dayOfWeek(blockTime);
-        const curTimeOfDay = timeOfDay(blockTime);
-        await schedule.init(curTimeOfDay + 60, [currentDay], 60, 0);
-        console.log("Current day", currentDay);
-        expect(await schedule._dayOfWeek(0)).to.equal(currentDay);
-        expect(await schedule._nextAlarmDay()).to.equal(currentDay);
-        expect(await schedule.timeToNextDeadline()).to.approximately(60, 3);
+      for (const offset of [0, 100, -4532, -11 * 60 * 60]) {
+        it("Returns the next alarm time with a same day alarm (before alarm time)", async () => {
+          const currentDay = dayOfWeek(blockTime + offset);
+          const curTimeOfDay = timeOfDay(blockTime + offset);
+          await schedule.init(curTimeOfDay + 60, [currentDay], 60, offset);
+          console.log("Current day", currentDay);
+          expect(await schedule._dayOfWeek(0)).to.equal(currentDay);
+          expect(await schedule._nextAlarmDay()).to.equal(currentDay);
+          expect(await schedule.timeToNextDeadline()).to.approximately(60, 3);
+        });
+        it("Returns the next alarm time for the next day", async () => {
+          const currentDay = dayOfWeek(blockTime + offset);
+          const curTimeOfDay = timeOfDay(blockTime + offset);
+          await schedule.init(
+            curTimeOfDay - 60,
+            [currentDay, (currentDay + 1) % 7],
+            60,
+            offset
+          );
+
+          expect(await schedule._nextAlarmDay()).to.equal((currentDay + 1) % 7);
+          expect(await schedule.timeToNextDeadline()).to.approximately(
+            1 * DAY - 60,
+            3
+          );
+        });
+        it("Returns the next alarm time on the next week", async () => {});
+      }
+      it("Returns correct time when local timezone offset is used", async () => {
+        const localOffset = new Date().getTimezoneOffset() * -60;
+        const currentDay = dayOfWeek(blockTime + localOffset);
+        const curTimeOfDay = timeOfDay(blockTime + localOffset);
+        console.log("Current day", currentDay, "Current time", curTimeOfDay);
+
+        await schedule.init(
+          curTimeOfDay + 60 * 60,
+          [currentDay, (currentDay + 1) % 7],
+          60,
+          localOffset
+        );
+
+        expect(await schedule.timeToNextDeadline()).to.approximately(
+          60 * 60,
+          3
+        );
       });
-      it("Returns the next alarm time on the next day", async () => {});
-      it("Returns the next alarm time on the next week", async () => {});
     });
   });
 });
