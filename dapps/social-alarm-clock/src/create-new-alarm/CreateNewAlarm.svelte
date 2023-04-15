@@ -58,7 +58,7 @@
       alarmdays: alarmDaysArr,
       missedAlarmPenalty: $missedAlarmPenalty,
       submissionWindow: $submissionWindow,
-      timezoneOffset: new Date().getTimezoneOffset() * 60,
+      timezoneOffset: new Date().getTimezoneOffset() * -60,
       otherPlayer: $otherPlayer,
     });
 
