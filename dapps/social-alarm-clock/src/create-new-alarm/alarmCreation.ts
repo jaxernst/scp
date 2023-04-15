@@ -1,6 +1,7 @@
 import { BigNumber } from "ethers";
 import { parseEther } from "ethers/lib/utils.js";
 import { derived, get, writable } from "svelte/store";
+import { account } from "../lib/chainClient";
 
 export const SelectionWheel = (numItems: number) => {
   const i = writable(0); // Selected index
@@ -55,10 +56,10 @@ export const otherPlayer = writable<string>(
 );
 
 export const isReady = derived(
-  [buyIn, timezoneMode, alarmTime, alarmDays],
-  ([$buyIn, $timezoneMode, $alarmTime, $alarmDays]) => {
+  [account, buyIn, timezoneMode, alarmTime, alarmDays, otherPlayer],
+  ([$account, $buyIn, $timezoneMode, $alarmTime, $alarmDays, $otherPlayer]) => {
     return (
-      $buyIn &&
+      $otherPlayer !== $account?.address &&
       $buyIn > 0 &&
       $timezoneMode !== null &&
       $alarmTime !== null &&
