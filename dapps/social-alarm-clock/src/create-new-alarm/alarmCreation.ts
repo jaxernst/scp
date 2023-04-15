@@ -35,13 +35,13 @@ export enum TimezoneMode {
 }
 
 export const alarmDays = writable({
+  Su: false,
   M: false,
   T: false,
   W: false,
   Th: false,
   F: false,
   Sa: false,
-  Su: false,
 });
 
 export const buyIn = writable<number>(0.001);
