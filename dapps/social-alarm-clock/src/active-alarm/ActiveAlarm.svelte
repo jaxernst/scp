@@ -14,7 +14,13 @@
   $: daysActive = $userAlarm.alarmDays();
   $: alarmTime = $userAlarm.alarmTime();
   $: penaltyVal = $userAlarm.missedAlarmPenalty();
-  $: submissionWindow = $userAlarm.submissionWindow();
+  $: submissionWindow = $userAlarm
+    .submissionWindow()
+    .then((res) => res.toNumber());
+  $: timeToNextDeadline = $userAlarm
+    .timeToNextDeadline($account.address)
+    .then((res) => res.toNumber())
+    .catch((res) => console.log(res));
 
   let otherPlayer: EvmAddress | null = null;
   $: getOtherPlayer($userAlarm, $account.address ?? "").then(
@@ -52,11 +58,23 @@
 
         {#await submissionWindow then window}
           <div class="stat-label">Submission Window</div>
-          <div class="stat">{window.toNumber() / 60} (min)</div>
+          <div class="stat">{window / 60} (min)</div>
         {/await}
       </div>
 
-      <button disabled> Confirm Wakeup in 13 Hours </button>
+      {#await timeToNextDeadline then timeSeconds}
+        {#await submissionWindow then submissionWindow}
+          {#if timeSeconds > submissionWindow}
+            <button disabled>
+              Confirm Wakeup in {timeString(timeSeconds)}</button
+            >
+          {:else}
+            <button>
+              Confirm Wakeup in the next {timeString(timeSeconds)}
+            </button>
+          {/if}
+        {/await}
+      {/await}
     </div>
 
     {#if otherPlayer}
