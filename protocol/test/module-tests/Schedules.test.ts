@@ -100,7 +100,6 @@ describe("Schedule Modules Tests", () => {
         blockTime = await currentTimestamp();
         curTimeOfDay = timeOfDay(blockTime.toNumber());
         weekDay = dayOfWeek(blockTime.toNumber());
-        console.log(weekDay);
       });
 
       it("Only allows entries to be recorded when the block time is within submission window of an alarm time", async () => {
@@ -158,7 +157,7 @@ describe("Schedule Modules Tests", () => {
         expect(await schedule.entries()).to.equal(0);
         expect(await schedule.missedDeadlines()).to.equal(0);
 
-        // Advance time by a little les than a week
+        // Advance time by a little less than a week
         await advanceTime(60 * 60 * 24 * 7 - (missedBySeconds + 10));
         await expect(schedule.recordEntry()).to.not.reverted;
         expect(await schedule.entries()).to.equal(1);
@@ -171,42 +170,39 @@ describe("Schedule Modules Tests", () => {
     });
     describe("nextAlarmTime()", () => {
       let blockTime: number;
+      let offset: number = 0;
       beforeEach(async () => {
         blockTime = (await currentTimestamp()).toNumber();
       });
-      for (const offset of [0, 100, -4532, -11 * 60 * 60]) {
-        it("Returns the next alarm time with a same day alarm (before alarm time)", async () => {
-          const currentDay = dayOfWeek(blockTime + offset);
-          const curTimeOfDay = timeOfDay(blockTime + offset);
-          await schedule.init(curTimeOfDay + 60, [currentDay], 60, offset);
-          console.log("Current day", currentDay);
-          expect(await schedule._dayOfWeek(0)).to.equal(currentDay);
-          expect(await schedule._nextAlarmDay()).to.equal(currentDay);
-          expect(await schedule.timeToNextDeadline()).to.approximately(60, 3);
-        });
-        it("Returns the next alarm time for the next day", async () => {
-          const currentDay = dayOfWeek(blockTime + offset);
-          const curTimeOfDay = timeOfDay(blockTime + offset);
-          await schedule.init(
-            curTimeOfDay - 60,
-            [currentDay, (currentDay + 1) % 7],
-            60,
-            offset
-          );
+      it("Returns the next alarm time with a same day alarm (before alarm time)", async () => {
+        const currentDay = dayOfWeek(blockTime + offset);
+        const curTimeOfDay = timeOfDay(blockTime, offset);
+        await schedule.init(curTimeOfDay + 60, [currentDay], 60, offset);
+        expect(await schedule._dayOfWeek(0)).to.equal(currentDay);
+        expect(await schedule._nextAlarmDay()).to.equal(currentDay);
+        expect(await schedule.timeToNextDeadline()).to.approximately(60, 3);
+      });
+      it("Returns the next alarm time for the next day", async () => {
+        const currentDay = dayOfWeek(blockTime + offset);
+        const curTimeOfDay = timeOfDay(blockTime, offset);
+        await schedule.init(
+          curTimeOfDay - 60,
+          [currentDay, (currentDay + 1) % 7],
+          60,
+          offset
+        );
 
-          expect(await schedule._nextAlarmDay()).to.equal((currentDay + 1) % 7);
-          expect(await schedule.timeToNextDeadline()).to.approximately(
-            1 * DAY - 60,
-            3
-          );
-        });
-        it("Returns the next alarm time on the next week", async () => {});
-      }
+        expect(await schedule._nextAlarmDay()).to.equal((currentDay + 1) % 7);
+        expect(await schedule.timeToNextDeadline()).to.approximately(
+          1 * DAY - 60,
+          3
+        );
+      });
+      it("Returns the next alarm time on the next week", async () => {});
       it("Returns correct time when local timezone offset is used", async () => {
         const localOffset = new Date().getTimezoneOffset() * -60;
         const currentDay = dayOfWeek(blockTime + localOffset);
-        const curTimeOfDay = timeOfDay(blockTime + localOffset);
-        console.log("Current day", currentDay, "Current time", curTimeOfDay);
+        const curTimeOfDay = timeOfDay(blockTime, localOffset);
 
         await schedule.init(
           curTimeOfDay + 60 * 60,

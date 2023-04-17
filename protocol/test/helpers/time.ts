@@ -31,7 +31,10 @@ export const lastBlockNumber = async (): Promise<number> =>
   Number(await network.provider.send("eth_blockNumber"));
 
 // Get time of day in seconds from a utc timestamp
-export const timeOfDay = (timestamp: number): number => {
+export const timeOfDay = (
+  timestamp: number,
+  timezoneOffset: number = 0
+): number => {
   const date = new Date(timestamp * 1000);
   return (
     date.getUTCHours() * 3600 + date.getUTCMinutes() * 60 + date.getUTCSeconds()
