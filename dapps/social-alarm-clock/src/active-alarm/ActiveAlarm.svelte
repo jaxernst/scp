@@ -21,9 +21,15 @@
   $: submissionWindow = $userAlarm
     .submissionWindow()
     .then((res) => res.toNumber());
-  $: timeToNextDeadline = $userAlarm
-    .timeToNextDeadline($account.address)
-    .then((res) => res.toNumber());
+
+  let timeToNextDeadline: number | undefined = undefined;
+  $: $userAlarm.timeToNextDeadline($account.address).then((res) => {
+    timeToNextDeadline = res.toNumber();
+  });
+
+  setInterval(() => {
+    if (timeToNextDeadline) timeToNextDeadline -= 1;
+  }, 1000);
 
   let otherPlayer: EvmAddress | null = null;
   $: getOtherPlayer($userAlarm, $account.address ?? "").then(
@@ -73,7 +79,7 @@
             >
           {:else}
             <button>
-              Confirm Wakeup in the next {formatTime(timeSeconds)}
+              Confirm Wakeup! (time left: {formatTime(timeSeconds)})
             </button>
           {/if}
         {/await}
@@ -120,8 +126,8 @@
   button {
     background-color: transparent;
     margin-top: 2em;
-    border: 2px solid rgb(99, 99, 99);
+    border: 2px solid rgb(0, 198, 33);
     border-radius: 1em;
-    color: rgb(99, 99, 99);
+    background-color: rgb(105, 105, 105);
   }
 </style>

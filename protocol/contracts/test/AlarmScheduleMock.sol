@@ -14,7 +14,7 @@ contract AlarmScheduleMock {
         uint submissionWindow,
         int timezoneOffset
     ) public {
-        schedule.init(
+        schedule = AlarmSchedule.init(
             alarmTime,
             alarmDaysOfWeek,
             submissionWindow,
