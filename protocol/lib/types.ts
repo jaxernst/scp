@@ -51,8 +51,8 @@ export type InitializationTypes = {
   PartnerAlarmClock: {
     alarmTime: BigNumberish;
     alarmdays: BigNumberish;
-    missedAlarmPenalty: BigNumberish;
     submissionWindow: BigNumberish;
+    missedAlarmPenalty: BigNumberish;
     timezoneOffset: BigNumberish;
     otherPlayer: string;
   };
