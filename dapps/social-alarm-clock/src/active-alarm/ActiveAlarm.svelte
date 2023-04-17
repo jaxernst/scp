@@ -22,7 +22,7 @@
     .submissionWindow()
     .then((res) => res.toNumber());
 
-  let timeToNextDeadline: number | undefined = undefined;
+  let timeToNextDeadline: number = 0;
   $: $userAlarm.timeToNextDeadline($account.address).then((res) => {
     timeToNextDeadline = res.toNumber();
   });
@@ -71,18 +71,16 @@
         {/await}
       </div>
 
-      {#await timeToNextDeadline then timeSeconds}
-        {#await submissionWindow then submissionWindow}
-          {#if timeSeconds > submissionWindow}
-            <button disabled>
-              Confirm Wakeup in {formatTime(timeSeconds)}</button
-            >
-          {:else}
-            <button>
-              Confirm Wakeup! (time left: {formatTime(timeSeconds)})
-            </button>
-          {/if}
-        {/await}
+      {#await submissionWindow then submissionWindow}
+        {#if timeToNextDeadline > submissionWindow}
+          <button disabled>
+            Confirm Wakeup in {formatTime(timeToNextDeadline)}</button
+          >
+        {:else}
+          <button>
+            Confirm Wakeup! (time left: {formatTime(timeToNextDeadline)})
+          </button>
+        {/if}
       {/await}
     </div>
 
@@ -126,7 +124,7 @@
   button {
     background-color: transparent;
     margin-top: 2em;
-    border: 2px solid rgb(0, 198, 33);
+    border: 2px solid rgb(219, 219, 219);
     border-radius: 1em;
     background-color: rgb(105, 105, 105);
   }
