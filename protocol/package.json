@@ -1,28 +1,28 @@
 {
-    "name": "@scp/protocol",
-    "dependencies": {
-        "@nomiclabs/hardhat-ethers": "^2.1.1",
-        "@openzeppelin/contracts": "^4.7.3",
-        "@scp": "workspace:^",
-        "@scp/interface": "workspace:^",
-        "@typechain/ethers-v5": "^10.1.0",
-        "@typechain/hardhat": "^6.1.2",
-        "@types/mocha": "^9.1.1",
-        "chai": "^4.3.6",
-        "decimal.js": "^10.4.1",
-        "dotenv": "^16.0.3",
-        "ethers": "5.6.9",
-        "hardhat": "^2.11.1",
-        "mocha": "^10.0.0",
-        "typechain": "^8.1.0"
-    },
-    "scripts": {
-        "test": "yarn hardhat test",
-        "deploy-local": "hardhat node & (sleep 1.5 && hardhat run scripts/deploy.ts --network localhost && yarn fund-wallet-local)",
-        "fund-wallet-local": "hardhat run scripts/fund-wallet-local.ts --network localhost"
-    },
-    "devDependencies": {
-        "@nomicfoundation/hardhat-chai-matchers": "^1.0.5",
-        "hardhat-abi-exporter": "^2.10.1"
-    }
+  "name": "@scp/protocol",
+  "dependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.1.1",
+    "@openzeppelin/contracts": "^4.7.3",
+    "@scp": "workspace:^",
+    "@scp/interface": "workspace:^",
+    "@typechain/ethers-v5": "^10.1.0",
+    "@typechain/hardhat": "^6.1.2",
+    "@types/mocha": "^9.1.1",
+    "chai": "^4.3.6",
+    "decimal.js": "^10.4.1",
+    "dotenv": "^16.0.3",
+    "ethers": "5.6.9",
+    "hardhat": "^2.11.1",
+    "mocha": "^10.0.0",
+    "typechain": "^8.1.0"
+  },
+  "scripts": {
+    "test": "yarn hardhat test",
+    "deploy-local": "hardhat node & (sleep 1.5 && hardhat run scripts/deploy.ts --network localhost && yarn fund-wallet-local && hh automine --off --interval 1000 --network localhost)",
+    "fund-wallet-local": "hardhat run scripts/fund-wallet-local.ts --network localhost"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-chai-matchers": "^1.0.5",
+    "hardhat-abi-exporter": "^2.10.1"
+  }
 }
