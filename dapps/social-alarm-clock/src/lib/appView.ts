@@ -16,7 +16,7 @@ export enum View {
 
 function MakeAppViewController() {
   const view = writable<View>(View.WELCOME);
-  let inWelcomeMode = true;
+  let inWelcomeMode = false;
 
   const initView = () => {
     const _account = get(account);
