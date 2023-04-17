@@ -19,9 +19,6 @@ contract PartnerAlarmClock is BaseCommitment {
 
     using AlarmSchedule for AlarmSchedule.Schedule;
 
-    AlarmSchedule.Schedule player1Schedule;
-    AlarmSchedule.Schedule player2Schedule;
-
     struct Player {
         AlarmSchedule.Schedule schedule;
         uint depositAmount;
@@ -60,14 +57,14 @@ contract PartnerAlarmClock is BaseCommitment {
         ) = abi.decode(data, (uint, uint8[], uint, uint, int, address));
 
         players[player1].depositAmount = msg.value;
-        players[player1].schedule.init(
+        players[player1].schedule = AlarmSchedule.init(
             alarmTime,
             alarmActiveDays,
             submissionWindow,
             timezoneOffset
         );
 
-        players[player2].schedule.init(
+        players[player2].schedule = AlarmSchedule.init(
             alarmTime,
             alarmActiveDays,
             submissionWindow,
@@ -109,33 +106,16 @@ contract PartnerAlarmClock is BaseCommitment {
      * the submission window on an alarm day for the entry to be recorded
      */
     function submitConfirmation() public override onlyPlayer {
-        if (msg.sender == player1) {
-            player1Schedule.recordEntry();
-        } else {
-            player2Schedule.recordEntry();
-        }
-
+        players[msg.sender].schedule.recordEntry();
         emit ConfirmationSubmitted();
     }
 
     function missedDeadlines(address player) public view returns (uint) {
-        if (player == player1) {
-            return player1Schedule.missedDeadlines();
-        } else if (player == player2) {
-            return player2Schedule.missedDeadlines();
-        } else {
-            revert("INVALID_PLAYER");
-        }
+        return players[player].schedule.missedDeadlines();
     }
 
     function timeToNextDeadline(address player) public view returns (uint) {
-        if (player == player1) {
-            return player1Schedule.timeToNextDeadline();
-        } else if (player == player2) {
-            return player2Schedule.timeToNextDeadline();
-        } else {
-            revert("INVALID_PLAYER");
-        }
+        return players[player].schedule.timeToNextDeadline();
     }
 
     function alarmDays() public view returns (uint8[] memory) {
