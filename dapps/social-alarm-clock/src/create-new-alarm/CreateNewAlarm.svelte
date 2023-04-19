@@ -135,10 +135,10 @@
 
 <style>
   .container {
+    width: 100%;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    gap: 1em;
-    justify-content: center;
     align-items: center;
   }
 
@@ -158,8 +158,10 @@
   }
 
   .selection-controls {
+    flex-grow: 1;
+    width: 100%;
     display: grid;
-    grid-template-columns: 1fr 300px 1fr;
+    grid-template-columns: 15% 1fr 15%;
     justify-items: center;
     align-items: center;
     height: 4em;
@@ -174,6 +176,7 @@
   }
 
   .arrow {
-    height: 30px;
+    height: 60%;
+    background-color: var(--bg-color2);
   }
 </style>

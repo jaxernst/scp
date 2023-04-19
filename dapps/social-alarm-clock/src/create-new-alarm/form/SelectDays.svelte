@@ -3,7 +3,7 @@
   import { alarmDays } from "../alarmCreation";
 </script>
 
-Select Days
+Select the Days to Enforce the Alarm
 <div class="days">
   {#each Object.keys($alarmDays) as day}
     <ToggleLetter value={day} bind:toggled={$alarmDays[day]} />
@@ -14,5 +14,6 @@ Select Days
   .days {
     display: flex;
     gap: 0.5em;
+    font-size: 1.2em;
   }
 </style>

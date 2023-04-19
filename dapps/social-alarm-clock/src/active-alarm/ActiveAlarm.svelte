@@ -12,6 +12,7 @@
   import { formatEther } from "ethers/lib/utils.js";
   import { getOtherPlayer } from "../lib/alarmHelpers";
   import PlayerInfo from "./PlayerInfo.svelte";
+  import { transactions } from "../lib/transactions";
 
   $: userAlarm = $getRequiredUserAlarm();
   $: account = $getRequiredAccount();
@@ -35,15 +36,19 @@
   $: getOtherPlayer($userAlarm, $account.address ?? "").then(
     (res) => (otherPlayer = res as EvmAddress)
   );
+
+  const submitConfirmation = () => {
+    transactions.addTransaction($userAlarm.submitConfirmation());
+  };
 </script>
 
 <div>
   <div class="container">
-    <PlayerInfo playerAddress={$account.address} />
+    <PlayerInfo playerAddress={$account.address} heading="Player 1" />
 
     <div class="alarm-overview">
       {#await alarmTime then time}
-        <div style={"font-size: 3.5em"}>
+        <div style={"font-size: 3.8em"}>
           <ClockDisplay
             overrideTime={timeString(time.toNumber())}
             overrideColor={"orange"}
@@ -77,7 +82,7 @@
             Confirm Wakeup in {formatTime(timeToNextDeadline)}</button
           >
         {:else}
-          <button>
+          <button on:click={submitConfirmation}>
             Confirm Wakeup! (time left: {formatTime(timeToNextDeadline)})
           </button>
         {/if}
@@ -85,7 +90,7 @@
     </div>
 
     {#if otherPlayer}
-      <PlayerInfo playerAddress={otherPlayer} />
+      <PlayerInfo playerAddress={otherPlayer} heading="Player 2" />
     {/if}
   </div>
 </div>
@@ -94,6 +99,11 @@
   .container {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  .alarm-overview {
+    padding-bottom: 1.5em;
+    padding-top: 0.5em;
   }
 
   .active-days {
@@ -123,9 +133,9 @@
 
   button {
     background-color: transparent;
-    margin-top: 2em;
-    border: 2px solid rgb(219, 219, 219);
+    margin-top: 1.5em;
+    border: 1px solid orange;
     border-radius: 1em;
-    background-color: rgb(105, 105, 105);
+    background-color: var(--bg-color2);
   }
 </style>

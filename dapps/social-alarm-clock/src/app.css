@@ -11,6 +11,9 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
+
+  --bg-color1: rgb(41, 41, 41);
+  --bg-color2: rgb(50, 50, 50);
 }
 
 html {
@@ -57,7 +60,7 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: var(--bg-color1);
   cursor: pointer;
   transition: border-color 0.25s;
 }
@@ -66,12 +69,11 @@ button:hover {
 }
 button:focus,
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
 }
 
 .light-button {
   background: none;
-  background-color: rgb(60, 60, 60);
+  background-color: var(--bg-color1);
   padding: 0.3em 0.5em;
 }
 
