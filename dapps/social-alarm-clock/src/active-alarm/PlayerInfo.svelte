@@ -8,7 +8,7 @@
   import { formatEther } from "ethers/lib/utils.js";
 
   export let playerAddress: EvmAddress;
-  let heading: string = "Player Info";
+  export let heading: string = "Player Info";
   $: missedAlarms = $userAlarm!.missedDeadlines(playerAddress);
   $: betStanding = getBetStanding(playerAddress, $userAlarm!).then((res) =>
     Number(formatEther(res))
@@ -73,7 +73,6 @@
   }
 
   .heading {
-    text-decoration: underline;
     padding: 1em;
   }
 
