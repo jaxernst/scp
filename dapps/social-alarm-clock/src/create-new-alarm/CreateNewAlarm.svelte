@@ -177,6 +177,6 @@
 
   .arrow {
     height: 60%;
-    background-color: var(--bg-color2);
+    background: rgba(128, 128, 128, 0.441);
   }
 </style>
