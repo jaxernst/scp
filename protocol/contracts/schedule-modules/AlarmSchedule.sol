@@ -45,7 +45,7 @@ library AlarmSchedule {
 
     function start(Schedule storage self) internal {
         require(self.initialized, "NOT_INITIALIZED");
-        self.activationTimestamp = block.timestamp;
+        self.activationTimestamp = _nextDeadlineInterval(self);
     }
 
     function entries(
@@ -92,6 +92,8 @@ library AlarmSchedule {
     function missedDeadlines(
         Schedule storage self
     ) internal view returns (uint numMissedDeadlines) {
+        if (block.timestamp < self.activationTimestamp) return 0;
+
         uint256 daysPassed = (block.timestamp - self.activationTimestamp) /
             1 days;
 
@@ -129,38 +131,35 @@ library AlarmSchedule {
     function timeToNextDeadline(
         Schedule storage self
     ) internal view returns (uint) {
-        uint localTime = _offsetTimestamp(block.timestamp, self.timezoneOffset);
-        uint256 currentDay = _dayOfWeek(localTime);
-        uint256 currentDayTime = localTime - _lastMidnightTimestamp(self);
+        return nextDeadlineTimestamp(self) - block.timestamp;
+    }
 
-        uint256 nextAlarmDay;
-        uint256 daysUntilNextAlarm;
-        if (currentDayTime >= self.alarmTime) {
-            currentDay = (currentDay % 7) + 1;
-            daysUntilNextAlarm = 1;
-        }
+    function nextDeadlineTimestamp(
+        Schedule storage self
+    ) internal view returns (uint) {
+        uint referenceTimestamp = _lastDeadlineInterval(self);
+        uint8 curDay = _dayOfWeek(referenceTimestamp);
 
-        for (uint8 i = 0; i < self.alarmDays.length; i++) {
-            if (
-                self.alarmDays[i] >= currentDay &&
-                (nextAlarmDay == 0 || self.alarmDays[i] < nextAlarmDay)
-            ) {
-                nextAlarmDay = self.alarmDays[i];
+        // Get next alarm day
+        uint8 daysAway = _nextAlarmDay(self, curDay) - curDay;
+        return referenceTimestamp + uint(daysAway) * 1 days;
+    }
+
+    function _nextAlarmDay(
+        Schedule storage self,
+        uint8 currentDay
+    ) internal view returns (uint8) {
+        /**
+         * Iterate over the alarmDays and take the first day that that's greater than today
+         * If there are none, return the earliest alarmDay (lowest index)
+         */
+        for (uint i; i < self.alarmDays.length; i++) {
+            if (self.alarmDays[i] > currentDay) {
+                return self.alarmDays[i];
             }
         }
 
-        if (nextAlarmDay == 0) {
-            for (uint8 i = 0; i < self.alarmDays.length; i++) {
-                if (nextAlarmDay == 0 || self.alarmDays[i] < nextAlarmDay) {
-                    nextAlarmDay = self.alarmDays[i];
-                }
-            }
-            daysUntilNextAlarm += 7 - currentDay + nextAlarmDay;
-        } else {
-            daysUntilNextAlarm += nextAlarmDay - currentDay;
-        }
-
-        return daysUntilNextAlarm * 1 days + self.alarmTime - currentDayTime;
+        return self.alarmDays[0];
     }
 
     function _nextDeadlineInterval(
@@ -220,30 +219,6 @@ library AlarmSchedule {
         return false;
     }
 
-    // Should a bound be placed on the while loop?
-    function _nextAlarmDay(Schedule storage self) internal view returns (uint) {
-        uint8 today = _dayOfWeek(
-            _offsetTimestamp(block.timestamp, self.timezoneOffset)
-        );
-
-        uint8 checkDay = today;
-        uint n = 0;
-
-        while (n <= 7) {
-            for (uint i; i < self.alarmDays.length; i++) {
-                if (self.alarmDays[i] == checkDay) {
-                    if (checkDay == today && _deadlinePassedToday(self)) {
-                        break;
-                    }
-                    return checkDay;
-                }
-            }
-            checkDay = (checkDay % 7) + 1;
-            n++;
-        }
-        revert("invariant error");
-    }
-
     // 1 = Sunday, 7 = Saturday
     function _dayOfWeek(
         uint256 timestamp
@@ -283,10 +258,13 @@ library AlarmSchedule {
         if (daysActive.length > 7 || daysActive.length == 0) {
             return false;
         }
+        uint8 lastDay;
         for (uint i; i < daysActive.length; i++) {
-            if (daysActive[i] == 0 || daysActive[i] > 7) {
+            uint8 day = daysActive[i];
+            if (day == 0 || day > 7 || lastDay > day) {
                 return false;
             }
+            lastDay = day;
         }
         return true;
     }
