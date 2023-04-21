@@ -14,6 +14,7 @@
   import Welcome from "./Welcome.svelte";
   import { fade } from "svelte/transition";
   import { getOtherPlayer } from "./lib/alarmHelpers";
+  import PendingAlarms from "./PendingAlarms.svelte";
 
   $: otherPlayer =
     $userAlarm && $account?.address
@@ -28,7 +29,7 @@
   }
 
   $: mainBackgroundColor =
-    $view === View.CONNECT_WALLET ? "rgb(54, 54, 54, .2);" : "var(--bg-color1)";
+    $view !== View.ALARM_ACTIVE ? "rgb(54, 54, 54, .2);" : "var(--bg-color1)";
 </script>
 
 <SvelteToast />
@@ -95,14 +96,11 @@
       {:else if $view === View.JOIN_ALARM}
         <JoinAlarm />
       {:else if $view === View.WAITING_FOR_OTHER_PLAYER}
-        <div style="outline: 1px dashed grey; padding: 1em">
-          <div><b>Alarm {alarmId ? "#" + alarmId : ""} Pending</b></div>
+        {#await alarmId then alarmId}
           {#await otherPlayer then otherPlayer}
-            <i
-              >Waiting for {shorthandAddress(otherPlayer ?? "")} to start the alarm</i
-            >
+            <PendingAlarms items={[{ otherPlayer, id: alarmId }]} />
           {/await}
-        </div>
+        {/await}
       {:else if $view === View.ALARM_ACTIVE}
         <ActiveAlarm />
       {/if}
@@ -159,7 +157,7 @@
   .title {
     font-weight: bold;
     text-align: left;
-    font-size: 1.5em;
+    font-size: 1.2em;
   }
 
   .top-bar-right {
@@ -206,7 +204,7 @@
   }
 
   .new-alarm-button:hover {
-    background-color: rgb(117, 117, 117);
+    background-color: var(--button-highlight1);
     transition: background-color 0.3s ease-in-out;
   }
 
