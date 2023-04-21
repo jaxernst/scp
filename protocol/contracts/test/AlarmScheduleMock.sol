@@ -43,10 +43,6 @@ contract AlarmScheduleMock {
         return schedule.recordEntry();
     }
 
-    function _nextAlarmDay() public view returns (uint256) {
-        return schedule._nextAlarmDay();
-    }
-
     function _dayOfWeek(int offset) public view returns (uint256) {
         uint offsetTime = AlarmSchedule._offsetTimestamp(
             block.timestamp,
