@@ -19,6 +19,11 @@ library AlarmSchedule {
         uint32[7] alarmEntries;
     }
 
+    modifier started(Schedule storage self) {
+        require(self.activationTimestamp > 0, "NOT_STARTED");
+        _;
+    }
+
     function init(
         uint alarmTime,
         uint8[] memory alarmDaysOfWeek,
@@ -50,14 +55,14 @@ library AlarmSchedule {
 
     function entries(
         Schedule storage self
-    ) internal view returns (uint confirmations) {
+    ) internal view started(self) returns (uint confirmations) {
         confirmations = 0;
         for (uint i; i < self.alarmEntries.length; i++) {
             confirmations += self.alarmEntries[i];
         }
     }
 
-    function recordEntry(Schedule storage self) internal {
+    function recordEntry(Schedule storage self) internal started(self) {
         uint timeSinceLastEntry = block.timestamp - self.lastEntryTime;
         // Require that the user has waited at least 1 day since last entry (with margin for the submission window)
         require(
@@ -74,7 +79,7 @@ library AlarmSchedule {
 
     function inSubmissionWindow(
         Schedule storage self
-    ) internal view returns (bool) {
+    ) internal view started(self) returns (bool) {
         if (_deadlinePassedToday(self)) {
             return false;
         }
@@ -91,7 +96,7 @@ library AlarmSchedule {
      */
     function missedDeadlines(
         Schedule storage self
-    ) internal view returns (uint numMissedDeadlines) {
+    ) internal view started(self) returns (uint numMissedDeadlines) {
         if (block.timestamp < self.activationTimestamp) return 0;
 
         uint256 daysPassed = (block.timestamp - self.activationTimestamp) /
@@ -130,18 +135,25 @@ library AlarmSchedule {
 
     function timeToNextDeadline(
         Schedule storage self
-    ) internal view returns (uint) {
+    ) internal view started(self) returns (uint) {
         return nextDeadlineTimestamp(self) - block.timestamp;
     }
 
     function nextDeadlineTimestamp(
         Schedule storage self
-    ) internal view returns (uint) {
+    ) internal view started(self) returns (uint) {
         uint referenceTimestamp = _lastDeadlineInterval(self);
         uint8 curDay = _dayOfWeek(referenceTimestamp);
 
         // Get next alarm day
-        uint8 daysAway = _nextAlarmDay(self, curDay) - curDay;
+        uint nextDay = _nextAlarmDay(self, curDay);
+        uint8 daysAway;
+        if (nextDay > curDay) {
+            daysAway = _nextAlarmDay(self, curDay) - curDay;
+        } else {
+            daysAway = 7 - curDay + _nextAlarmDay(self, 0);
+        }
+
         return referenceTimestamp + uint(daysAway) * 1 days;
     }
 
