@@ -139,7 +139,6 @@ describe("Alarm Schedule Test", () => {
       const curTimeOfDay = timeOfDay(blockTime, offset);
       await schedule.init(curTimeOfDay + 60, [currentDay], 60, offset);
       expect(await schedule._dayOfWeek(0)).to.equal(currentDay);
-
       expect(await schedule.timeToNextDeadline()).to.approximately(60, 3);
     });
     it("Returns the next alarm time for the next day", async () => {

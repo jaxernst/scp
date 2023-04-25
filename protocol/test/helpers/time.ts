@@ -33,17 +33,24 @@ export const lastBlockNumber = async (): Promise<number> =>
 // Get time of day in seconds from a utc timestamp
 export const timeOfDay = (
   timestamp: number,
-  timezoneOffset: number = 0
+  timezoneOffsetHrs: number = 0
 ): number => {
-  const date = new Date(timestamp * 1000);
+  const date = new Date((timestamp + timezoneOffsetHrs * 60 * 60) * 1000);
   return (
     date.getUTCHours() * 3600 + date.getUTCMinutes() * 60 + date.getUTCSeconds()
   );
 };
 
-export const dayOfWeek = (timestamp: number): number => {
-  const date = new Date(timestamp * 1000);
+export const dayOfWeek = (
+  timestamp: number,
+  timezoneOffsetHrs: number = 0
+): number => {
+  const date = new Date((timestamp + timezoneOffsetHrs * 60 * 60) * 1000);
   return date.getUTCDay() + 1;
+};
+
+export const localTzOffsetHrs = (): number => {
+  return new Date().getTimezoneOffset() / -60;
 };
 
 export const SECOND = 1;
