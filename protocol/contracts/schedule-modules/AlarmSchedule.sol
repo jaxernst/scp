@@ -45,6 +45,7 @@ library AlarmSchedule {
         schedule.submissionWindow = submissionWindow;
         schedule.timezoneOffset = timezoneOffset;
         schedule.initialized = true;
+        schedule.activationTimestamp = 0;
         return schedule;
     }
 
@@ -99,15 +100,15 @@ library AlarmSchedule {
     ) internal view started(self) returns (uint numMissedDeadlines) {
         if (block.timestamp < self.activationTimestamp) return 0;
 
-        uint256 daysPassed = (block.timestamp - self.activationTimestamp) /
-            1 days;
-
         // The current day of week is taken from the last deadline time (timezone adjusted)
-        uint256 lastDeadlineDay = _dayOfWeek(_lastDeadlineInterval(self));
+        uint256 curDay = _dayOfWeek(_lastDeadlineInterval(self));
 
         uint8 activationDay = _dayOfWeek(
             _offsetTimestamp(self.activationTimestamp, self.timezoneOffset)
         );
+
+        uint256 daysPassed = (block.timestamp - self.activationTimestamp) /
+            1 days;
 
         // The expected amount of confirmations for any given alarm day is at least
         // the amount of weeks elasped.
@@ -118,17 +119,21 @@ library AlarmSchedule {
         for (uint i; i < self.alarmDays.length; i++) {
             uint8 checkDay = self.alarmDays[i];
             uint expectedConfirmationsOnThisDay = minConfirmations;
-            uint actualConfimrationsOnThisDay = uint(
+            uint actualConfirmationsOnThisDay = uint(
                 self.alarmEntries[checkDay - 1]
             );
-            if (activationDay <= checkDay && checkDay <= lastDeadlineDay) {
+
+            if (activationDay <= checkDay && checkDay < curDay) {
+                expectedConfirmationsOnThisDay++;
+            }
+            if (checkDay == curDay && _deadlinePassedToday(self)) {
                 expectedConfirmationsOnThisDay++;
             }
 
-            if (expectedConfirmationsOnThisDay > actualConfimrationsOnThisDay) {
+            if (expectedConfirmationsOnThisDay > actualConfirmationsOnThisDay) {
                 numMissedDeadlines +=
                     expectedConfirmationsOnThisDay -
-                    actualConfimrationsOnThisDay;
+                    actualConfirmationsOnThisDay;
             }
         }
     }
@@ -143,13 +148,17 @@ library AlarmSchedule {
         Schedule storage self
     ) internal view started(self) returns (uint) {
         uint referenceTimestamp = _lastDeadlineInterval(self);
-        uint8 curDay = _dayOfWeek(referenceTimestamp);
+
+        uint8 curDay = _dayOfWeek(
+            _offsetTimestamp(referenceTimestamp, self.timezoneOffset)
+        );
 
         // Get next alarm day
-        uint nextDay = _nextAlarmDay(self, curDay);
+        uint8 nextDay = _nextAlarmDay(self, curDay);
+
         uint8 daysAway;
-        if (nextDay > curDay) {
-            daysAway = _nextAlarmDay(self, curDay) - curDay;
+        if (nextDay >= curDay) {
+            daysAway = nextDay - curDay;
         } else {
             daysAway = 7 - curDay + _nextAlarmDay(self, 0);
         }
@@ -248,13 +257,18 @@ library AlarmSchedule {
     }
 
     /**
-     * @notice 'midnight' is timezone specific so we must offset the timestamp
+     * @notice 'midnight' is timezone specific so we must offset the timestamp before taking the modulus.
+     * this is like pretending UTC started in the user's timezone instead of GMT.
      */
     function _lastMidnightTimestamp(
         Schedule storage self
     ) internal view returns (uint) {
-        uint _now = _offsetTimestamp(block.timestamp, self.timezoneOffset);
-        return _now - (_now % 1 days);
+        uint localTimestamp = _offsetTimestamp(
+            block.timestamp,
+            self.timezoneOffset
+        );
+        uint lastMidnightLocal = localTimestamp - (localTimestamp % 1 days);
+        return _offsetTimestamp(lastMidnightLocal, -self.timezoneOffset);
     }
 
     function _offsetTimestamp(

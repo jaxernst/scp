@@ -35,7 +35,7 @@ export const timeOfDay = (
   timestamp: number,
   timezoneOffsetHrs: number = 0
 ): number => {
-  const date = new Date((timestamp + timezoneOffsetHrs * 60 * 60) * 1000);
+  const date = new Date((timestamp + timezoneOffsetHrs * HOUR) * 1000);
   return (
     date.getUTCHours() * 3600 + date.getUTCMinutes() * 60 + date.getUTCSeconds()
   );

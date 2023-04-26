@@ -1,6 +1,11 @@
 import { Signer, Wallet } from "ethers";
 import { ethers } from "hardhat";
-import { systemTimestamp, timeOfDay } from "../test/helpers/time";
+import {
+  HOUR,
+  currentTimestamp,
+  systemTimestamp,
+  timeOfDay,
+} from "../test/helpers/time";
 import { encodeCreationParams } from "@scp/sdk";
 import { commitmentTypeVals, solidityInitializationTypes } from "../lib/types";
 import { parseEther } from "ethers/lib/utils.js";
@@ -27,7 +32,7 @@ async function main() {
   let time =
     today.getHours() * 60 * 60 + today.getMinutes() * 60 + today.getSeconds();
 
-  const timezoneOffset = new Date().getTimezoneOffset() * -60;
+  const timezoneOffset = -7 * HOUR;
   const alarmTime = time + 60 * 3;
   console.log("making an alarm for ", time + 60 * 3);
   const dayOfWeek = [1, 2, 3, 4, 5, 6, 7];
@@ -61,8 +66,9 @@ async function main() {
   const tx1 = await commit.connect(u2).start({ value: missedAlarmPenalty });
   await tx1.wait();
   await waitForOneBlock();
-  await waitForOneBlock();
-  console.log(await commit.timeToNextDeadline(u2.address));
+  console.log(systemTimestamp());
+  console.log((await currentTimestamp()).toNumber());
+  console.log((await commit.timeToNextDeadline(u2.address)).toNumber());
 }
 
 // We recommend this pattern to be able to use async/await everywhere

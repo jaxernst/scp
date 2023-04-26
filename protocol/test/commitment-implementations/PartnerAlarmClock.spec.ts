@@ -2,14 +2,18 @@ import { expect } from "chai";
 import { BigNumber, Signer } from "ethers";
 import { formatEther, parseEther } from "ethers/lib/utils";
 import { createCommitment } from "../../lib/commitmentCreation";
-import { CommitStatus } from "../../lib/types";
+import {
+  CommitStatus,
+  commitmentTypeVals,
+  solidityInitializationTypes,
+} from "../../lib/types";
 import {
   CommitmentHub,
   PartnerAlarmClock,
   TimelockingDeadlineTask,
 } from "../../typechain-types";
 import { deployTyped } from "../helpers/deploy";
-import { advanceTime } from "../helpers/providerUtils";
+import { advanceTime, waitForOneBlock } from "../helpers/providerUtils";
 import {
   DAY,
   HOUR,
@@ -19,6 +23,7 @@ import {
 } from "../helpers/time";
 import { ethers } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { alarmTime } from "../../../dapps/social-alarm-clock/src/create-new-alarm/alarmCreation";
 
 describe("Partner Alarm Clock test", () => {
   let hub: CommitmentHub;
@@ -100,9 +105,10 @@ describe("Partner Alarm Clock test", () => {
   });
 
   it("Returns the time until the next alarm is due (local tz offset)", async () => {
-    const localOffset = new Date().getTimezoneOffset() * -60;
-    const curTime = timeOfDay(blockTime, localOffset);
-    const curDay = dayOfWeek(blockTime, localOffset);
+    const localOffsetHrs = new Date().getTimezoneOffset() / -60;
+    const curTime = timeOfDay(blockTime, localOffsetHrs);
+    const curDay = dayOfWeek(blockTime, localOffsetHrs);
+    console.log(curDay);
     const alarmTime = curTime + 60;
     const alarm = await createCommitment(
       hub,
@@ -112,7 +118,7 @@ describe("Partner Alarm Clock test", () => {
         alarmdays: [curDay, curDay + 1],
         missedAlarmPenalty: parseEther("0.1"),
         submissionWindow: submissionWindow,
-        timezoneOffset: localOffset,
+        timezoneOffset: localOffsetHrs * HOUR,
         otherPlayer: p2.address,
       },
       collateralVal
@@ -128,7 +134,7 @@ describe("Partner Alarm Clock test", () => {
     // Advance time to the next day
     await advanceTime(60 * 60 * 20);
     const blockTime2 = (await currentTimestamp()).toNumber();
-    const curTime2 = timeOfDay(blockTime2, localOffset);
+    const curTime2 = timeOfDay(blockTime2, localOffsetHrs);
     expect(curTime2).to.approximately((curTime + HOUR * 20) % DAY, 5);
 
     const result2P1 = await alarm.timeToNextDeadline(p1.address);

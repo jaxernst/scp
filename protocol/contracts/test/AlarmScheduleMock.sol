@@ -35,6 +35,10 @@ contract AlarmScheduleMock {
         return schedule.timeToNextDeadline();
     }
 
+    function nextDeadlineTimestamp() public view returns (uint) {
+        return schedule.nextDeadlineTimestamp();
+    }
+
     function inSubmissionWindow() public view returns (bool) {
         return schedule.inSubmissionWindow();
     }
@@ -49,5 +53,9 @@ contract AlarmScheduleMock {
             offset
         );
         return AlarmSchedule._dayOfWeek(offsetTime);
+    }
+
+    function _nextAlarmDay(uint8 curDay) public view returns (uint256) {
+        return schedule._nextAlarmDay(curDay);
     }
 }
