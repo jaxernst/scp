@@ -8,6 +8,7 @@ import {
   WEEK,
   currentTimestamp,
   dayOfWeek,
+  systemTimestamp,
   timeOfDay,
 } from "../helpers/time";
 import { advanceTime } from "../helpers/providerUtils";
@@ -133,7 +134,10 @@ describe("Alarm Schedule Test", () => {
       blockTime = (await currentTimestamp()).toNumber();
     });
 
-    for (let offset of [0, 6, -6]) {
+    for (let offset of [
+      -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8,
+      9, 10, 11,
+    ]) {
       it(
         "Returns 0 before the first alarm deadline" + ` (offset: ${offset}hrs)`,
         async () => {
@@ -141,7 +145,7 @@ describe("Alarm Schedule Test", () => {
           const curTimeOfDay = timeOfDay(blockTime, offset);
           await schedule.init(
             curTimeOfDay - 60,
-            [currentDay, (currentDay % 7) + 1],
+            [currentDay, (currentDay % 7) + 1].sort(),
             60,
             offset * HOUR
           );

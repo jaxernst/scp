@@ -101,7 +101,9 @@ library AlarmSchedule {
         if (block.timestamp < self.activationTimestamp) return 0;
 
         // The current day of week is taken from the last deadline time (timezone adjusted)
-        uint256 curDay = _dayOfWeek(_lastDeadlineInterval(self));
+        uint256 curDay = _dayOfWeek(
+            _offsetTimestamp(block.timestamp, self.timezoneOffset)
+        );
 
         uint8 activationDay = _dayOfWeek(
             _offsetTimestamp(self.activationTimestamp, self.timezoneOffset)
@@ -114,8 +116,6 @@ library AlarmSchedule {
         // the amount of weeks elasped.
         uint minConfirmations = daysPassed / 7;
 
-        // If the user confirmations count for an active day is less than the expected
-        // deadline count on that day, missedWakeups is incremented by the difference
         for (uint i; i < self.alarmDays.length; i++) {
             uint8 checkDay = self.alarmDays[i];
             uint expectedConfirmationsOnThisDay = minConfirmations;
