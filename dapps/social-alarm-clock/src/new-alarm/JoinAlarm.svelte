@@ -1,10 +1,10 @@
 <script lang="ts">
   import { toast } from "@zerodevx/svelte-toast";
   import { shorthandAddress } from "@scp/dapp-lib";
-  import { account } from "./lib/chainClient";
-  import { commitmentHub } from "./lib/contractInterface";
-  import { getAlarmById, getAlarms } from "./lib/alarmHelpers";
-  import { transactions } from "./lib/transactions";
+  import { account } from "../lib/chainClient";
+  import { commitmentHub } from "../lib/contractInterface";
+  import { getAlarmById, getAlarms } from "../lib/alarmHelpers";
+  import { transactions } from "../lib/transactions";
   import { otherPlayer } from "./create-new-alarm/alarmCreation";
 
   let alarmId = "";

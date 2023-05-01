@@ -1,11 +1,12 @@
 <script lang="ts">
   import { prepareWriteContract, writeContract } from "@wagmi/core";
-  import CommitmentHubAbi from "@scp/sdk/abi/CommitmentHub.json";
+
   import { encodeCreationParams } from "@scp/sdk/src/scp-helpers";
   import {
     alarmDays,
     alarmTime,
     buyIn,
+    createAlarm,
     isReady,
     missedAlarmPenalty,
     otherPlayer,
@@ -36,46 +37,11 @@
 
   $: selected = $selections.selected;
 
-  const dayValueMap = { Su: 1, M: 2, T: 3, W: 4, Th: 5, F: 6, Sa: 7 };
+  $: create = async () => {
+    const createResult = $createAlarm();
+    if (!createResult) return;
 
-  const createAlarm = async () => {
-    const alarmDaysArr = Object.entries($alarmDays).reduce(
-      (acc, [day, selected]) => {
-        if (selected) {
-          acc.push(dayValueMap[day as keyof typeof dayValueMap]);
-        }
-        return acc;
-      },
-      [] as number[]
-    );
-
-    // We have '$alarmTIme' as as string in the format of 'HH:MM', and we must convert that
-    // to a time of day in seconds
-    const [hours, minutes] = $alarmTime.split(":");
-    const alarmTimeSeconds = parseInt(hours) * 60 * 60 + parseInt(minutes) * 60;
-    const encodedParams = encodeCreationParams("PartnerAlarmClock", {
-      alarmTime: alarmTimeSeconds,
-      alarmdays: alarmDaysArr,
-      missedAlarmPenalty: $missedAlarmPenalty,
-      submissionWindow: $submissionWindow,
-      timezoneOffset: new Date().getTimezoneOffset() * -60,
-      otherPlayer: $otherPlayer,
-    });
-
-    const config = await prepareWriteContract({
-      address: CommitmentHubAddress,
-      abi: CommitmentHubAbi,
-      functionName: "createCommitment",
-      args: [2, encodedParams],
-      overrides: {
-        value: parseEther(get(buyIn)?.toString() ?? "0"),
-      },
-    });
-
-    const txResult = await transactions.addTransaction(
-      writeContract(config) as Promise<ContractTransaction>
-    );
-
+    const txResult = await transactions.addTransaction(createResult);
     if (!txResult.error) {
       toast.push("Alarm creation successful!");
     } else {
@@ -119,7 +85,7 @@
 
     <div class="form-input">
       {#if selected === formComponents.length}
-        <button disabled={!$isReady} on:click={createAlarm}>Submit</button>
+        <button disabled={!$isReady} on:click={create}>Submit</button>
       {:else}
         <svelte:component this={formComponents[selected]} />
       {/if}

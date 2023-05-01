@@ -11,26 +11,22 @@
   $: indicatorColor = $account && $account.isConnected ? "green" : "red";
 </script>
 
-<div class="container" on:click={() => $web3Modal.openModal()}>
+<button
+  class="flex gap-1 bg-neutral-800 rounded-xl py-1 px-2"
+  on:click={() => $web3Modal.openModal()}
+>
   <div class="displayName">
     {displayName || ""}
   </div>
   <div class="indicator" style="background-color:{indicatorColor}" />
-</div>
+</button>
 
 <style>
-  .container {
-    display: flex;
-    justify-content: flex-end;
-    background: none;
-  }
-
   .indicator {
-    height: 10px;
-    width: 10px;
+    height: 8px;
+    width: 8px;
     border-radius: 100%;
     background-color: var(--indicator-color);
-    margin: 0 0.5em;
   }
 
   .displayName {

@@ -21,6 +21,7 @@ export const commitmentTypeVals: Record<CommitmentType, number> = {
 export const commitmentValToType: Record<number, CommitmentType> = {
   0: "BaseCommitment",
   1: "TimelockingDeadlineTask",
+  2: "PartnerAlarmClock",
 };
 
 export type CommitmentType =
