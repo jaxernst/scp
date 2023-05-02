@@ -2,6 +2,7 @@
   import { account } from "../../lib/chainClient";
   import { otherPlayer } from "../alarmCreation";
 
+  export let inputValid = false;
   $: error = $otherPlayer === $account?.address;
 </script>
 
