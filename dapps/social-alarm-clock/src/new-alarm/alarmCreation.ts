@@ -1,4 +1,4 @@
-import type { BigNumber, ContractTransaction } from "ethers";
+import type { BigNumber, BigNumberish, ContractTransaction } from "ethers";
 import CommitmentHubAbi from "@scp/sdk/abi/CommitmentHub.json";
 import { parseEther } from "ethers/lib/utils.js";
 import { derived, get, writable, type Readable } from "svelte/store";
@@ -51,13 +51,13 @@ export const alarmDays = writable({
 });
 
 type CreationParams = {
-  buyIn: BigNumber;
+  buyIn: BigNumberish;
   submissionWindow: number;
   timezoneMode: TimezoneMode;
   alarmTime: number;
   alarmDays: number[];
   otherPlayer: string;
-  missedAlarmPenalty: BigNumber;
+  missedAlarmPenalty: BigNumberish;
 };
 
 export const buyIn = writable<number>(0.001);
@@ -72,13 +72,13 @@ export const otherPlayer = writable<string>(
 );
 
 export const creationParams = writable<CreationParams>({
-  buyIn: parseEther("0.001"),
+  buyIn: "",
   submissionWindow: 60 * 30,
   timezoneMode: TimezoneMode.SAME_TIME_OF_DAY,
   alarmTime: 0, // 6:30 AM
   alarmDays: [],
   otherPlayer: "",
-  missedAlarmPenalty: parseEther(".01"),
+  missedAlarmPenalty: "",
 });
 
 export const isReady = derived([creationParams, account], ([c, $account]) => {

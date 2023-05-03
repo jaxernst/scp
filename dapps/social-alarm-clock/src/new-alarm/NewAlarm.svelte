@@ -1,16 +1,42 @@
-<script>
-  import { isAddress } from "ethers/lib/utils.js";
-  import { getOtherPlayer } from "../lib/alarmHelpers";
+<script lang="ts">
+  import { isAddress, parseEther } from "ethers/lib/utils.js";
   import FormCard from "./FormCard.svelte";
-  import { creationParams, otherPlayer } from "./alarmCreation";
-  import SelectPartner from "./form-cards/SelectPartner.svelte";
+  import { alarmTime, creationParams, otherPlayer } from "./alarmCreation";
   import ToggleLetter from "../ToggleLetter.svelte";
-  const cardNumberStyle =
-    "absolute top-0 left-[5px] text-s text-bold text-zinc-500";
-  const optionCardStyle =
-    " p-1 bg-zinc-700 h-[85px] rounded-xl w-[110px] relative transition focus:scale-110 focus:border-zinc-200 focus:border ";
+  import { EthSymbol } from "@scp/dapp-lib";
 
-  let focusCard = 1;
+  function handleAlarmDayToggle(daySelected: boolean, dayNumber: number) {
+    console.log(daySelected, dayNumber);
+    // Toggle day on
+    if (daySelected && !$creationParams.alarmDays.includes(dayNumber)) {
+      // Add day to alarmDays if not in already
+      return ($creationParams.alarmDays = [
+        ...$creationParams.alarmDays,
+        dayNumber,
+      ]);
+    }
+    // Toggle day off
+    if (!daySelected && $creationParams.alarmDays.includes(dayNumber)) {
+      // Remove day from alarmDays if in already
+      return ($creationParams.alarmDays = $creationParams.alarmDays.filter(
+        (d) => d !== dayNumber
+      ));
+    }
+  }
+
+  function handleAlarmTimeInput(input: string) {
+    const [hours, minutes] = input.split(":");
+    const seconds = parseInt(hours) * 60 * 60 + parseInt(minutes) * 60;
+    $creationParams.alarmTime = seconds;
+  }
+
+  function handleBuyInInput(input: string) {
+    $creationParams.buyIn = parseEther(input);
+  }
+
+  function handleAlarmPenaltyInput(input: string) {
+    $creationParams.alarmPenalty = parseEther(input);
+  }
 </script>
 
 <div class="flex flex-col gap-4 justify-center">
@@ -31,22 +57,20 @@
 
   <div class="">
     <h3 class="pt-2">Create an Alarm</h3>
-    <div
-      class="flex gap-3 px-3 py-2 text-zinc-300 overflow-x-auto no-scrollbar"
-    >
+    <div class="flex gap-3 px-3 py-2 text-zinc-300 overflow-x-auto">
       <FormCard
         itemNumber={1}
         emptyHeader="Select Partner"
         filledHeader="Partner"
-        input={$creationParams.otherPlayer}
-        inputValid={isAddress}
+        inputEmpty={!$creationParams.otherPlayer}
+        inputValid={isAddress($creationParams.otherPlayer) ||
+          $creationParams.otherPlayer.includes(".eth")}
       >
         <input
           class="bg-transparent outline-none text-center w-min"
           type="text"
           placeholder="Enter address or ENS"
           bind:value={$creationParams.otherPlayer}
-          on:focus={() => (focusCard = 1)}
         />
       </FormCard>
 
@@ -54,43 +78,71 @@
         itemNumber={2}
         emptyHeader="Select Time"
         filledHeader="Time"
-        input={$creationParams.alarmTime}
-        inputValid={(t) => t > 0}
+        inputEmpty={!$creationParams.alarmTime}
+        inputValid={$creationParams.alarmTime > 0 &&
+          $creationParams.alarmTime < 86400}
       >
         <input
           id="select-time"
           class="bg-transparent outline-none text-center w-min"
           type="time"
-          bind:value={$creationParams.alarmTime}
+          on:change={(e) => handleAlarmTimeInput(e.target.value)}
         />
       </FormCard>
       <FormCard
         itemNumber={3}
         emptyHeader="Select Days"
         filledHeader="Days"
-        input={false}
-        inputValid={(d) => d.length > 0}
+        inputEmpty={$creationParams.alarmDays.length === 0}
+        inputValid={true}
       >
-        <input
-          id="select-time"
-          class="bg-transparent outline-none text-center w-min"
-          type="time"
-          bind:value={$creationParams.alarmDays}
-        />
+        <div class="flex gap-2">
+          {#each ["Su", "M", "T", "W", "Th", "F", "Sa"] as letter, i}
+            <ToggleLetter
+              on:toggle={(e) => handleAlarmDayToggle(e.detail, i + 1)}
+              value={letter}
+            />
+          {/each}
+        </div>
       </FormCard>
       <FormCard
         itemNumber={4}
-        emptyHeader="Select Bet Rules"
+        emptyHeader="Set Bet Rules"
         filledHeader="Bet Rules"
-        input={false}
-        inputValid={(d) => d.length > 0}
+        inputEmpty={!$creationParams.buyIn &&
+          !$creationParams.missedAlarmPenalty}
+        inputValid={true}
       >
-        <input
-          id="select-time"
-          class="bg-transparent outline-none text-center w-min"
-          type="time"
-          bind:value={$creationParams.alarmDays}
-        />
+        <div class="flex text-xs gap-4">
+          <div class="flex flex-col flex-nowrap gap-1">
+            <div class="whitespace-nowrap">Bet buy-in</div>
+            <div class="whitespace-nowrap">
+              <input
+                type="number"
+                class="w-[50px]"
+                min="0"
+                step="0.001"
+                on:change={(e) => handleBuyInInput(e.target.value)}
+              />
+              <span><EthSymbol /></span>
+            </div>
+          </div>
+          <div class="flex flex-col flex-nowrap gap-1">
+            <div class="whitespace-nowrap text-[10px]">
+              Missed Alarm Penalty
+            </div>
+            <div class="whitespace-nowrap">
+              <input
+                type="number"
+                class="w-[50px]"
+                min="0"
+                step="0.001"
+                on:change={(e) => handleAlarmPenaltyInput(e.target.value)}
+              />
+              <span><EthSymbol /></span>
+            </div>
+          </div>
+        </div>
       </FormCard>
     </div>
   </div>

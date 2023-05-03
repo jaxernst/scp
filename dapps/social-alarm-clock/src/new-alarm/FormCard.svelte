@@ -2,8 +2,8 @@
   import { fade, scale, crossfade, slide } from "svelte/transition";
 
   type T = $$Generic;
-  export let input: T;
-  export let inputValid: (input: T) => boolean;
+  export let inputEmpty: boolean;
+  export let inputValid: boolean;
   export let emptyHeader: string;
   export let filledHeader: string;
   export let itemNumber: number;
@@ -21,24 +21,35 @@
       },
     };
   }
+
+  $: buttonClasses = () => {
+    const classes = [];
+    if (active) classes.push(" duration-1000 scale-110 ");
+    if (active && inputEmpty) classes.push(" border border-zinc-200 ");
+    if (inputEmpty) return;
+    if (inputValid) classes.push(" border border-cyan-400 ");
+    if (!inputValid) classes.push(" border border-red-500 ");
+    return classes.join(" ");
+  };
 </script>
 
 <button
-  class={" flex flex-col gap-2 justify-start px-1 pb-1 bg-zinc-700 h-[85px] rounded-xl w-min-content relative transition " +
-    (active
-      ? " transition duration-1000 scale-110 border-zinc-200 border "
-      : "")}
+  class={"  flex flex-col gap-2 justify-start px-1 pb-1 bg-zinc-700 h-[85px] rounded-xl relative transition " +
+    buttonClasses()}
   use:activeOnChildFocus
 >
   <div class={"text-s text-bold text-zinc-500"}>
     {itemNumber}
-    {#if active || input}
-      <span transition:fade>{active || input ? filledHeader : ""}</span>
+    {#if active || !inputEmpty}
+      <span transition:fade>{active || !inputEmpty ? filledHeader : ""}</span>
     {/if}
   </div>
   <div class="grid">
-    {#if active || input}
-      <div class="col-start-1 row-start-1" transition:slide={{ axis: "x" }}>
+    {#if active || !inputEmpty}
+      <div
+        class="col-start-1 row-start-1 px-1"
+        transition:slide={{ axis: "x" }}
+      >
         <slot />
       </div>
     {:else}
