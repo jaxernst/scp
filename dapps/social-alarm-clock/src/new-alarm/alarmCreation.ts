@@ -75,9 +75,9 @@ export const creationParams = writable<CreationParams>({
   buyIn: parseEther("0.001"),
   submissionWindow: 60 * 30,
   timezoneMode: TimezoneMode.SAME_TIME_OF_DAY,
-  alarmTime: 6 * 60 * 60 + 30 * 60, // 6:30 AM
-  alarmDays: [1, 2, 3, 4, 5],
-  otherPlayer: "0x9B8DB9bffcCd1F2Cc5044d67a1b9C68dD6Deff6a",
+  alarmTime: 0, // 6:30 AM
+  alarmDays: [],
+  otherPlayer: "",
   missedAlarmPenalty: parseEther(".01"),
 });
 

@@ -4,16 +4,19 @@
   import FormCard from "./FormCard.svelte";
   import { creationParams, otherPlayer } from "./alarmCreation";
   import SelectPartner from "./form-cards/SelectPartner.svelte";
+  import ToggleLetter from "../ToggleLetter.svelte";
   const cardNumberStyle =
     "absolute top-0 left-[5px] text-s text-bold text-zinc-500";
   const optionCardStyle =
     " p-1 bg-zinc-700 h-[85px] rounded-xl w-[110px] relative transition focus:scale-110 focus:border-zinc-200 focus:border ";
+
+  let focusCard = 1;
 </script>
 
 <div class="flex flex-col gap-4 justify-center">
   <div>
     <h3 class="py-2">Join an Alarm</h3>
-    <div class=" h-[30px] rounded-xl mx-2 flex gap-2">
+    <div class=" h-[30px] rounded-xl px-3 flex gap-2">
       <input
         type="text"
         class=" flex-grow h-full bg-zinc-700 rounded-xl px-2 placeholder-zinc-500 text-zinc-300"
@@ -27,33 +30,68 @@
   </div>
 
   <div class="">
-    <h3 class="py-2">Create an Alarm</h3>
-    <div class="flex gap-3 mx-2 text-zinc-300">
+    <h3 class="pt-2">Create an Alarm</h3>
+    <div
+      class="flex gap-3 px-3 py-2 text-zinc-300 overflow-x-auto no-scrollbar"
+    >
       <FormCard
+        itemNumber={1}
         emptyHeader="Select Partner"
         filledHeader="Partner"
-        inputValid={isAddress($otherPlayer)}
+        input={$creationParams.otherPlayer}
+        inputValid={isAddress}
       >
-        <textarea
-          class="bg-transparent outline-none h-min text-center"
-          autofocus
+        <input
+          class="bg-transparent outline-none text-center w-min"
+          type="text"
           placeholder="Enter address or ENS"
-          bind:value={$otherPlayer}
+          bind:value={$creationParams.otherPlayer}
+          on:focus={() => (focusCard = 1)}
         />
       </FormCard>
 
-      <button class={optionCardStyle}>
-        <div class={cardNumberStyle}>2</div>
-        <div class="">Select Alarm Time</div>
-      </button>
-      <button class={optionCardStyle}>
-        <div class={cardNumberStyle}>3</div>
-        <div class="">Select Alarms Days</div>
-      </button>
-      <button class={optionCardStyle}>
-        <div class={cardNumberStyle}>4</div>
-        <div class="">Select Bet Rules</div>
-      </button>
+      <FormCard
+        itemNumber={2}
+        emptyHeader="Select Time"
+        filledHeader="Time"
+        input={$creationParams.alarmTime}
+        inputValid={(t) => t > 0}
+      >
+        <input
+          id="select-time"
+          class="bg-transparent outline-none text-center w-min"
+          type="time"
+          bind:value={$creationParams.alarmTime}
+        />
+      </FormCard>
+      <FormCard
+        itemNumber={3}
+        emptyHeader="Select Days"
+        filledHeader="Days"
+        input={false}
+        inputValid={(d) => d.length > 0}
+      >
+        <input
+          id="select-time"
+          class="bg-transparent outline-none text-center w-min"
+          type="time"
+          bind:value={$creationParams.alarmDays}
+        />
+      </FormCard>
+      <FormCard
+        itemNumber={4}
+        emptyHeader="Select Bet Rules"
+        filledHeader="Bet Rules"
+        input={false}
+        inputValid={(d) => d.length > 0}
+      >
+        <input
+          id="select-time"
+          class="bg-transparent outline-none text-center w-min"
+          type="time"
+          bind:value={$creationParams.alarmDays}
+        />
+      </FormCard>
     </div>
   </div>
 </div>
