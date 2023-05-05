@@ -1,4 +1,5 @@
 import type { BigNumber, BigNumberish, ContractTransaction } from "ethers";
+import { BigNumber as bn } from "ethers";
 import CommitmentHubAbi from "@scp/sdk/abi/CommitmentHub.json";
 import { parseEther } from "ethers/lib/utils.js";
 import { derived, get, writable, type Readable } from "svelte/store";
@@ -77,22 +78,21 @@ export const creationParams = writable<CreationParams>({
   timezoneMode: TimezoneMode.SAME_TIME_OF_DAY,
   alarmTime: 0, // 6:30 AM
   alarmDays: [],
-  otherPlayer: "",
-  missedAlarmPenalty: "",
+  otherPlayer: "0xdD044684cfA651c491b844AE0E8646aD7c56205b",
+  missedAlarmPenalty: "0",
 });
 
 export const isReady = derived([creationParams, account], ([c, $account]) => {
   return (
     c.submissionWindow > 0 &&
     c.otherPlayer !== $account?.address &&
-    c.buyIn.gt(0) &&
+    c.buyIn &&
+    bn.from(c.buyIn).gt(0) &&
     c.timezoneMode !== null &&
     c.alarmTime !== null &&
     Object.values(c.alarmDays).some((v) => v)
   );
 });
-
-const dayValueMap = { Su: 1, M: 2, T: 3, W: 4, Th: 5, F: 6, Sa: 7 };
 
 export const createAlarm = derived(
   [creationParams, isReady, commitmentHub],
@@ -103,7 +103,7 @@ export const createAlarm = derived(
       // Enode creation params to be sent to the commitment hub
       const encodedParams = encodeCreationParams("PartnerAlarmClock", {
         alarmTime: c.alarmTime,
-        alarmdays: c.alarmDays,
+        alarmdays: c.alarmDays.sort(),
         missedAlarmPenalty: c.missedAlarmPenalty,
         submissionWindow: c.submissionWindow,
         timezoneOffset: new Date().getTimezoneOffset() * -60,

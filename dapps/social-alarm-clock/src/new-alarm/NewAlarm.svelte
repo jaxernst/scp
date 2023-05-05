@@ -1,9 +1,17 @@
 <script lang="ts">
   import { isAddress, parseEther } from "ethers/lib/utils.js";
   import FormCard from "./FormCard.svelte";
-  import { alarmTime, creationParams, otherPlayer } from "./alarmCreation";
+  import {
+    alarmTime,
+    createAlarm,
+    creationParams,
+    isReady,
+    otherPlayer,
+  } from "./alarmCreation";
   import ToggleLetter from "../ToggleLetter.svelte";
   import { EthSymbol } from "@scp/dapp-lib";
+  import { transactions } from "../lib/transactions";
+  import { toast } from "@zerodevx/svelte-toast";
 
   function handleAlarmDayToggle(daySelected: boolean, dayNumber: number) {
     console.log(daySelected, dayNumber);
@@ -35,8 +43,20 @@
   }
 
   function handleAlarmPenaltyInput(input: string) {
-    $creationParams.alarmPenalty = parseEther(input);
+    $creationParams.missedAlarmPenalty = parseEther(input);
   }
+
+  $: create = async () => {
+    const createResult = $createAlarm();
+    if (!createResult) return;
+
+    const txResult = await transactions.addTransaction(createResult);
+    if (!txResult.error) {
+      toast.push("Alarm creation successful!");
+    } else {
+      toast.push("Alarm creation failed with: " + txResult.error.message);
+    }
+  };
 </script>
 
 <div class="flex flex-col gap-4 justify-center">
@@ -113,13 +133,13 @@
           !$creationParams.missedAlarmPenalty}
         inputValid={true}
       >
-        <div class="flex text-xs gap-4">
-          <div class="flex flex-col flex-nowrap gap-1">
-            <div class="whitespace-nowrap">Bet buy-in</div>
+        <div class="flex flex-col text-s gap-1 justify-center -translate-y-2">
+          <div class="flex flex-nowrap gap-1 items-center justify-end">
+            <div class="whitespace-nowrap text-xs">Bet buy-in:</div>
             <div class="whitespace-nowrap">
               <input
                 type="number"
-                class="w-[50px]"
+                class="w-[70px] border border-zinc-500 text-right bg-transparent rounded-lg"
                 min="0"
                 step="0.001"
                 on:change={(e) => handleBuyInInput(e.target.value)}
@@ -127,14 +147,14 @@
               <span><EthSymbol /></span>
             </div>
           </div>
-          <div class="flex flex-col flex-nowrap gap-1">
+          <div class="flex flex-nowrap items-center justify-end gap-1">
             <div class="whitespace-nowrap text-[10px]">
-              Missed Alarm Penalty
+              Missed Alarm Penalty:
             </div>
             <div class="whitespace-nowrap">
               <input
                 type="number"
-                class="w-[50px]"
+                class="w-[70px] border border-zinc-500 bg-transparent rounded-lg"
                 min="0"
                 step="0.001"
                 on:change={(e) => handleAlarmPenaltyInput(e.target.value)}
@@ -144,6 +164,14 @@
           </div>
         </div>
       </FormCard>
+      {#if $isReady}
+        <button
+          on:click={create}
+          class="p-2 rounded-xl transition hover:border-green-500 hover:scale-105 hover:border-2 hover:bg-zinc-700"
+        >
+          Submit
+        </button>
+      {/if}
     </div>
   </div>
 </div>
