@@ -29,6 +29,7 @@
     "@wagmi/core": "^0.9.7",
     "@web3modal/ethereum": "^2.1.1",
     "@web3modal/html": "^2.1.1",
-    "svelte-web3": "^4.0.1"
+    "svelte-web3": "^4.0.1",
+    "viem": "^0.3.18"
   }
 }

@@ -3,6 +3,7 @@
   "packageManager": "yarn@3.2.4",
   "dependencies": {
     "@scp/protocol": "workspace:^",
-    "ethers": "^5.7.2"
+    "ethers": "^5.7.2",
+    "viem": "^0.3.18"
   }
 }
