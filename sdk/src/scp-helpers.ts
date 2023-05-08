@@ -15,6 +15,7 @@ import {
 } from "@scp/protocol/typechain-types/contracts/BaseCommitment";
 import type { CommitmentCreationEvent } from "@scp/protocol/typechain-types/contracts/CommitmentHub.sol/CommitmentHub";
 import { ethers, Signer, type BigNumberish } from "ethers";
+import { Client } from "viem";
 
 export async function createCommitment<T extends CommitmentType>(
   hub: CommitmentHub,
@@ -38,7 +39,7 @@ export function encodeCreationParams<T extends CommitmentType>(
   );
 }
 
-export function getCommitment<T extends keyof CommitmentContractTypes>(
+export function getCommitmentByType<T extends keyof CommitmentContractTypes>(
   type: T,
   address: string,
   signer: Signer
