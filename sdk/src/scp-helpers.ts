@@ -8,31 +8,87 @@ import {
   type CommitmentType,
   type InitializationTypes,
 } from "@scp/protocol/lib/types";
+
 import type { CommitmentHub } from "@scp/protocol/typechain-types";
 import {
   BaseCommitment,
   CommitmentInitializedEvent,
 } from "@scp/protocol/typechain-types/contracts/BaseCommitment";
-import type { CommitmentCreationEvent } from "@scp/protocol/typechain-types/contracts/CommitmentHub.sol/CommitmentHub";
-import { ethers, Signer, type BigNumberish } from "ethers";
-import { Client } from "viem";
+
+import { ethers, Signer, type BigNumberish, Wallet } from "ethers";
+import {
+  Address,
+  Chain,
+  Client,
+  WalletClient,
+  getContract,
+  parseEther,
+} from "viem";
+import { DeploymentChain, deployments } from "./deployments";
+import CommitmentHubAbi from "../abi/CommitmentHub";
+import { ScpContext } from ".";
+
+export function getHubAddress(chain: Chain) {
+  const chainDeployment = deployments[chain.id as DeploymentChain];
+  if (!chainDeployment) {
+    throw new Error(`No deployment found for chain ${chain.name}`);
+  }
+  if (!chainDeployment.CommitmentHub) {
+    throw new Error(
+      `No CommitmentHub found for chain ${chain.name} in deployments`
+    );
+  }
+
+  return chainDeployment.CommitmentHub;
+}
+
+export function getCommitmentHub(client: WalletClient) {
+  if (!client.chain) throw new Error("No chain found on client");
+
+  return getContract({
+    walletClient: client,
+    address: getHubAddress(client.chain),
+    abi: CommitmentHubAbi,
+  });
+}
+
+export async function registerCommitmentType(
+  { wallet, publicClient, hubAddress }: ScpContext,
+  type: CommitmentType,
+  deployedAt: Address
+) {
+  return await wallet.writeContract({
+    address: hubAddress,
+    abi: CommitmentHubAbi,
+    functionName: "registerCommitType",
+    args: [commitmentTypeVals[type], deployedAt],
+  });
+}
 
 export async function createCommitment<T extends CommitmentType>(
-  hub: CommitmentHub,
+  { wallet, publicClient, chain }: ScpContext,
   type: T,
   initData: InitializationTypes[T],
-  value?: BigNumberish
+  value?: bigint
 ) {
-  const byteData = encodeCreationParams(type, initData);
-  return hub.createCommitment(commitmentTypeVals[type], byteData, {
-    value: value ? value : 0,
+  if (!wallet.account) throw new Error("No account found on wallet");
+
+  const { request } = await publicClient.simulateContract({
+    account: wallet.account?.address,
+    address: getHubAddress(chain),
+    abi: CommitmentHubAbi,
+    functionName: "createCommitment",
+    args: [commitmentTypeVals[type], encodeCreationParams(type, initData)],
+    value: parseEther(".1"),
   });
+
+  return await wallet.writeContract(request);
 }
 
 export function encodeCreationParams<T extends CommitmentType>(
   name: T,
   initData: InitializationTypes[T]
-): string {
+): `0x${string}` {
   return ethers.utils.defaultAbiCoder.encode(
     solidityInitializationTypes[name],
     Object.values(initData)

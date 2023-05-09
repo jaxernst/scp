@@ -5,6 +5,7 @@
     "@openzeppelin/contracts": "^4.7.3",
     "@scp": "workspace:^",
     "@scp/interface": "workspace:^",
+    "@scp/sdk": "workspace:^",
     "@typechain/ethers-v5": "^10.1.0",
     "@typechain/hardhat": "^6.1.2",
     "@types/mocha": "^9.1.1",
@@ -23,6 +24,7 @@
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.5",
+    "@types/node-fetch": "^2.6.3",
     "hardhat-abi-exporter": "^2.10.1"
   }
 }

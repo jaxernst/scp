@@ -26,7 +26,7 @@ contract CommitmentFactory is Ownable {
         return BaseCommitment(Clones.clone(commitmentRegistry[_type]));
     }
 
-    // Commit types are standalone commitments that do not require aggreation or management
+    // Commit types are standalone commitments that do not require aggregation or management
     function registerCommitType(
         RegisteredCommitmentType _type,
         address deployedAt
