@@ -1,15 +1,7 @@
 <script lang="ts">
   import "./app.css";
-
-  import { web3Modal } from "./lib/chainClient";
-  import { account } from "./lib/chainClient";
-  import {
-    AlarmState,
-    commitmentHub,
-    userAlarms,
-  } from "./lib/contractInterface";
-  import { View, showBackButton, view } from "./lib/appView";
-  import { ClockDisplay, shorthandAddress } from "@scp/dapp-lib";
+  import { userAlarms } from "./lib/contractInterface";
+  import { ClockDisplay } from "@scp/dapp-lib";
   import { fade } from "svelte/transition";
 
   import { SvelteToast } from "@zerodevx/svelte-toast";
@@ -29,9 +21,12 @@
 <SvelteToast />
 
 <div class="absolute w-full flex justify-center">
-  <div class="m-4 pt-2 top-clock px-6 text-center rounded-2xl">
-    <div>The Social Alarm Clock</div>
-    <div style="font-size:2em">
+  <div
+    class="m-4 top-clock px-6 py-2 text-center rounded-2xl flex gap-4 items-center"
+  >
+    <div class="text-lg font-bold">The Social Alarm Clock</div>
+    |
+    <div style="font-size:1.5em" class="pt-1">
       <ClockDisplay />
     </div>
   </div>
