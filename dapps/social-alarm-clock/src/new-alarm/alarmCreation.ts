@@ -1,14 +1,11 @@
-import type { BigNumber, BigNumberish, ContractTransaction } from "ethers";
+import type { BigNumberish, ContractTransaction } from "ethers";
 import { BigNumber as bn } from "ethers";
-import CommitmentHubAbi from "@scp/sdk/abi/CommitmentHub.json";
 import { parseEther } from "ethers/lib/utils.js";
 import { derived, get, writable, type Readable } from "svelte/store";
 import { account } from "../lib/chainClient";
-import { CommitmentHubAddress, commitmentHub } from "../lib/contractInterface";
-import { prepareWriteContract } from "@wagmi/core";
+import { commitmentHub } from "../lib/contractInterface";
 import { encodeCreationParams } from "@scp/sdk/src/scp-helpers";
 import { commitmentTypeVals } from "@scp/protocol/lib/types";
-import { transactions } from "../lib/transactions";
 
 export const SelectionWheel = (numItems: number) => {
   const i = writable(0); // Selected index
