@@ -23,7 +23,7 @@ import {
 } from "../helpers/time";
 import { ethers } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { alarmTime } from "../../../dapps/social-alarm-clock/src/create-new-alarm/alarmCreation";
+import { alarmTime } from "../../../dapps/social-alarm-clock/src/new-alarm/alarmCreation";
 
 describe("Partner Alarm Clock test", () => {
   let hub: CommitmentHub;

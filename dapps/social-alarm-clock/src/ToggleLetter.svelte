@@ -1,9 +1,18 @@
 <script lang="ts">
+  import { createEventDispatcher } from "svelte";
+
+  const dispatch = createEventDispatcher();
+
+  function onToggle() {
+    toggled = !toggled;
+    dispatch("toggle", toggled);
+  }
+
   export let value: string = "";
   export let toggled = false;
 </script>
 
-<button style="all:unset" on:click={() => (toggled = !toggled)}>
+<button style="all:unset" on:click={onToggle}>
   <div class={"letter" + (toggled ? "active" : "")}>
     {value}
   </div>

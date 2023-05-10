@@ -1,39 +1,35 @@
 import { BigNumberish, Contract, ethers } from "ethers";
 import { deploy } from "../test/helpers/deploy";
-import { Commitment, CommitmentHub } from "../typechain-types";
-import { 
-  CommitmentType, 
-  CommitmentContractTypes, 
-  commitmentTypeVals,  
-  InitializationTypes, 
+import { CommitmentHub } from "../typechain-types";
+import {
+  CommitmentType,
+  CommitmentContractTypes,
+  commitmentTypeVals,
+  InitializationTypes,
   commitmentFactories,
-  solidityInitializationTypes
+  solidityInitializationTypes,
 } from "./types";
 
-
-
-export async function createCommitment<
-  T extends CommitmentType
->(
+export async function createCommitment<T extends CommitmentType>(
   hub: CommitmentHub,
   name: T,
   initData: InitializationTypes[T],
   value?: BigNumberish
 ): Promise<CommitmentContractTypes[T]> {
-
   if (
-    (await hub.commitmentRegistry(commitmentTypeVals[name])) === ethers.constants.AddressZero
+    (await hub.commitmentRegistry(commitmentTypeVals[name])) ===
+    ethers.constants.AddressZero
   ) {
-    await registerNewType(hub, name)
+    await registerNewType(hub, name);
   }
 
-  const byteData = encodeCreationParams(name, initData)
+  const byteData = encodeCreationParams(name, initData);
   const rc = await (
     await hub.createCommitment(commitmentTypeVals[name], byteData, {
-      value: value ? value : 0
+      value: value ? value : 0,
     })
   ).wait();
-  
+
   if (!rc.events) throw Error("No events found in tx");
 
   let commitAddr: string;
@@ -46,9 +42,8 @@ export async function createCommitment<
   return (commitmentFactories[name] as any).connect(commitAddr!, hub.signer);
 }
 
-
 export function encodeCreationParams<T extends CommitmentType>(
-  name: T, 
+  name: T,
   initData: InitializationTypes[T]
 ): string {
   return ethers.utils.defaultAbiCoder.encode(
@@ -57,13 +52,15 @@ export function encodeCreationParams<T extends CommitmentType>(
   );
 }
 
-export async function registerNewType<Hub extends CommitmentHub, Name extends CommitmentType>(
-  hub: Hub, 
-  contractName: Name
-) {
-  const commit = await deploy(contractName)
-  await (await hub.registerCommitType(
-    commitmentTypeVals[contractName], 
-    commit.address
-  )).wait();
+export async function registerNewType<
+  Hub extends CommitmentHub,
+  Name extends CommitmentType
+>(hub: Hub, contractName: Name) {
+  const commit = await deploy(contractName);
+  await (
+    await hub.registerCommitType(
+      commitmentTypeVals[contractName],
+      commit.address
+    )
+  ).wait();
 }

@@ -1,222 +1,142 @@
 <script lang="ts">
-  import { ClockDisplay, shorthandAddress } from "@scp/dapp-lib";
+  import "./app.css";
 
   import { web3Modal } from "./lib/chainClient";
   import { account } from "./lib/chainClient";
-  import { commitmentHub, userAlarm } from "./lib/contractInterface";
+  import {
+    AlarmState,
+    commitmentHub,
+    userAlarms,
+  } from "./lib/contractInterface";
   import { View, showBackButton, view } from "./lib/appView";
+  import { ClockDisplay, shorthandAddress } from "@scp/dapp-lib";
+  import { fade } from "svelte/transition";
 
   import { SvelteToast } from "@zerodevx/svelte-toast";
   import Web3Status from "./Web3Status.svelte";
-  import CreateNewAlarm from "./create-new-alarm/CreateNewAlarm.svelte";
-  import JoinAlarm from "./JoinAlarm.svelte";
-  import ActiveAlarm from "./active-alarm/ActiveAlarm.svelte";
-  import Welcome from "./Welcome.svelte";
-  import { fade } from "svelte/transition";
-  import { getOtherPlayer } from "./lib/alarmHelpers";
-  import PendingAlarms from "./PendingAlarms.svelte";
+  import NewAlarm from "./new-alarm/NewAlarm.svelte";
+  import Alarms from "./alarms/Alarms.svelte";
+  import { writable } from "svelte/store";
 
-  $: otherPlayer =
-    $userAlarm && $account?.address
-      ? getOtherPlayer($userAlarm, $account.address)
-      : undefined;
+  type Tab = "alarms" | "new";
+  const activeTab = writable<Tab>("alarms");
+  $: activeTabStyles = (t: Tab) =>
+    t === $activeTab ? " underline underline-offset-4 " : " ";
 
-  let alarmId: string | null = null;
-  $: if ($commitmentHub && $userAlarm && !alarmId) {
-    $commitmentHub.commitmentIds($userAlarm.address).then((id) => {
-      if (id) alarmId = id.toString();
-    });
-  }
-
-  $: mainBackgroundColor =
-    $view !== View.ALARM_ACTIVE ? "rgb(54, 54, 54, .2);" : "var(--bg-color1)";
+  $: numUserAlarms = Object.keys($userAlarms ?? {}).length;
 </script>
 
 <SvelteToast />
 
-<div class="top-bar">
-  <div class="title">The Social Alarm Clock</div>
-  <div class="clock-container">
-    <ClockDisplay />
-  </div>
-  <div class="top-bar-right">
-    {#if $view === View.CONNECT_WALLET}
-      <button
-        class="wallet-button connected"
-        on:click={() => $web3Modal.openModal()}
-      >
-        Connect Wallet
-      </button>
-    {:else}
-      <button class="wallet-button not-connected">
-        <Web3Status />
-      </button>
-    {/if}
+<div class="absolute w-full flex justify-center">
+  <div class="m-4 pt-2 top-clock px-6 text-center rounded-2xl">
+    <div>The Social Alarm Clock</div>
+    <div style="font-size:2em">
+      <ClockDisplay />
+    </div>
   </div>
 </div>
 
-{#if $view === View.WELCOME}
-  <Welcome outroDuration={500} />
-{:else}
-  <main
-    in:fade={{ duration: 500, delay: 500 }}
-    style={`--bg-color-main: ${mainBackgroundColor};`}
+<main
+  class=" font-jura flex items-center justify-center outline box-border min-h-screen"
+  in:fade={{ duration: 500, delay: 500 }}
+>
+  <div
+    class="border-4 border-cyan-600 rounded-3xl bg-trans p-4 w-[580px] h-[320px] flex gap-2 flex-col shadow-neutral-500 main-container-shadow"
   >
-    {#if $showBackButton}
-      <div class="main-body-header">
-        <button on:click={view.goBack} class="x-button">{"X"}</button>
+    <!-- Main content header -->
+    <div class="flex justify-between font-bold align-middle">
+      <div class="flex gap-4">
+        <button
+          class={activeTabStyles("alarms")}
+          on:click={() => activeTab.set("alarms")}>ALARMS</button
+        >
+        <button
+          class={activeTabStyles("new")}
+          on:click={() => activeTab.set("new")}>NEW</button
+        >
       </div>
-    {/if}
+      <div>
+        <Web3Status />
+      </div>
+    </div>
 
-    <div class="main-body-content">
-      {#if $view === View.CONNECT_WALLET}
-        <div class="welcome">
-          <h2>Welcome to the Social Alarm Clock.</h2>
-          <p>Connect your wallet to start waking up earlier.</p>
-        </div>
-      {:else if $view === View.NO_ALARM}
-        <div class="new-alarm-button-container">
-          <button
-            class="new-alarm-button"
-            on:click={() => view.changeTo(View.CREATE_ALARM)}
-            >Create Alarm</button
+    <!-- Main content -->
+    <div class="flex flex-col p-1">
+      {#if $activeTab === "alarms"}
+        {#if numUserAlarms === 0}
+          <div
+            class="tracking-tight p-2 text-zinc-400 flex-grow align-middle rounded-2xl"
           >
-        </div>
-        <div style="display:flex; align-items: center;">
-          <div class="divider-line" />
-        </div>
-        <div class="new-alarm-button-container">
-          <button
-            class="new-alarm-button"
-            on:click={() => view.changeTo(View.JOIN_ALARM)}>Join Alarm</button
-          >
-        </div>
-      {:else if $view === View.CREATE_ALARM}
-        <CreateNewAlarm />
-      {:else if $view === View.JOIN_ALARM}
-        <JoinAlarm />
-      {:else if $view === View.WAITING_FOR_OTHER_PLAYER}
-        {#await alarmId then alarmId}
-          {#await otherPlayer then otherPlayer}
-            <PendingAlarms items={[{ otherPlayer, id: alarmId }]} />
-          {/await}
-        {/await}
-      {:else if $view === View.ALARM_ACTIVE}
-        <ActiveAlarm />
+            You have no active alarms. Create a new alarm or join an existing
+            one.
+          </div>
+        {:else}
+          <Alarms />
+        {/if}
+      {:else if $activeTab === "new"}
+        <NewAlarm />
       {/if}
     </div>
-  </main>
-{/if}
+
+    <!-- Your app content goes here
+    {#if $view === View.CONNECT_WALLET}
+      <div class="welcome">
+        <h2>Welcome to the Social Alarm Clock.</h2>
+        <p>Connect your wallet to start waking up earlier.</p>
+      </div>
+    {:else if $view === View.NO_ALARM}
+      <div class="new-alarm-button-container">
+        <button
+          class="new-alarm-button"
+          on:click={() => view.changeTo(View.CREATE_ALARM)}>Create Alarm</button
+        >
+      </div>
+      <div style="display:flex; align-items: center;">
+        <div class="divider-line" />
+      </div>
+      <div class="new-alarm-button-container">
+        <button
+          class="new-alarm-button"
+          on:click={() => view.changeTo(View.JOIN_ALARM)}>Join Alarm</button
+        >
+      </div>
+    {:else if $view === View.CREATE_ALARM}
+      <CreateNewAlarm />
+    {:else if $view === View.JOIN_ALARM}
+      <JoinAlarm />
+    {:else if $view === View.WAITING_FOR_OTHER_PLAYER}
+      {#await alarmId then alarmId}
+        {#await otherPlayer then otherPlayer}
+          <PendingAlarms items={[{ otherPlayer, id: alarmId }]} />
+        {/await}
+      {/await}
+    {:else if $view === View.ALARM_ACTIVE}
+      <ActiveAlarm />
+    {/if}  -->
+  </div>
+</main>
 
 <style>
-  main {
-    border: 1px solid rgb(140, 140, 140);
-    border-radius: 18px;
-    background-color: var(--bg-color-main);
-    box-shadow: 5px 10px #000000;
-    width: 620px;
-    min-height: 250px;
-    margin: auto;
-    display: flex;
-    flex-direction: column;
+  .radial-background {
+    background: radial-gradient(
+      circle,
+      rgba(26, 26, 26, 1) 0%,
+      rgba(31, 31, 31, 1) 100%
+    );
   }
 
-  @media (max-width: 650px) {
-    main {
-      width: 90vw;
-    }
+  .main-container-shadow {
+    box-shadow: 0px 0px 15px 5px rgba(140, 140, 140, 0.12);
   }
 
-  .main-body-content {
-    flex-grow: 1;
-    display: flex;
-    align-items: stretch;
-    justify-content: center;
-    width: 100%;
+  .bg-trans {
+    background: rgba(30, 30, 30, 0.1);
+    backdrop-filter: blur(6px);
   }
 
-  .top-bar {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    box-sizing: border-box;
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: center;
-    padding: 1em;
-  }
-
-  .welcome {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    place-content: center;
-  }
-
-  .title {
-    font-weight: bold;
-    text-align: left;
-    font-size: 1.2em;
-  }
-
-  .top-bar-right {
-    display: flex;
-    justify-content: flex-end;
-  }
-
-  .main-body-header {
-    display: flex;
-    padding: 0.5em;
-  }
-
-  .wallet-button {
-    padding: 0.8em;
-    margin: 1em;
-    border-radius: 18px;
-  }
-
-  .wallet-button.connected {
-    background-color: rgb(61, 101, 114);
-    border: 1px solid rgb(255, 255, 255);
-  }
-
-  .wallet-button.not-connected {
-    border: 1px solid rgb(75, 75, 75);
-  }
-
-  .clock-container {
-    font-size: 2em;
-    padding: 0.4em 0.8em 0.3em 0.8em;
-    background: rgba(15, 15, 15, 0.886);
-    border-radius: 18px;
-  }
-
-  .new-alarm-button-container {
-    flex-grow: 1;
-  }
-
-  .new-alarm-button {
-    background: none;
-    border-radius: 18px;
-    height: 100%;
-    width: 100%;
-  }
-
-  .new-alarm-button:hover {
-    background-color: var(--button-highlight1);
-    transition: background-color 0.3s ease-in-out;
-  }
-
-  .x-button {
-    background-color: var(--bg-color2);
-    border-radius: 18px;
-    font-size: 0.5em;
-  }
-
-  .divider-line {
-    width: 1px;
-    height: 60%;
-    background: rgb(109, 109, 109);
+  .top-clock {
+    background: rgba(34, 34, 34, 0.3);
+    backdrop-filter: blur(3px);
   }
 </style>

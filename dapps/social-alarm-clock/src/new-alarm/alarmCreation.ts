@@ -1,12 +1,14 @@
 import type { BigNumber, BigNumberish, ContractTransaction } from "ethers";
+import { BigNumber as bn } from "ethers";
 import CommitmentHubAbi from "@scp/sdk/abi/CommitmentHub.json";
 import { parseEther } from "ethers/lib/utils.js";
 import { derived, get, writable, type Readable } from "svelte/store";
 import { account } from "../lib/chainClient";
 import { CommitmentHubAddress, commitmentHub } from "../lib/contractInterface";
-
+import { prepareWriteContract } from "@wagmi/core";
 import { encodeCreationParams } from "@scp/sdk/src/scp-helpers";
 import { commitmentTypeVals } from "@scp/protocol/lib/types";
+import { transactions } from "../lib/transactions";
 
 export const SelectionWheel = (numItems: number) => {
   const i = writable(0); // Selected index
@@ -77,21 +79,33 @@ export const creationParams = writable<CreationParams>({
   alarmTime: 0, // 6:30 AM
   alarmDays: [],
   otherPlayer: "",
-  missedAlarmPenalty: "",
+  missedAlarmPenalty: "0",
 });
 
-export const isReady = derived([creationParams, account], ([c, $account]) => {
-  return (
-    c.submissionWindow > 0 &&
-    c.otherPlayer !== $account?.address &&
-    c.buyIn.gt(0) &&
-    c.timezoneMode !== null &&
-    c.alarmTime !== null &&
-    Object.values(c.alarmDays).some((v) => v)
-  );
-});
-
-const dayValueMap = { Su: 1, M: 2, T: 3, W: 4, Th: 5, F: 6, Sa: 7 };
+export const isReady = derived(
+  [creationParams, account],
+  ([
+    { submissionWindow, otherPlayer, buyIn, timezoneMode, alarmTime },
+    $account,
+  ]) => {
+    console.log({
+      submissionWindow,
+      otherPlayer,
+      buyIn,
+      timezoneMode,
+      alarmTime,
+    });
+    return (
+      submissionWindow > 0 &&
+      otherPlayer !== $account?.address &&
+      buyIn &&
+      bn.from(buyIn).gt(0) &&
+      timezoneMode !== null &&
+      alarmTime !== null &&
+      Object.values(alarmDays).some((v) => v)
+    );
+  }
+);
 
 export const createAlarm = derived(
   [creationParams, isReady, commitmentHub],
@@ -102,7 +116,7 @@ export const createAlarm = derived(
       // Enode creation params to be sent to the commitment hub
       const encodedParams = encodeCreationParams("PartnerAlarmClock", {
         alarmTime: c.alarmTime,
-        alarmdays: c.alarmDays,
+        alarmdays: c.alarmDays.sort(),
         missedAlarmPenalty: c.missedAlarmPenalty,
         submissionWindow: c.submissionWindow,
         timezoneOffset: new Date().getTimezoneOffset() * -60,

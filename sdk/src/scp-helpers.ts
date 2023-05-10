@@ -47,51 +47,44 @@ export function getCommitment<T extends keyof CommitmentContractTypes>(
   return factory.connect(address, signer) as CommitmentContractTypes[T];
 }
 
-export interface UserCommitment {
-  contract: CommitmentContractTypes[CommitmentType];
+type CommitmentId = number;
+export type CommitmentInfo<T extends CommitmentType> = {
+  contract: CommitmentContractTypes[T];
   creationBlock: number;
-  description: string;
   status: CommitStatus;
-}
+};
 
-export async function getUserCommitments(
-  hub?: CommitmentHub,
-  user?: Signer
-): Promise<Record<number, UserCommitment> | undefined> {
-  if (!hub || !user) return;
+export async function getUserCommitmentsByType<T extends CommitmentType>(
+  hub: CommitmentHub,
+  type: T
+): Promise<Record<CommitmentId, CommitmentInfo<T>> | undefined> {
+  if (!hub.signer) throw new Error("Hub contract must include signer");
 
+  const account = await hub.signer.getAddress();
   const creationEvents = await queryCommitmentCreationEvents(
     hub,
-    await user.getAddress()
+    account,
+    type
   );
 
   if (!creationEvents) return;
 
-  const out: Record<number, UserCommitment> = {};
-  const queryResults = [];
+  const out: Record<CommitmentId, CommitmentInfo<T>> = {};
   for (const { args, blockNumber } of creationEvents) {
     const contract = getCommitment(
-      commitmentValToType[args._type],
+      type,
       args.commitmentAddr,
-      user
-    );
+      hub.signer
+    ) as CommitmentContractTypes[T];
 
     out[args.id.toNumber()] = {
       contract,
       creationBlock: blockNumber,
-      description: await getDescription(contract),
       status: await contract.status(),
     };
   }
 
   return out;
-}
-
-export async function getDescription(commit: BaseCommitment) {
-  const initEvent = await commit.queryFilter(
-    commit.filters.CommitmentInitialized()
-  );
-  return initEvent[0].args.description;
 }
 
 export async function queryCommitmentCreationEvents(
