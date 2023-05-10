@@ -41,6 +41,7 @@ const wagmiClient = createClient({
 export const ethClient = writable(
   new EthereumClient(wagmiClient, supportedChains)
 );
+
 export const web3Modal = derived(
   ethClient,
   ($ethClient) =>
@@ -79,7 +80,6 @@ export const ensName = derived([account, network], ([$account], set) => {
 get(ethClient).watchAccount(account.set);
 get(ethClient).watchNetwork((net) => {
   if (!net.chain) return;
-
   network.set(net);
   if (!supportedChains.map((c) => c.id as number).includes(net.chain.id)) {
     switchNetwork({ chainId: supportedChains[0].id });

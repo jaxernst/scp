@@ -1,6 +1,6 @@
 import { derived, get, writable } from "svelte/store";
 import { account, type Account } from "./chainClient";
-import { AlarmState, userAlarm, userAlarmState } from "./contractInterface";
+import { AlarmState } from "./contractInterface";
 
 export enum View {
   WELCOME,
@@ -20,22 +20,16 @@ function MakeAppViewController() {
 
   const initView = () => {
     const _account = get(account);
-    const alarmState = get(userAlarmState);
-    if (inWelcomeMode) return;
+    // const alarmState = get(userAlarms);
     if (!_account?.isConnected) return view.set(View.CONNECT_WALLET);
-    if (alarmState === AlarmState.NO_ALARM) return view.set(View.NO_ALARM);
-    if (alarmState === AlarmState.PENDING_START)
-      return view.set(View.WAITING_FOR_OTHER_PLAYER);
-    if (alarmState === AlarmState.ACTIVE) return view.set(View.ALARM_ACTIVE);
+    // if (alarmState === AlarmState.NO_ALARM) return view.set(View.NO_ALARM);
+    // if (alarmState === AlarmState.PENDING_START)
+    // return view.set(View.WAITING_FOR_OTHER_PLAYER);
+    // if (alarmState === AlarmState.ACTIVE) return view.set(View.ALARM_ACTIVE);
     view.set(null as any);
   };
 
   account.subscribe(() => initView());
-
-  let lastAlarmState = AlarmState.UNKNOWN;
-  userAlarmState.subscribe((value) => {
-    if (value !== lastAlarmState) initView();
-  });
 
   return {
     subscribe: view.subscribe,

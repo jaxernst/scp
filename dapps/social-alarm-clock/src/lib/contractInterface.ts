@@ -9,6 +9,7 @@ import type {
 } from "@scp/protocol/typechain-types";
 import { CommitStatus } from "@scp/protocol/lib/types";
 import { transactions } from "./transactions";
+import type { CommitmentInfo } from "@scp/sdk/src/scp-helpers";
 
 export enum AlarmState {
   NO_ALARM,
@@ -28,39 +29,17 @@ export const commitmentHub = derived(signer, ($signer) => {
   ) as unknown as CommitmentHub;
 });
 
-export const userAlarm = derived(
+// Will add listeners to update alarm state and alarm fields after transactions
+export const userAlarms = derived(
   [account, commitmentHub, transactions],
   ([$user, $commitmentHub], set) => {
     if (!$user?.address || !$commitmentHub?.signer) return;
 
     getAlarms($commitmentHub, $user.address)
       .then((alarms) => {
-        if (alarms && alarms.length > 0) return set(alarms[alarms.length - 1]);
+        if (alarms && Object.keys(alarms).length > 0) return set(alarms);
         set(undefined);
       })
       .catch((e) => console.log("Could not fetch alarms", e));
   }
-) as Readable<PartnerAlarmClock | undefined>;
-
-export const userAlarmState = derived(userAlarm, ($alarm, set) => {
-  if (!$alarm) {
-    set(AlarmState.NO_ALARM);
-    return;
-  }
-
-  $alarm.status().then((status) => {
-    if (status === CommitStatus.INACTIVE) return set(AlarmState.PENDING_START);
-    if (status === CommitStatus.ACTIVE) return set(AlarmState.ACTIVE);
-    return set(AlarmState.UNKNOWN);
-  });
-});
-
-/**
- * Store used for comonents where there has to be an alarm present
- */
-export const getRequiredUserAlarm = derived(userAlarm, ($alarm) => {
-  return () => {
-    if (!$alarm) throw new Error("No alarm");
-    return userAlarm;
-  };
-}) as Readable<() => Readable<PartnerAlarmClock>>;
+) as Readable<Record<number, CommitmentInfo<"PartnerAlarmClock">> | undefined>;
