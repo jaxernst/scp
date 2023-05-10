@@ -78,21 +78,34 @@ export const creationParams = writable<CreationParams>({
   timezoneMode: TimezoneMode.SAME_TIME_OF_DAY,
   alarmTime: 0, // 6:30 AM
   alarmDays: [],
-  otherPlayer: "0xdD044684cfA651c491b844AE0E8646aD7c56205b",
+  otherPlayer: "",
   missedAlarmPenalty: "0",
 });
 
-export const isReady = derived([creationParams, account], ([c, $account]) => {
-  return (
-    c.submissionWindow > 0 &&
-    c.otherPlayer !== $account?.address &&
-    c.buyIn &&
-    bn.from(c.buyIn).gt(0) &&
-    c.timezoneMode !== null &&
-    c.alarmTime !== null &&
-    Object.values(c.alarmDays).some((v) => v)
-  );
-});
+export const isReady = derived(
+  [creationParams, account],
+  ([
+    { submissionWindow, otherPlayer, buyIn, timezoneMode, alarmTime },
+    $account,
+  ]) => {
+    console.log({
+      submissionWindow,
+      otherPlayer,
+      buyIn,
+      timezoneMode,
+      alarmTime,
+    });
+    return (
+      submissionWindow > 0 &&
+      otherPlayer !== $account?.address &&
+      buyIn &&
+      bn.from(buyIn).gt(0) &&
+      timezoneMode !== null &&
+      alarmTime !== null &&
+      Object.values(alarmDays).some((v) => v)
+    );
+  }
+);
 
 export const createAlarm = derived(
   [creationParams, isReady, commitmentHub],

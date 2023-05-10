@@ -24,7 +24,7 @@
 
   $: buttonClasses = () => {
     const classes = [];
-    if (active) classes.push(" duration-1000 scale-110 ");
+    if (active) classes.push(" duration-500 scale-105 ");
     if (active && inputEmpty) classes.push(" border border-zinc-200 ");
     if (inputEmpty) return;
     if (inputValid) classes.push(" border border-cyan-400 ");

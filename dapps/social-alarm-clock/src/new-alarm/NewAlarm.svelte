@@ -12,6 +12,9 @@
   import { EthSymbol } from "@scp/dapp-lib";
   import { transactions } from "../lib/transactions";
   import { toast } from "@zerodevx/svelte-toast";
+  import { fetchEnsAddress } from "@wagmi/core";
+  import { account, network } from "../lib/chainClient";
+  import JoinAlarm from "./JoinAlarm.svelte";
 
   function handleAlarmDayToggle(daySelected: boolean, dayNumber: number) {
     console.log(daySelected, dayNumber);
@@ -46,6 +49,20 @@
     $creationParams.missedAlarmPenalty = parseEther(input);
   }
 
+  let partnerInputValid = false;
+  async function handlePartnerInput(input: string) {
+    $creationParams.otherPlayer = input;
+
+    if (!isAddress(input) && input.endsWith(".eth")) {
+      input =
+        (await fetchEnsAddress({
+          chainId: $network?.chain?.id,
+          name: input,
+        })) ?? "";
+    }
+    partnerInputValid = input !== $account?.address;
+  }
+
   $: create = async () => {
     const createResult = $createAlarm();
     if (!createResult) return;
@@ -60,20 +77,7 @@
 </script>
 
 <div class="flex flex-col gap-4 justify-center">
-  <div>
-    <h3 class="py-2">Join an Alarm</h3>
-    <div class=" h-[30px] rounded-xl px-3 flex gap-2">
-      <input
-        type="text"
-        class=" flex-grow h-full bg-zinc-700 rounded-xl px-2 placeholder-zinc-500 text-zinc-300"
-        placeholder="Enter alarm id to join"
-      />
-      <button
-        class="px-4 text-bold bg-zinc-800 text-bold rounded-xl text-cyan-400"
-        >JOIN</button
-      >
-    </div>
-  </div>
+  <JoinAlarm />
 
   <div class="">
     <h3 class="pt-2">Create an Alarm</h3>
@@ -83,14 +87,13 @@
         emptyHeader="Select Partner"
         filledHeader="Partner"
         inputEmpty={!$creationParams.otherPlayer}
-        inputValid={isAddress($creationParams.otherPlayer) ||
-          $creationParams.otherPlayer.includes(".eth")}
+        inputValid={partnerInputValid}
       >
         <input
           class="bg-transparent outline-none text-center w-min"
           type="text"
           placeholder="Enter address or ENS"
-          bind:value={$creationParams.otherPlayer}
+          on:change={(e) => handlePartnerInput(e.target.value)}
         />
       </FormCard>
 
