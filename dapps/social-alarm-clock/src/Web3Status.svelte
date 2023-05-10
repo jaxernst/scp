@@ -3,7 +3,7 @@
   import { web3Modal } from "./lib/chainClient";
   import { shorthandAddress } from "@scp/dapp-lib";
 
-  import AlarmClockSymbol from "../public/alarm-clock-symbol.svelte";
+  import AlarmClockSymbol from "./assets/alarm-clock-symbol.svelte";
 
   let displayName: string | undefined;
   $: if ($account?.address) {

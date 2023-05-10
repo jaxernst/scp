@@ -6,37 +6,24 @@
   import {
     AlarmState,
     commitmentHub,
-    userAlarm,
-    userAlarmState,
+    userAlarms,
   } from "./lib/contractInterface";
   import { View, showBackButton, view } from "./lib/appView";
   import { ClockDisplay, shorthandAddress } from "@scp/dapp-lib";
   import { fade } from "svelte/transition";
-  import { getOtherPlayer } from "./lib/alarmHelpers";
 
   import { SvelteToast } from "@zerodevx/svelte-toast";
   import Web3Status from "./Web3Status.svelte";
-  import Welcome from "./Welcome.svelte";
-  import PendingAlarms from "./PendingAlarms.svelte";
   import NewAlarm from "./new-alarm/NewAlarm.svelte";
+  import Alarms from "./alarms/Alarms.svelte";
   import { writable } from "svelte/store";
-
-  $: otherPlayer =
-    $userAlarm && $account?.address
-      ? getOtherPlayer($userAlarm, $account.address)
-      : undefined;
-
-  let alarmId: string | null = null;
-  $: if ($commitmentHub && $userAlarm && !alarmId) {
-    $commitmentHub.commitmentIds($userAlarm.address).then((id) => {
-      if (id) alarmId = id.toString();
-    });
-  }
 
   type Tab = "alarms" | "new";
   const activeTab = writable<Tab>("alarms");
   $: activeTabStyles = (t: Tab) =>
     t === $activeTab ? " underline underline-offset-4 " : " ";
+
+  $: numUserAlarms = Object.keys($userAlarms ?? {}).length;
 </script>
 
 <SvelteToast />
@@ -77,7 +64,7 @@
     <!-- Main content -->
     <div class="flex flex-col p-1">
       {#if $activeTab === "alarms"}
-        {#if !$userAlarm}
+        {#if numUserAlarms === 0}
           <div
             class="tracking-tight p-2 text-zinc-400 flex-grow align-middle rounded-2xl"
           >
@@ -85,7 +72,7 @@
             one.
           </div>
         {:else}
-          <div>Alarm Card</div>
+          <Alarms />
         {/if}
       {:else if $activeTab === "new"}
         <NewAlarm />
