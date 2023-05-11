@@ -64,10 +64,10 @@
   }
 
   $: create = async () => {
-    const createResult = $createAlarm();
-    if (!createResult) return;
+    const createAlarmResult = $createAlarm();
+    if (!createAlarmResult) return;
 
-    const txResult = await transactions.addTransaction(createResult);
+    const txResult = await transactions.addTransaction(createAlarmResult);
     if (!txResult.error) {
       toast.push("Alarm creation successful!");
     } else {
@@ -76,12 +76,12 @@
   };
 </script>
 
-<div class="flex flex-col gap-4 justify-center">
+<div class="flex flex-col justify-center gap-4">
   <JoinAlarm />
 
   <div class="">
     <h3 class="pt-2">Create an Alarm</h3>
-    <div class="flex gap-3 px-3 py-2 text-zinc-300 overflow-x-auto">
+    <div class="flex gap-3 overflow-x-auto px-3 py-2 text-zinc-300">
       <FormCard
         itemNumber={1}
         emptyHeader="Select Partner"
@@ -90,7 +90,7 @@
         inputValid={partnerInputValid}
       >
         <input
-          class="bg-transparent outline-none text-center w-min"
+          class="w-min bg-transparent text-center outline-none"
           type="text"
           placeholder="Enter address or ENS"
           on:change={(e) => handlePartnerInput(e.target.value)}
@@ -107,7 +107,7 @@
       >
         <input
           id="select-time"
-          class="bg-transparent outline-none text-center w-min"
+          class="w-min bg-transparent text-center outline-none"
           type="time"
           on:change={(e) => handleAlarmTimeInput(e.target.value)}
         />
@@ -136,13 +136,13 @@
           !$creationParams.missedAlarmPenalty}
         inputValid={true}
       >
-        <div class="flex flex-col text-s gap-1 justify-center -translate-y-2">
-          <div class="flex flex-nowrap gap-1 items-center justify-end">
+        <div class="text-s flex -translate-y-2 flex-col justify-center gap-1">
+          <div class="flex flex-nowrap items-center justify-end gap-1">
             <div class="whitespace-nowrap text-xs">Bet buy-in:</div>
             <div class="whitespace-nowrap">
               <input
                 type="number"
-                class="w-[70px] border border-zinc-500 text-right bg-transparent rounded-lg"
+                class="w-[70px] rounded-lg border border-zinc-500 bg-transparent text-right"
                 min="0"
                 step="0.001"
                 on:change={(e) => handleBuyInInput(e.target.value)}
@@ -157,7 +157,7 @@
             <div class="whitespace-nowrap">
               <input
                 type="number"
-                class="w-[70px] border border-zinc-500 bg-transparent rounded-lg"
+                class="w-[70px] rounded-lg border border-zinc-500 bg-transparent"
                 min="0"
                 step="0.001"
                 on:change={(e) => handleAlarmPenaltyInput(e.target.value)}
@@ -170,7 +170,7 @@
       {#if $isReady}
         <button
           on:click={create}
-          class="p-2 rounded-xl transition hover:border-green-500 hover:scale-105 hover:border-2 hover:bg-zinc-700"
+          class="hover:border--500 rounded-xl p-2 transition hover:scale-105 hover:border-2 hover:bg-zinc-700"
         >
           Submit
         </button>

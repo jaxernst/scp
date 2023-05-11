@@ -14,7 +14,7 @@
 </script>
 
 <button
-  class="flex gap-4 bg-neutral-800 items-center rounded-xl py-1 px-4"
+  class="flex items-center gap-4 rounded-xl bg-neutral-900 px-4 py-1"
   on:click={() => $web3Modal.openModal()}
 >
   <div class="flex items-center gap-1">
@@ -22,7 +22,7 @@
     <div>0</div>
   </div>
 
-  <div class="flex gap-1 h-full items-center">
+  <div class="flex h-full items-center gap-1">
     <div class="indicator" style="background-color:{indicatorColor}" />
     <div class="displayName">
       {displayName || ""}

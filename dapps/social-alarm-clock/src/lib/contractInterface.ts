@@ -38,8 +38,8 @@ export const userAlarms = derived(
     getAlarms($commitmentHub, $user.address)
       .then((alarms) => {
         if (alarms && Object.keys(alarms).length > 0) return set(alarms);
-        set(undefined);
+        set({});
       })
       .catch((e) => console.log("Could not fetch alarms", e));
   }
-) as Readable<Record<number, CommitmentInfo<"PartnerAlarmClock">> | undefined>;
+) as Readable<Record<number, CommitmentInfo<"PartnerAlarmClock">>>;

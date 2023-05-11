@@ -7,6 +7,7 @@
   import { SvelteToast } from "@zerodevx/svelte-toast";
   import Web3Status from "./Web3Status.svelte";
   import NewAlarm from "./new-alarm/NewAlarm.svelte";
+  import AlarmDetailDisplay from "./alarms/AlarmDetailDisplay.svelte";
   import Alarms from "./alarms/Alarms.svelte";
   import { writable } from "svelte/store";
 
@@ -20,9 +21,9 @@
 
 <SvelteToast />
 
-<div class="absolute w-full flex justify-center">
+<div class="absolute flex w-full justify-center">
   <div
-    class="m-4 top-clock px-6 py-2 text-center rounded-2xl flex gap-4 items-center"
+    class="top-clock m-4 flex items-center gap-4 rounded-2xl px-6 py-2 text-center"
   >
     <div class="text-lg font-bold">The Social Alarm Clock</div>
     |
@@ -33,15 +34,15 @@
 </div>
 
 <main
-  class=" font-jura flex items-center justify-center outline box-border min-h-screen"
+  class=" font-jura box-border flex min-h-screen items-center justify-center outline"
   in:fade={{ duration: 500, delay: 500 }}
 >
   <div
-    class="border-4 border-cyan-600 rounded-3xl bg-trans p-4 w-[580px] h-[320px] flex gap-2 flex-col shadow-neutral-500 main-container-shadow"
+    class="bg-trans main-container-shadow flex h-[320px] w-[580px] flex-col gap-2 rounded-3xl border-4 border-cyan-600 p-4 shadow-neutral-500"
   >
     <!-- Main content header -->
-    <div class="flex justify-between font-bold align-middle">
-      <div class="flex gap-4">
+    <div class="flex justify-between align-middle font-bold">
+      <div class="flex gap-4 rounded-xl bg-neutral-900 px-4 py-1">
         <button
           class={activeTabStyles("alarms")}
           on:click={() => activeTab.set("alarms")}>ALARMS</button
@@ -61,13 +62,16 @@
       {#if $activeTab === "alarms"}
         {#if numUserAlarms === 0}
           <div
-            class="tracking-tight p-2 text-zinc-400 flex-grow align-middle rounded-2xl"
+            class="flex-grow rounded-2xl p-2 align-middle tracking-tight text-zinc-400"
           >
             You have no active alarms. Create a new alarm or join an existing
             one.
           </div>
         {:else}
-          <Alarms />
+          <div class="alarms-container-grid">
+            <AlarmDetailDisplay />
+            <Alarms />
+          </div>
         {/if}
       {:else if $activeTab === "new"}
         <NewAlarm />
@@ -131,7 +135,12 @@
   }
 
   .top-clock {
-    background: rgba(34, 34, 34, 0.3);
+    background: rgba(37, 37, 3, 0.3);
     backdrop-filter: blur(3px);
+  }
+
+  .alarms-container-grid {
+    display: grid;
+    grid-template-columns: 65% 35%;
   }
 </style>

@@ -4,13 +4,14 @@
   import type { EvmAddress } from "../types";
   import { getBetStanding } from "../lib/alarmHelpers";
   import type { BigNumber } from "ethers";
-  import { userAlarm } from "../lib/contractInterface";
   import { formatEther } from "ethers/lib/utils.js";
+  import type { PartnerAlarmClock } from "@scp/protocol/typechain-types";
 
+  export let alarm: PartnerAlarmClock;
   export let playerAddress: EvmAddress;
   export let heading: string = "Player Info";
-  $: missedAlarms = $userAlarm!.missedDeadlines(playerAddress);
-  $: betStanding = getBetStanding(playerAddress, $userAlarm!).then((res) =>
+  $: missedAlarms = alarm!.missedDeadlines(playerAddress);
+  $: betStanding = getBetStanding(playerAddress, alarm!).then((res) =>
     Number(formatEther(res))
   );
 

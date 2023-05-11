@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   export let daysActive = [];
   export let activeColor = "#00FF30";
 
@@ -39,11 +39,10 @@
     flex-direction: row;
     font-size: 1em;
     justify-content: center;
-    padding-bottom: 0.5em;
   }
 
   .day {
-    padding: 0.5em;
+    padding: 0 0.3em 0 0.3em;
     color: white;
     opacity: 0.3;
   }
