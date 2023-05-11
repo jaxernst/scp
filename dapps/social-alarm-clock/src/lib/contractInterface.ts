@@ -33,7 +33,7 @@ export const commitmentHub = derived(signer, ($signer) => {
 export const userAlarms = derived(
   [account, commitmentHub, transactions],
   ([$user, $commitmentHub], set) => {
-    if (!$user?.address || !$commitmentHub?.signer) return;
+    if (!$user?.address || !$commitmentHub?.signer) return set({});
 
     getAlarms($commitmentHub, $user.address)
       .then((alarms) => {

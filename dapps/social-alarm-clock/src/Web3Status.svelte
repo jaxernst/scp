@@ -14,7 +14,7 @@
 </script>
 
 <button
-  class="flex items-center gap-4 rounded-xl bg-neutral-900 px-4 py-1"
+  class="flex items-center gap-4 rounded-xl bg-neutral-800 px-4 py-1"
   on:click={() => $web3Modal.openModal()}
 >
   <div class="flex items-center gap-1">

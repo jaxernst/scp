@@ -13,8 +13,9 @@
   import PlayerInfo from "./PlayerInfo.svelte";
   import { transactions } from "../lib/transactions";
   import type { CommitmentInfo } from "@scp/sdk/src/scp-helpers";
+  import type { PartnerAlarmClock } from "@scp/protocol/typechain-types";
 
-  export let userAlarm
+  export let userAlarm: CommitmentInfo<"PartnerAlarmClock">;
 
   $: account = $getRequiredAccount();
   $: daysActive = userAlarm.contract.alarmDays();

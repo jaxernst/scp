@@ -7,9 +7,11 @@
   import { SvelteToast } from "@zerodevx/svelte-toast";
   import Web3Status from "./Web3Status.svelte";
   import NewAlarm from "./new-alarm/NewAlarm.svelte";
-  import AlarmDetailDisplay from "./alarms/AlarmDetailDisplay.svelte";
-  import Alarms from "./alarms/Alarms.svelte";
+  import AlarmsSidebar from "./alarms/AlarmsSidebar.svelte";
   import { writable } from "svelte/store";
+  import ActiveAlarm from "./alarms/ActiveAlarm.svelte";
+  import { displayedAlarmId } from "./alarms/displayedAlarm";
+  import AlarmDetail from "./alarms/AlarmDetail.svelte";
 
   type Tab = "alarms" | "new";
   const activeTab = writable<Tab>("alarms");
@@ -38,11 +40,11 @@
   in:fade={{ duration: 500, delay: 500 }}
 >
   <div
-    class="bg-trans main-container-shadow flex h-[320px] w-[580px] flex-col gap-2 rounded-3xl border-4 border-cyan-600 p-4 shadow-neutral-500"
+    class="bg-trans main-container-shadow flex h-[320px] w-[580px] flex-col gap-2 rounded-3xl border-4 border-cyan-600 p-3 text-zinc-400 shadow-neutral-500"
   >
     <!-- Main content header -->
     <div class="flex justify-between align-middle font-bold">
-      <div class="flex gap-4 rounded-xl bg-neutral-900 px-4 py-1">
+      <div class="flex gap-4 rounded-xl py-1">
         <button
           class={activeTabStyles("alarms")}
           on:click={() => activeTab.set("alarms")}>ALARMS</button
@@ -58,25 +60,26 @@
     </div>
 
     <!-- Main content -->
-    <div class="flex flex-col p-1">
-      {#if $activeTab === "alarms"}
-        {#if numUserAlarms === 0}
-          <div
-            class="flex-grow rounded-2xl p-2 align-middle tracking-tight text-zinc-400"
-          >
-            You have no active alarms. Create a new alarm or join an existing
-            one.
+    {#if $activeTab === "alarms"}
+      {#if numUserAlarms === 0}
+        <div
+          class="flex-grow rounded-2xl p-2 align-middle tracking-tight text-zinc-400"
+        >
+          You have no active alarms. Create a new alarm or join an existing one.
+        </div>
+      {:else}
+        <div class="alarms-container-grid flex-grow gap-3 text-zinc-400">
+          <AlarmsSidebar />
+          <div class="bg-transparent-grey rounded-2xl p-2">
+            {#if $displayedAlarmId && $userAlarms[Number($displayedAlarmId)]}
+              <AlarmDetail alarm={$userAlarms[Number($displayedAlarmId)]} />
+            {/if}
           </div>
-        {:else}
-          <div class="alarms-container-grid">
-            <AlarmDetailDisplay />
-            <Alarms />
-          </div>
-        {/if}
-      {:else if $activeTab === "new"}
-        <NewAlarm />
+        </div>
       {/if}
-    </div>
+    {:else if $activeTab === "new"}
+      <NewAlarm />
+    {/if}
 
     <!-- Your app content goes here
     {#if $view === View.CONNECT_WALLET}
@@ -135,12 +138,12 @@
   }
 
   .top-clock {
-    background: rgba(37, 37, 3, 0.3);
+    background: rgba(37, 37, 37, 0.3);
     backdrop-filter: blur(3px);
   }
 
   .alarms-container-grid {
     display: grid;
-    grid-template-columns: 65% 35%;
+    grid-template-columns: 1fr 64%;
   }
 </style>

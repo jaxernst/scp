@@ -43,15 +43,15 @@
 
 <div>
   <h3 class="py-2">Join an Alarm</h3>
-  <div class=" h-[30px] rounded-xl px-3 flex gap-2">
+  <div class=" flex h-[30px] gap-2 rounded-xl px-3">
     <input
       type="text"
-      class=" flex-grow h-full bg-zinc-700 rounded-xl px-2 placeholder-zinc-500 text-zinc-300"
+      class=" h-full flex-grow rounded-xl bg-zinc-800 px-2 text-zinc-300 placeholder-zinc-500"
       placeholder="Enter alarm id to join"
       bind:value={alarmId}
     />
     <button
-      class="px-4 text-bold bg-zinc-800 text-bold rounded-xl text-cyan-400"
+      class="text-bold text-bold rounded-xl bg-zinc-800 px-4 text-cyan-400"
       on:click={() => (error = "") || joinAlarm()}>JOIN</button
     >
   </div>
