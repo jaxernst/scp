@@ -26,7 +26,7 @@
       on:click={() => ($displayedAlarmId = alarmId)}
     >
       {#if alarm.status === CommitStatus.INACTIVE}
-        <div class="font-bold">Alarm ID: {alarmId}</div>
+        <div class="text-sm font-bold">Alarm ID: {alarmId}</div>
         <div class="text-xs">Waiting on Player 2 to start alarm...</div>
       {:else if alarm.status === CommitStatus.ACTIVE}
         <AlarmOverview userAlarm={alarm} />
