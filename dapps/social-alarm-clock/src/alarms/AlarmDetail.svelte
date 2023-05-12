@@ -16,6 +16,8 @@
   import type { PartnerAlarmClock } from "@scp/protocol/typechain-types";
   import { CommitStatus } from "@scp/protocol/lib/types";
   import SettingsIcon from "../assets/settings-icon.svelte";
+  import SunIcon from "../assets/sun-icon.svelte";
+  import EthereumIcon from "../assets/ethereum-icon.svelte";
 
   export let alarm: CommitmentInfo<"PartnerAlarmClock">;
 
@@ -55,13 +57,13 @@
   let expanded = false;
 </script>
 
-<div class="relative h-full">
-  <div class="flex flex-col px-2 py-1">
+<div class="flex h-full flex-col">
+  <div class="flex flex-grow flex-col gap-1 px-2 py-1">
     <div class="custom-grid gap-4">
       <div>
-        <div class=" rounded-lg p-1 text-xs">ID: 1234</div>
+        <div class=" rounded-lg p-1 text-xs">ID: 2</div>
       </div>
-      <div class="justify-self-center pt-1" style="font-size: 2em">
+      <div class="justify-self-center" style="font-size: 1.8em">
         {#await alarmTime then time}
           <ClockDisplay
             overrideTime={timeString(time.toNumber())}
@@ -69,19 +71,86 @@
           />
         {/await}
       </div>
-      <div class="h-[20px] w-[20px] justify-self-end"><SettingsIcon /></div>
+      <div class="m-1 h-[15px] w-[15px] justify-self-end fill-zinc-500">
+        <SettingsIcon />
+      </div>
     </div>
-    <div class="pt-4 text-center">
-      Next Deadline in {formatTime(timeToNextDeadline)} seconds...
+    {#if alarm.status === CommitStatus.INACTIVE}
+      <div class="-translate-y-1 pb-1 text-center">
+        Alarm request pending...
+      </div>
+    {:else if alarm.status === CommitStatus.ACTIVE}
+      <div class="-translate-y-1 rounded-md pb-1 text-center">
+        Next Deadline in {formatTime(timeToNextDeadline)}...
+      </div>
+    {/if}
+
+    <div class="bg-transparent-grey rounded-t-md p-2 text-sm">
+      <div class="flex justify-between gap-2">
+        <span class="text-zinc-500">Submission Window:</span>
+        <span><span class="h-3 w-3 text-cyan-600">30 </span>minutes</span>
+      </div>
+
+      <div class="flex justify-between gap-2">
+        <span class="text-zinc-500">Missed Alarm Penalty:</span>
+        <span><span class="h-3 w-3 text-cyan-600">.01 </span>eth</span>
+      </div>
+    </div>
+    <div class="flex flex-grow justify-center gap-1 text-sm font-bold">
+      <div
+        class="bg-transparent-grey flex flex-grow flex-col rounded-bl-md px-2"
+      >
+        <span class="text-zinc-500">jernst.eth</span>
+        <div class="flex flex-grow items-center justify-evenly pb-1">
+          <div class="flex items-center gap-1">
+            0
+            <div class="h-3 w-3 fill-cyan-600">
+              <SunIcon />
+            </div>
+          </div>
+          <div class="flex items-center gap-1">
+            0.0356
+            <div class="h-3 w-3 fill-cyan-600">
+              <EthereumIcon />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="bg-transparent-grey flex flex-grow flex-col rounded-br-md px-2"
+      >
+        <span class="text-zinc-500">0x15...205b</span>
+        <div class="flex flex-grow items-center justify-evenly pb-1">
+          <div class="flex items-center gap-1">
+            0
+            <div class="h-3 w-3 fill-cyan-600">
+              <SunIcon />
+            </div>
+          </div>
+          <div class="flex items-center gap-1">
+            0.0
+            <div class="h-3 w-3 fill-cyan-600">
+              <EthereumIcon />
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
   <div
-    class="absolute bottom-0 right-0 flex w-full justify-center rounded-b-xl bg-zinc-800"
+    class="bottom-0 right-0 mt-1 flex w-full justify-center rounded-b-xl bg-zinc-800 p-2"
   >
-    <button
-      class="shadow-l p-2 font-bold text-cyan-500 transition hover:scale-105 hover:text-green-600"
-      >Submit Confirmation</button
-    >
+    {#if alarm.status === CommitStatus.INACTIVE}
+      <button
+        class="shadow-l p-1 text-sm font-bold text-red-700 transition hover:scale-105 hover:text-green-600"
+        >Cancel Request</button
+      >
+    {:else}
+      <button
+        class="shadow-l p-1 text-sm font-bold text-green-600 transition hover:scale-105 disabled:text-green-900"
+        disabled={true}>Confirm Wakeup</button
+      >
+    {/if}
   </div>
 </div>
 
