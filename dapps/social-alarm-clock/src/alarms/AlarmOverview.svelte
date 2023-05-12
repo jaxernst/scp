@@ -46,34 +46,27 @@
   const submitConfirmation = () => {
     transactions.addTransaction(userAlarm.contract.submitConfirmation());
   };
-
-  let expanded = false;
 </script>
 
-<div class="bg-transparent-grey rounded-2xl border">
-  {#if !expanded}
-    <div class="custom-grid">
-      <div class="px-2">
-        <div style="font-size: 2em">
-          {#await alarmTime then time}
-            <ClockDisplay
-              overrideTime={timeString(time.toNumber())}
-              overrideColor={"orange"}
-            />
-          {/await}
-        </div>
-      </div>
-      <div class="" style="font-size: .75em">
-        {#await daysActive}
-          <AlarmActiveDays daysActive={[]} />
-        {:then days}
-          <AlarmActiveDays daysActive={days} />
-        {/await}
-      </div>
+<div class="flex items-center gap-2">
+  <div>
+    <div class="pt-1" style="font-size: 2em">
+      {#await alarmTime then time}
+        <ClockDisplay
+          overrideTime={timeString(time.toNumber())}
+          overrideColor={"orange"}
+        />
+      {/await}
     </div>
-  {:else}
-    <div class="h-[50px]" />
-  {/if}
+    <div />
+  </div>
+  <div class="" style="font-size: .75em">
+    {#await daysActive}
+      <AlarmActiveDays daysActive={[]} />
+    {:then days}
+      <AlarmActiveDays daysActive={days} />
+    {/await}
+  </div>
 </div>
 
 <style>

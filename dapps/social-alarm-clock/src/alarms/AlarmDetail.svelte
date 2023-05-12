@@ -15,6 +15,7 @@
   import type { CommitmentInfo } from "@scp/sdk/src/scp-helpers";
   import type { PartnerAlarmClock } from "@scp/protocol/typechain-types";
   import { CommitStatus } from "@scp/protocol/lib/types";
+  import SettingsIcon from "../assets/settings-icon.svelte";
 
   export let alarm: CommitmentInfo<"PartnerAlarmClock">;
 
@@ -54,25 +55,39 @@
   let expanded = false;
 </script>
 
-<div class="flex flex-col">
-  <div>
-    <div style="font-size: 2.5em">
-      {#await alarmTime then time}
-        <ClockDisplay
-          overrideTime={timeString(time.toNumber())}
-          overrideColor={"orange"}
-        />
-      {/await}
+<div class="relative h-full">
+  <div class="flex flex-col px-2 py-1">
+    <div class="custom-grid gap-4">
+      <div>
+        <div class=" rounded-lg p-1 text-xs">ID: 1234</div>
+      </div>
+      <div class="justify-self-center pt-1" style="font-size: 2em">
+        {#await alarmTime then time}
+          <ClockDisplay
+            overrideTime={timeString(time.toNumber())}
+            overrideColor={"zinc-500"}
+          />
+        {/await}
+      </div>
+      <div class="h-[20px] w-[20px] justify-self-end"><SettingsIcon /></div>
     </div>
-    <div class="flex justify-center" style="font-size: .75em">
-      {#await daysActive}
-        <AlarmActiveDays daysActive={[]} />
-      {:then days}
-        <AlarmActiveDays daysActive={days} />
-      {/await}
+    <div class="pt-4 text-center">
+      Next Deadline in {formatTime(timeToNextDeadline)} seconds...
     </div>
+  </div>
+  <div
+    class="absolute bottom-0 right-0 flex w-full justify-center rounded-b-xl bg-zinc-800"
+  >
+    <button
+      class="shadow-l p-2 font-bold text-cyan-500 transition hover:scale-105 hover:text-green-600"
+      >Submit Confirmation</button
+    >
   </div>
 </div>
 
 <style>
+  .custom-grid {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+  }
 </style>

@@ -17,7 +17,7 @@
     $displayedAlarmId === alarmId ? "bg-zinc-800" : "";
 </script>
 
-<div class="bg-transparent-grey flex flex-col gap-2 overflow-y-auto rounded-xl">
+<div class="bg-transparent-grey flex flex-col gap-1 overflow-y-auto rounded-xl">
   {#each Object.entries($userAlarms) as [alarmId, alarm]}
     <button
       class="rounded-xl px-2 py-1 text-left transition hover:bg-zinc-700 {stylePending(

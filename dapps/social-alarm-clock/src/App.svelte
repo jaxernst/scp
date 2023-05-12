@@ -70,7 +70,7 @@
       {:else}
         <div class="alarms-container-grid flex-grow gap-3 text-zinc-400">
           <AlarmsSidebar />
-          <div class="bg-transparent-grey rounded-2xl p-2">
+          <div class="bg-transparent-grey rounded-2xl">
             {#if $displayedAlarmId && $userAlarms[Number($displayedAlarmId)]}
               <AlarmDetail alarm={$userAlarms[Number($displayedAlarmId)]} />
             {/if}
@@ -80,42 +80,6 @@
     {:else if $activeTab === "new"}
       <NewAlarm />
     {/if}
-
-    <!-- Your app content goes here
-    {#if $view === View.CONNECT_WALLET}
-      <div class="welcome">
-        <h2>Welcome to the Social Alarm Clock.</h2>
-        <p>Connect your wallet to start waking up earlier.</p>
-      </div>
-    {:else if $view === View.NO_ALARM}
-      <div class="new-alarm-button-container">
-        <button
-          class="new-alarm-button"
-          on:click={() => view.changeTo(View.CREATE_ALARM)}>Create Alarm</button
-        >
-      </div>
-      <div style="display:flex; align-items: center;">
-        <div class="divider-line" />
-      </div>
-      <div class="new-alarm-button-container">
-        <button
-          class="new-alarm-button"
-          on:click={() => view.changeTo(View.JOIN_ALARM)}>Join Alarm</button
-        >
-      </div>
-    {:else if $view === View.CREATE_ALARM}
-      <CreateNewAlarm />
-    {:else if $view === View.JOIN_ALARM}
-      <JoinAlarm />
-    {:else if $view === View.WAITING_FOR_OTHER_PLAYER}
-      {#await alarmId then alarmId}
-        {#await otherPlayer then otherPlayer}
-          <PendingAlarms items={[{ otherPlayer, id: alarmId }]} />
-        {/await}
-      {/await}
-    {:else if $view === View.ALARM_ACTIVE}
-      <ActiveAlarm />
-    {/if}  -->
   </div>
 </main>
 
@@ -144,6 +108,6 @@
 
   .alarms-container-grid {
     display: grid;
-    grid-template-columns: 1fr 64%;
+    grid-template-columns: 1fr 60%;
   }
 </style>
