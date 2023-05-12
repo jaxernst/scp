@@ -20,6 +20,7 @@ async function main() {
   const [signer] = await ethers.getSigners();
   const u1 = new Wallet(process.env.TEST_U1_KEY as string, ethers.provider);
   const u2 = new Wallet(process.env.TEST_U2_KEY as string, ethers.provider);
+
   const commitment = (
     await ethers.getContractAt("CommitmentHub", HUB_ADDR)
   ).connect(u1);
@@ -29,13 +30,9 @@ async function main() {
   }
 
   let today = new Date();
-  let time =
-    today.getHours() * 60 * 60 + today.getMinutes() * 60 + today.getSeconds();
-
-  const timezoneOffset = -7 * HOUR;
-  const alarmTime = time + 60 * 3;
-  console.log("making an alarm for ", time + 60 * 3);
-  const dayOfWeek = [1, 2, 3, 4, 5, 6, 7];
+  const blockTimestamp = (await currentTimestamp()).toNumber();
+  const alarmTime = timeOfDay(blockTimestamp, -8);
+  const dayOfWeek = [2, 3, 4, 5, 6, 7];
   const submissionWindow = 30;
   const missedAlarmPenalty = parseEther("0.1");
 
@@ -46,7 +43,7 @@ async function main() {
       dayOfWeek,
       missedAlarmPenalty,
       submissionWindow,
-      timezoneOffset,
+      -8 * HOUR,
       u2.address,
     ]
   );
