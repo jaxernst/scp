@@ -15,6 +15,7 @@ import {
 } from "@scp/protocol/typechain-types/contracts/BaseCommitment";
 import type { CommitmentCreationEvent } from "@scp/protocol/typechain-types/contracts/CommitmentHub.sol/CommitmentHub";
 import { ethers, Signer, type BigNumberish } from "ethers";
+import { CommitmentConstants } from "./types";
 
 export async function createCommitment<T extends CommitmentType>(
   hub: CommitmentHub,
@@ -49,6 +50,7 @@ export function getCommitment<T extends keyof CommitmentContractTypes>(
 
 type CommitmentId = number;
 export type CommitmentInfo<T extends CommitmentType> = {
+  id: number;
   contract: CommitmentContractTypes[T];
   creationBlock: number;
   status: CommitStatus;
@@ -77,7 +79,9 @@ export async function getUserCommitmentsByType<T extends CommitmentType>(
       hub.signer
     ) as CommitmentContractTypes[T];
 
-    out[args.id.toNumber()] = {
+    const id = args.id.toNumber();
+    out[id] = {
+      id,
       contract,
       creationBlock: blockNumber,
       status: await contract.status(),
