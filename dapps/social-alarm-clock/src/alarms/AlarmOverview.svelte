@@ -60,7 +60,7 @@
     </div>
     <div />
   </div>
-  <div class="" style="font-size: .75em">
+  <div class="" style="font-size: .7em">
     {#await daysActive}
       <AlarmActiveDays daysActive={[]} />
     {:then days}

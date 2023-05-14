@@ -114,6 +114,10 @@ contract PartnerAlarmClock is BaseCommitment {
         return players[player].schedule.missedDeadlines();
     }
 
+    function numConfirmations(address player) public view returns (uint) {
+        return players[player].schedule.entries();
+    }
+
     function timeToNextDeadline(address player) public view returns (uint) {
         return players[player].schedule.timeToNextDeadline();
     }
@@ -139,7 +143,11 @@ contract PartnerAlarmClock is BaseCommitment {
         payable(msg.sender).transfer(withdrawAmount);
     }
 
-    function getPenaltyAmount(address player) private view returns (uint) {
+    function getPlayerBalance(address player) public view returns (uint) {
+        return players[player].depositAmount - getPenaltyAmount(player);
+    }
+
+    function getPenaltyAmount(address player) public view returns (uint) {
         uint numMissedDeadlines = players[player].schedule.missedDeadlines();
         uint penaltyVal = numMissedDeadlines * missedAlarmPenalty;
         if (penaltyVal > players[player].depositAmount) {
