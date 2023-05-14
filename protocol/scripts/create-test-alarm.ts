@@ -2,6 +2,7 @@ import { Signer, Wallet } from "ethers";
 import { ethers } from "hardhat";
 import {
   HOUR,
+  MINUTE,
   currentTimestamp,
   systemTimestamp,
   timeOfDay,
@@ -31,9 +32,9 @@ async function main() {
 
   let today = new Date();
   const blockTimestamp = (await currentTimestamp()).toNumber();
-  const alarmTime = timeOfDay(blockTimestamp, -8);
+  const alarmTime = timeOfDay(blockTimestamp, -7) + 3 * MINUTE;
   const dayOfWeek = [2, 3, 4, 5, 6, 7];
-  const submissionWindow = 30;
+  const submissionWindow = 10 * MINUTE;
   const missedAlarmPenalty = parseEther("0.1");
 
   const encoded = ethers.utils.defaultAbiCoder.encode(
@@ -43,7 +44,7 @@ async function main() {
       dayOfWeek,
       missedAlarmPenalty,
       submissionWindow,
-      -8 * HOUR,
+      -7 * HOUR,
       u2.address,
     ]
   );
